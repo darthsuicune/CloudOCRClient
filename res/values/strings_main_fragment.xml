@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="button_take_picture">"Use device's camera"</string>
+    <string name="preview_content_description">"Preview area for the image to process."</string>
+    <string name="button_get_from_gallery">"Get image from device"</string>
+</resources>

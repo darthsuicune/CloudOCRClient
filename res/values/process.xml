@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="process">
+        <item>Process image</item>
+        <item>Submit image</item>
+        <item>Process document</item>
+        <item>Process business card</item>
+        <item>Process text field</item>
+        <item>Process barcode field</item>
+        <item>Process checkmark field</item>
+        <item>Process fields</item>
+    </string-array>
+    <string-array name="process_values">
+        <item>processImage</item>
+        <item>submitImage</item>
+        <item>processDocument</item>
+        <item>processBusinessCard</item>
+        <item>processTextField</item>
+        <item>processBarcodeField</item>
+        <item>processCheckmarkField</item>
+        <item>processFields</item>
+    </string-array>
+</resources>
