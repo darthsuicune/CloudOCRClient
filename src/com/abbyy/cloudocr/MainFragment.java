@@ -8,11 +8,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 
 public class MainFragment extends Fragment implements OnClickListener{
-	
-	private static final int ACTIVITY_GET_IMAGE = 1;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -22,37 +19,54 @@ public class MainFragment extends Fragment implements OnClickListener{
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-		prepareImageView();
-		setButtons();
 		super.onActivityCreated(savedInstanceState);
-	}
-	
-	private void prepareImageView(){
-		ImageView preview = (ImageView) getActivity().findViewById(R.id.preview);
+		setButtons();
 	}
 	
 	private void setButtons(){
-		Button takePictureButton = (Button) getActivity().findViewById(R.id.take_picture);
-		Button getFromGalleryButton = (Button) getActivity().findViewById(R.id.get_from_gallery);
+		Button processImageButton = (Button) getActivity().findViewById(R.id.process_image);
+		Button processMultipleImagesButton = (Button) getActivity().findViewById(R.id.process_multiple);
+		Button processBusinessCardButton = (Button) getActivity().findViewById(R.id.process_business_card);
+		Button processTextFieldButton = (Button) getActivity().findViewById(R.id.process_text_field);
+		Button processBarcodeFieldButton = (Button) getActivity().findViewById(R.id.process_barcode_field);
+		Button processCheckmarkFieldButton = (Button) getActivity().findViewById(R.id.process_checkmark_field);
+		Button processFieldsButton = (Button) getActivity().findViewById(R.id.process_fields);
 		
-		takePictureButton.setOnClickListener(this);
-		getFromGalleryButton.setOnClickListener(this);
+		processImageButton.setOnClickListener(this);
+		processMultipleImagesButton.setOnClickListener(this);
+		processBusinessCardButton.setOnClickListener(this);
+		processTextFieldButton.setOnClickListener(this);
+		processBarcodeFieldButton.setOnClickListener(this);
+		processCheckmarkFieldButton.setOnClickListener(this);
+		processFieldsButton.setOnClickListener(this);
 	}
 
 	@Override
-	public void onClick(View v) {
-		Intent intent = new Intent();
-		switch(v.getId()){
-		case R.id.take_picture:
-			intent.setAction(Intent.ACTION_GET_CONTENT);
-			intent.setType("image/*");
+	public void onClick(View view) {
+		Intent intent = new Intent(getActivity(), ProcessActivity.class);
+		switch(view.getId()){
+		case R.id.process_image:
+			intent.putExtra(ProcessActivity.EXTRA_PROCESS_MODE, ProcessActivity.EXTRA_PROCESS_IMAGE);
 			break;
-		case R.id.get_from_gallery:
-			intent.setAction(Intent.ACTION_GET_CONTENT);
-			intent.setType("image/*");
+		case R.id.process_multiple:
+			intent.putExtra(ProcessActivity.EXTRA_PROCESS_MODE, ProcessActivity.EXTRA_PROCESS_MULTIPLE);
+			break;
+		case R.id.process_business_card:
+			intent.putExtra(ProcessActivity.EXTRA_PROCESS_MODE, ProcessActivity.EXTRA_PROCESS_BUSINESS_CARD);
+			break;
+		case R.id.process_text_field:
+			intent.putExtra(ProcessActivity.EXTRA_PROCESS_MODE, ProcessActivity.EXTRA_PROCESS_TEXT_FIELD);
+			break;
+		case R.id.process_barcode_field:
+			intent.putExtra(ProcessActivity.EXTRA_PROCESS_MODE, ProcessActivity.EXTRA_PROCESS_BARCODE_FIELD);
+			break;
+		case R.id.process_checkmark_field:
+			intent.putExtra(ProcessActivity.EXTRA_PROCESS_MODE, ProcessActivity.EXTRA_PROCESS_CHECKMARK_FIELD);
+			break;
+		case R.id.process_fields:
+			intent.putExtra(ProcessActivity.EXTRA_PROCESS_MODE, ProcessActivity.EXTRA_PROCESS_FIELDS);
 			break;
 		}
-		startActivityForResult(intent, ACTIVITY_GET_IMAGE);
+		startActivity(intent);
 	}
-
 }

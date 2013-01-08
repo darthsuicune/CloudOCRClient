@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="button_take_picture">"Use device's camera"</string>
-    <string name="preview_content_description">"Preview area for the image to process."</string>
-    <string name="button_get_from_gallery">"Get image from device"</string>
+    <string name="content_description_process_image">"Image"</string>
+    <string name="content_description_process_multiple">"Multiple images"</string>
+    <string name="content_description_process_business_card">"Business card"</string>
+    <string name="content_description_process_text_field">"Text field"</string>
+    <string name="content_description_process_checkmark_field">"Checkmark field"</string>
+    <string name="content_description_process_barcode_field">"Barcode field"</string>
+    <string name="content_description_process_fields">"Fields"</string>
 </resources>

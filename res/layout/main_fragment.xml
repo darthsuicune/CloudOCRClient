@@ -1,26 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
-
-    <Button
-        android:id="@+id/take_picture"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/button_take_picture" />
+    android:stretchColumns="0,1" >
 
     <ImageView
-        android:id="@+id/preview"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:contentDescription="@string/preview_content_description" />
-
-    <Button
-        android:id="@+id/get_from_gallery"
+        android:id="@+id/abbyy_logo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/button_get_from_gallery" />
+        android:layout_marginTop="12dp"
+        android:contentDescription="@string/content_description_process_image"
+        android:src="@drawable/abbyy_logo" />
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="6dp" >
+	    <Button 
+	        android:id="@+id/process_image"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:contentDescription="@string/content_description_process_image"
+	        android:text="@string/content_description_process_image"
+	        android:textAppearance="?android:attr/textAppearanceSmall"
+	        android:drawableTop="@drawable/ic_launcher" />
+	
+	    <Button 
+	        android:id="@+id/process_multiple"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:contentDescription="@string/content_description_process_multiple"
+	        android:text="@string/content_description_process_multiple"
+	        android:textAppearance="?android:attr/textAppearanceSmall"
+	        android:drawableTop="@drawable/ic_launcher" />
+	</TableRow>
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="6dp" >
+	    <Button
+	        android:id="@+id/process_business_card"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:contentDescription="@string/content_description_process_business_card" 
+	        android:text="@string/content_description_process_business_card"
+	        android:textAppearance="?android:attr/textAppearanceSmall"
+	        android:drawableTop="@drawable/ic_launcher" />
+	
+	    <Button 
+	        android:id="@+id/process_text_field"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:contentDescription="@string/content_description_process_text_field"
+	        android:text="@string/content_description_process_text_field"
+	        android:textAppearance="?android:attr/textAppearanceSmall"
+	        android:drawableTop="@drawable/ic_launcher" />
+	</TableRow>
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="6dp" >
 
-</LinearLayout>
+	    <Button 
+	        android:id="@+id/process_barcode_field"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:contentDescription="@string/content_description_process_barcode_field"
+	        android:text="@string/content_description_process_barcode_field"
+	        android:textAppearance="?android:attr/textAppearanceSmall"
+	        android:drawableTop="@drawable/ic_launcher" />
+	
+	    <Button 
+	        android:id="@+id/process_checkmark_field"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:contentDescription="@string/content_description_process_checkmark_field"
+	        android:text="@string/content_description_process_checkmark_field"
+	        android:textAppearance="?android:attr/textAppearanceSmall"
+	        android:drawableTop="@drawable/ic_launcher" />
+	</TableRow>
+    <Button 
+        android:id="@+id/process_fields"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/content_description_process_fields"
+        android:text="@string/content_description_process_fields"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:drawableTop="@drawable/ic_launcher" />
+
+</TableLayout>

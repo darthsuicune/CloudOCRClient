@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="petition_base">"GET http://ocrsdk.com/"</string>
+    <string name="process_image">"processImage"</string>
+    <string name="process_multiple">"processDocument"</string>
+    <string name="process_business_card">"processBusinessCard"</string>
+    <string name="process_text_field">"processTextField"</string>
+    <string name="process_barcode_field">"processBarcodeField"</string>
+    <string name="process_checkmark_field">"processCheckmarkField"</string>
+    <string name="process_fields">"processFields"</string>
+    <string name="submit_image">"submitImage"</string>
+    <string name="language">"language"</string>
+    <string name="get_task_status">"getTaskStatus"</string>
+    <string name="task_id">"taskId"</string>
+    <string name="export_format">"exportFormat"</string>
+    <string name="profile_document_conversion">"documentConversion"</string>
+    <string name="profile_document_archiving">"documentArchiving"</string>
+    <string name="profile_text_extraction">"textExtraction"</string>
+    <string name="profile_field_level_recognition">"fieldLevelRecognition"</string>
+    <string name="profile_barcode_recognition">"barcodeRecognition"</string>
+    <string name="text_type_normal">"normal"</string>
+    <string name="text_type_typewriter">"typewriter"</string>
+    <string name="text_type_matrix">"software"</string>
+    <string name="text_type_index">"index"</string>
+    <string name="text_type_handprinted">"handprinted"</string>
+    <string name="text_type_ocrA">"ocrA"</string>
+    <string name="text_type_ocrB">"ocrB"</string>
+    <string name="text_type_e13b">"e13b"</string>
+    <string name="text_type_cmc7">"cmc7"</string>
+    <string name="text_type_gothic">"gothic"</string>
+    <string name="marking_simple_text">"simpleText"</string>
+    <string name="marking_underlined_text">"underlinedText"</string>
+    <string name="marking_text_in_frame">"textInFrame"</string>
+    <string name="marking_grey_boxes">"greyBoxes"</string>
+    <string name="marking_char_box_series">"charBoxSeries"</string>
+    <string name="marking_simple_comb">"simpleComb"</string>
+    <string name="marking_comb_in_frame">"combInFrame"</string>
+    <string name="marking_partitioned_frame">"partitionedFrame"</string>
+</resources>
