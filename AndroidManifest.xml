@@ -19,7 +19,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.abbyy.cloudocr.MainActivity"
+            android:name="com.abbyy.cloudocr.StartActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,8 +27,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="ResultsActivity"></activity>
-        <activity android:name="ProcessActivity"></activity>
+        <activity android:name="com.abbyy.cloudocr.MainActivity">
+        </activity>
     </application>
 
 </manifest>
