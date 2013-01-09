@@ -9,8 +9,8 @@ public class CompatTabEclair extends CompatTab {
 	
 	private CharSequence mText;
 	private Drawable mIcon;
-	private CompatTabListener mCallback;
 	private Fragment mFragment;
+	private CompatTabListener mCallback;
 
 	protected CompatTabEclair(Activity activity, String tag){
 		super(activity, tag);
@@ -36,12 +36,6 @@ public class CompatTabEclair extends CompatTab {
 	}
 
 	@Override
-	public CompatTab setFragment(Fragment fragment) {
-		mFragment = fragment;
-		return this;
-	}
-
-	@Override
 	public CompatTab getTab() {
 		return this;
 	}
@@ -62,8 +56,14 @@ public class CompatTabEclair extends CompatTab {
 	}
 
 	@Override
+	public CompatTab setFragment(Fragment fragment) {
+		mFragment = fragment;
+		return this;
+	}
+
+	@Override
 	public Fragment getFragment() {
-		return this.mFragment;
+		return mFragment;
 	}
 
 }

@@ -3,5 +3,6 @@
 
     <string name="app_name">CloudOCRClient</string>
     <string name="menu_settings">Settings</string>
+    <string name="menu_refresh">"Refresh"</string>
 
 </resources>

@@ -21,5 +21,8 @@
         <item>@string/process_checkmark_field</item>
         <item>@string/process_fields</item>
     </string-array>
+    
     <string name="process">"Process"</string>
+    <string name="create_task_preview_image">"Image preview"</string>
+    <string name="preview_image_not_available">"Image preview not available."</string>
 </resources>

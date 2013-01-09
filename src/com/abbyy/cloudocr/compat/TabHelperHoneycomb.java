@@ -7,7 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class TabHelperHoneycomb extends TabHelper {
+public class TabHelperHoneycomb extends TabHelper{
 	ActionBar mActionBar;
 	Activity mActivity;
 	

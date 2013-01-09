@@ -7,7 +7,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 
 import com.abbyy.cloudocr.compat.ActionBarActivity;
-import com.abbyy.cloudocr.compat.ActionBarHelper;
 
 public class StartActivity extends ActionBarActivity implements OnClickListener {
 

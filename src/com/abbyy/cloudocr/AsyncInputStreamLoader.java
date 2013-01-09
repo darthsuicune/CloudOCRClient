@@ -74,6 +74,7 @@ public class AsyncInputStreamLoader extends AsyncTaskLoader<InputStream> {
 		httpClient.setCredentialsProvider(credentials);
 		
 		HttpPost request = new HttpPost(mUrl.toExternalForm());
+		//TODO insert entity with file
 		try {
 			HttpResponse response = httpClient.execute(request);
 			return response.getEntity().getContent();
