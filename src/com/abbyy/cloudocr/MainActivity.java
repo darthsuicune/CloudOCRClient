@@ -3,7 +3,6 @@ package com.abbyy.cloudocr;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.ListFragment;
 import android.view.Menu;
 
 import com.abbyy.cloudocr.compat.CompatTab;
@@ -13,14 +12,13 @@ import com.abbyy.cloudocr.compat.TabHelper;
 
 public class MainActivity extends TabCompatActivity {
 	
-	private ListFragment mActiveTasksFragment;
-	private ListFragment mCompletedTasksFragment;
+	private TasksFragment mActiveTasksFragment;
+	private TasksFragment mCompletedTasksFragment;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_activity);
-
 		createFragments();
 		setTabs();
 	}
@@ -67,7 +65,7 @@ public class MainActivity extends TabCompatActivity {
 		
 		@Override
 		public void onTabUnselected(CompatTab tab, FragmentTransaction ft) {
-			
+			tab.getFragment().setHasOptionsMenu(false);
 		}
 
 		@Override
@@ -80,6 +78,7 @@ public class MainActivity extends TabCompatActivity {
             } else {
                 ft.attach(fragment);
             }
+            tab.getFragment().setHasOptionsMenu(true);
 		}
 
 		@Override
