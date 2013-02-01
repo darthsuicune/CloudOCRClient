@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
+import android.view.Menu;
 
 import com.abbyy.cloudocr.compat.CompatTab;
 import com.abbyy.cloudocr.compat.CompatTabListener;
@@ -27,6 +28,11 @@ public class MainActivity extends TabCompatActivity {
 	private void createFragments(){
 		mActiveTasksFragment = new ActiveTasksFragment();
 		mCompletedTasksFragment = new CompletedTasksFragment();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		return true;
 	}
 
 	private void setTabs() {
@@ -58,6 +64,7 @@ public class MainActivity extends TabCompatActivity {
             mActivity = activity;
             mClass = cls;
         }
+		
 		@Override
 		public void onTabUnselected(CompatTab tab, FragmentTransaction ft) {
 			

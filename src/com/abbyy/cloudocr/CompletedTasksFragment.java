@@ -32,7 +32,6 @@ public class CompletedTasksFragment extends ListFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		setHasOptionsMenu(true);
 		return inflater.inflate(R.layout.completed_tasks_fragment, container,
 				false);
 	}
@@ -40,6 +39,7 @@ public class CompletedTasksFragment extends ListFragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		setHasOptionsMenu(true);
 		
 		String[] from = {};
 		int[] to = {};
@@ -59,7 +59,6 @@ public class CompletedTasksFragment extends ListFragment {
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.activity_main, menu);
 	}
 

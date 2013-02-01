@@ -29,7 +29,6 @@ public class ActiveTasksFragment extends ListFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		setHasOptionsMenu(true);
 		return inflater.inflate(R.layout.completed_tasks_fragment, container,
 				false);
 	}
@@ -37,6 +36,7 @@ public class ActiveTasksFragment extends ListFragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		setHasOptionsMenu(true);
 		getActivity().getSupportLoaderManager().initLoader(
 				LOADER_ACTIVE_CURSOR, null, new CursorLoaderHelper());
 	}
@@ -49,7 +49,6 @@ public class ActiveTasksFragment extends ListFragment {
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.activity_main, menu);
 	}
 
