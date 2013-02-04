@@ -6,6 +6,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
 public class ActiveTasksFragment extends TasksFragment {
@@ -13,7 +14,7 @@ public class ActiveTasksFragment extends TasksFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.completed_tasks_fragment, container,
+		return inflater.inflate(R.layout.active_tasks_fragment, container,
 				false);
 	}
 
@@ -21,11 +22,17 @@ public class ActiveTasksFragment extends TasksFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		loadTasks(true);
+		getActivity().findViewById(R.id.create_new_task).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				launchNewTask();	
+			}
+		});
 	}	
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.activity_main, menu);
+		inflater.inflate(R.menu.active_tasks, menu);
 	}
 
 	@Override

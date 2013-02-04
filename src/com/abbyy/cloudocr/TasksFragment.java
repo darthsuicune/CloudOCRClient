@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -28,6 +29,7 @@ public class TasksFragment extends ListFragment {
 	final static int LOADER_ACTIVE_CURSOR = 2;
 	final static int LOADER_COMPLETED_INTERNET = 3;
 	final static int LOADER_COMPLETED_CURSOR = 4;
+
 	boolean isLandscape;
 	CursorAdapter mAdapter;
 
@@ -75,13 +77,28 @@ public class TasksFragment extends ListFragment {
 	void downloadTasks(boolean active) {
 		if (active) {
 			getActivity().getSupportLoaderManager().restartLoader(
-					LOADER_ACTIVE_INTERNET, null,
-					new ConnectionLoaderHelper());
+					LOADER_ACTIVE_INTERNET, null, new ConnectionLoaderHelper());
 		} else {
 			getActivity().getSupportLoaderManager().restartLoader(
 					LOADER_COMPLETED_INTERNET, null,
 					new ConnectionLoaderHelper());
 		}
+	}
+
+	void launchNewTask() {
+		if (isLandscape) {
+
+		} else {
+			Intent intent = new Intent(getActivity(), StartActivity.class);
+			startActivity(intent);
+		}
+	}
+
+	void removeTaskFromList(String taskId) {
+		Uri uri = TasksContract.CONTENT_TASKS;
+		String where = TasksContract.TasksTable.TASK_ID + "=?";
+		String[] selectionArgs = { taskId };
+		getActivity().getContentResolver().delete(uri, where, selectionArgs);
 	}
 
 	class CursorLoaderHelper implements LoaderCallbacks<Cursor> {
@@ -91,11 +108,14 @@ public class TasksFragment extends ListFragment {
 			Loader<Cursor> loader = null;
 			switch (id) {
 			case LOADER_ACTIVE_CURSOR:
-				String[] activeProjection = {
-
-				};
-				String activeSelection = "";
-				String[] activeSelectionArgs = {};
+				String[] activeProjection = { TasksContract.TasksTable._ID,
+						TasksContract.TasksTable.TASK_ID,
+						TasksContract.TasksTable.REGISTRATION_TIME,
+						TasksContract.TasksTable.STATUS,
+						TasksContract.TasksTable.FILES_COUNT };
+				String activeSelection = TasksContract.TasksTable.STATUS + "!=";
+				String[] activeSelectionArgs = { getActivity().getString(
+						R.string.status_completed) };
 				String activeSortOrder = "";
 				loader = new CursorLoader(getActivity(),
 						TasksContract.CONTENT_TASKS, activeProjection,

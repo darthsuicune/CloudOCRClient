@@ -7,4 +7,6 @@
     <string name="content_description_process_checkmark_field">"Checkmark field"</string>
     <string name="content_description_process_barcode_field">"Barcode field"</string>
     <string name="content_description_process_fields">"Fields"</string>
+    <string name="tasks_list_empty">"No tasks."</string>
+    <string name="create_new_task">"Create task"</string>
 </resources>

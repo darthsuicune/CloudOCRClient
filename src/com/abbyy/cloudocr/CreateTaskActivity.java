@@ -1,12 +1,19 @@
 package com.abbyy.cloudocr;
 
+import android.annotation.TargetApi;
+import android.app.ActionBar;
+import android.app.ActionBar.OnNavigationListener;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
+import android.widget.Toast;
 
 import com.abbyy.cloudocr.compat.ActionBarActivity;
 import com.abbyy.cloudocr.optionsfragments.ProcessBarcodeFieldOptionsFragment;
@@ -30,17 +37,43 @@ public class CreateTaskActivity extends ActionBarActivity {
 	public static final int EXTRA_PROCESS_FIELDS = 6;
 
 	private int mProcessingMode = -1;
+	
+	private Uri mImageToProcess = null;
 
 	private ProcessOptionsFragment mProcessOptionsFragment;
 	private Spinner mProcessSpinnerView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		setViews();
-		handleIncomingIntent();
-		addOptionsFragment();
-		setFragmentOptions();
 		super.onCreate(savedInstanceState);
+		handleIncomingIntent();
+		setViews();
+		setOptionsFragment();
+		setFragmentOptions();
+	}
+
+	private void handleIncomingIntent() {
+		Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			String action = getIntent().getAction();
+			if (action != null && action.equals(Intent.ACTION_SEND)) {
+				String type = getIntent().getType();
+				mProcessingMode = 1;
+				if (type != null && type.startsWith("image")) {
+					mImageToProcess = (Uri) getIntent().getParcelableExtra(
+							Intent.EXTRA_STREAM);
+					if (mImageToProcess != null) {
+
+					} else {
+						Toast.makeText(this, R.string.error_loading_image,
+								Toast.LENGTH_LONG).show();
+						this.finish();
+					}
+				}
+			} else {
+				mProcessingMode = extras.getInt(EXTRA_PROCESS_MODE);
+			}
+		}
 	}
 
 	private void setViews() {
@@ -55,23 +88,7 @@ public class CreateTaskActivity extends ActionBarActivity {
 		}
 	}
 
-	private void handleIncomingIntent() {
-		Bundle extras = getIntent().getExtras();
-		if (extras != null) {
-			String action = getIntent().getAction();
-			String type = getIntent().getType();
-			if (action.equals(Intent.ACTION_SEND)) {
-				mProcessingMode = 1;
-				if (type.equalsIgnoreCase("image/*")) {
-
-				}
-			} else {
-				mProcessingMode = extras.getInt(EXTRA_PROCESS_MODE);
-			}
-		}
-	}
-
-	private void addOptionsFragment() {
+	private void setOptionsFragment() {
 		if (mProcessingMode != -1) {
 			switch (mProcessingMode) {
 			case EXTRA_PROCESS_BARCODE_FIELD:
@@ -99,7 +116,7 @@ public class CreateTaskActivity extends ActionBarActivity {
 		}
 		FragmentTransaction transaction = getSupportFragmentManager()
 				.beginTransaction();
-		transaction.add(R.id.create_task_options, mProcessOptionsFragment);
+		transaction.replace(R.id.create_task_options, mProcessOptionsFragment);
 		transaction.commit();
 	}
 
@@ -108,12 +125,40 @@ public class CreateTaskActivity extends ActionBarActivity {
 		mProcessOptionsFragment.setDefaultOptions(args);
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void setActionBar() {
-
+		ActionBar actionBar = getActionBar();
+		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+		actionBar.setDisplayHomeAsUpEnabled(true);
+		actionBar.setListNavigationCallbacks(getSpinnerAdapter(),
+				new OnNavigationListener() {
+					@Override
+					public boolean onNavigationItemSelected(int itemPosition,
+							long itemId) {
+						mProcessingMode = itemPosition;
+						setOptionsFragment();
+						return true;
+					}
+				});
 	}
 
 	private void setSpinner() {
 		mProcessSpinnerView.setAdapter(getSpinnerAdapter());
+		mProcessSpinnerView
+				.setOnItemSelectedListener(new OnItemSelectedListener() {
+					@Override
+					public void onItemSelected(AdapterView<?> adapterView,
+							View view, int itemPosition, long itemId) {
+						mProcessingMode = itemPosition;
+						setOptionsFragment();
+
+					}
+
+					@Override
+					public void onNothingSelected(AdapterView<?> adapterView) {
+						return;
+					}
+				});
 	}
 
 	private SpinnerAdapter getSpinnerAdapter() {

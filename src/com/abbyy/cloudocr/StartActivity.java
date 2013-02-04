@@ -12,9 +12,9 @@ public class StartActivity extends ActionBarActivity implements OnClickListener 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 		setContentView(R.layout.start);
 		prepareButtons();
-		super.onCreate(savedInstanceState);
 	}
 
 	@Override

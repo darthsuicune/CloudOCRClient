@@ -20,12 +20,12 @@ public class CompletedTasksFragment extends TasksFragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		loadTasks(true);
+		loadTasks(false);
 	}
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.activity_main, menu);
+		inflater.inflate(R.menu.completed_tasks, menu);
 	}
 
 	@Override
@@ -34,9 +34,20 @@ public class CompletedTasksFragment extends TasksFragment {
 		case R.id.menu_refresh:
 			downloadTasks(false);
 			break;
+		case R.id.completed_tasks_clean_list:
+			removeFullList();
+			break;
 		default:
 			break;
 		}
 		return true;
+	}
+	
+	private void removeFullList(){
+		for(int i = 0; i < getListView().getCount(); i++){
+			View v = (View) getListView().getItemAtPosition(i);
+			String taskId = v.findViewById(0).toString(); // TODO
+			this.removeTaskFromList(taskId);
+		}
 	}
 }

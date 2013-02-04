@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="illegal_uri">"Unsupported URI: "</string>
+    <string name="error_loading_image">"Error loading image"</string>
 </resources>
