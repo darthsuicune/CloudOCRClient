@@ -2,4 +2,5 @@
 <resources>
     <string name="illegal_uri">"Unsupported URI: "</string>
     <string name="error_loading_image">"Error loading image"</string>
+    <string name="error_uploading">"Error uploading data"</string>
 </resources>

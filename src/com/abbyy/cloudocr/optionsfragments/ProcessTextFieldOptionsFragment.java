@@ -1,25 +1,25 @@
 package com.abbyy.cloudocr.optionsfragments;
 
-import com.abbyy.cloudocr.R;
-import com.abbyy.cloudocr.R.layout;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.abbyy.cloudocr.AsyncInputStreamLoader;
+import com.abbyy.cloudocr.R;
+
 public class ProcessTextFieldOptionsFragment extends ProcessOptionsFragment {
 
-	@Override
-	public String createURL() {
+	private String createURL() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Bundle createArgs() {
-		// TODO Auto-generated method stub
-		return null;
+		Bundle args = new Bundle();
+		args.putString(AsyncInputStreamLoader.ARGUMENT_URL, createURL());
+		return args;
 	}
 
 	@Override

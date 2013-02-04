@@ -1,25 +1,27 @@
 package com.abbyy.cloudocr.optionsfragments;
 
 import java.io.InputStream;
-
-import com.abbyy.cloudocr.AsyncInputStreamLoader;
+import java.util.HashMap;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
+import android.widget.Toast;
+
+import com.abbyy.cloudocr.AsyncInputStreamLoader;
+import com.abbyy.cloudocr.R;
 
 public abstract class ProcessOptionsFragment extends Fragment {
 	protected String mTaskId;
 	private static final int LOADER_LAUNCH_TASK = 1;
+	
+	HashMap<String, String> mOptions;
 
-	public abstract String createURL();
 	public abstract Bundle createArgs();
 	public abstract boolean setDefaultOptions(Bundle options);
 
 	public void launchTask() {
-		this.createURL();
-
 		getActivity().getSupportLoaderManager().initLoader(LOADER_LAUNCH_TASK,
 				createArgs(), new ConnectionHelper());
 	}
@@ -41,7 +43,11 @@ public abstract class ProcessOptionsFragment extends Fragment {
 		public void onLoadFinished(Loader<InputStream> loader, InputStream result) {
 			switch(loader.getId()){
 			case LOADER_LAUNCH_TASK:
-				parseData(result);
+				if(result != null){
+					parseData(result);
+				} else {
+					Toast.makeText(getActivity(), R.string.error_uploading, Toast.LENGTH_LONG).show();
+				}
 				break;
 			}
 			loader.abandon();

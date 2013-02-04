@@ -1,9 +1,10 @@
 package com.abbyy.cloudocr;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -16,7 +17,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.util.Log;
+import android.util.Xml;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -199,9 +200,74 @@ public class TasksFragment extends ListFragment {
 		}
 
 		private void parseResponse(InputStream stream) throws IOException {
-			String result = new BufferedReader(new InputStreamReader(stream))
-					.readLine();
-			Log.d("TEST", result);
+			XmlPullParser parser = Xml.newPullParser();
+			try {
+				parser.setInput(stream, null);
+				readData(parser);
+			} catch (XmlPullParserException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
 		}
+
+		/**
+		 * This method is in charge of parsing the XML data received.
+		 * 
+		 * @param parser
+		 *            XmlPullParser
+		 * @throws XmlPullParserException
+		 * @throws IOException
+		 */
+		private void readData(XmlPullParser parser)
+				throws XmlPullParserException, IOException {
+			parser.nextTag();
+			parser.require(XmlPullParser.START_TAG, null, getActivity()
+					.getString(R.string.tag_response));
+			while (parser.next() != XmlPullParser.END_TAG) {
+				if (parser.getEventType() != XmlPullParser.START_TAG) {
+					continue;
+				}
+				String name = parser.getName();
+				if (name.equals(getActivity().getString(R.string.tag_task))) {
+					Task newTask = new Task(
+							parser.getAttributeValue(null, getActivity().getString(R.string.field_id)),
+							parser.getAttributeValue(null, getActivity().getString(R.string.field_status)),
+							parser.getAttributeValue(null, getActivity().getString(R.string.field_registration_time)),
+							parser.getAttributeValue(null, getActivity().getString(R.string.field_status_change_time)),
+							Integer.parseInt(parser.getAttributeValue(null, getActivity().getString(R.string.field_files_count))),
+							Integer.parseInt(parser.getAttributeValue(null, getActivity().getString(R.string.field_credits))),
+							Integer.parseInt(parser.getAttributeValue(null, getActivity().getString(R.string.field_estimated_processing_time))),
+							parser.getAttributeValue(null, getActivity().getString(R.string.field_description)),
+							parser.getAttributeValue(null, getActivity().getString(R.string.field_result_url)),
+							parser.getAttributeValue(null, getActivity().getString(R.string.field_error)),
+							false);
+					
+					newTask.writeTaskToDb(getActivity().getContentResolver());
+					
+					if (Integer.parseInt(parser.getAttributeValue(
+							null,
+							getActivity().getString(
+									R.string.field_estimated_processing_time))) > 0) {
+						setAlarm();
+					}
+					finish(true);
+				} else if (name.equals(getActivity().getString(
+						R.string.tag_error))) {
+					finish(false);
+				}
+			}
+			
+			
+		}
+		
+		private void setAlarm(){
+			
+		}
+	}
+	
+	private void finish(boolean isOK){
+		
 	}
 }

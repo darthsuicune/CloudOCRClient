@@ -26,6 +26,7 @@ public class AsyncInputStreamLoader extends AsyncTaskLoader<InputStream> {
 	public static final String ARGUMENT_FILE_PATH = "url";
 
 	private URL mUrl;
+	private Bundle mArgs;
 	private String mAppId;
 	private String mPassword;
 	private String mFilePath;
@@ -35,6 +36,7 @@ public class AsyncInputStreamLoader extends AsyncTaskLoader<InputStream> {
 	public AsyncInputStreamLoader(Context context, Bundle args) {
 		super(context);
 		if (args != null) {
+			mArgs = args;
 			try {
 				mUrl = new URL(args.getString(ARGUMENT_URL));
 			} catch (MalformedURLException e) {
@@ -76,11 +78,11 @@ public class AsyncInputStreamLoader extends AsyncTaskLoader<InputStream> {
 
 		HttpPost request = new HttpPost(mUrl.toExternalForm());
 		// TODO insert entity with file
+		HttpResponse response = null;
 		try {
-			HttpResponse response = httpClient.execute(request);
+			 response = httpClient.execute(request);
 			return response.getEntity().getContent();
 		} catch (ClientProtocolException e) {
-			e.getMessage();
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
