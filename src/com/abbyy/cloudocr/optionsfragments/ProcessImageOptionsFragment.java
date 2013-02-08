@@ -5,7 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.abbyy.cloudocr.AsyncInputStreamLoader;
+import com.abbyy.cloudocr.AsyncConnectionLoader;
 import com.abbyy.cloudocr.R;
 
 public class ProcessImageOptionsFragment extends ProcessOptionsFragment {
@@ -18,7 +18,7 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment {
 	@Override
 	public Bundle createArgs() {
 		Bundle args = new Bundle();
-		args.putString(AsyncInputStreamLoader.ARGUMENT_URL, createURL());
+		args.putString(AsyncConnectionLoader.ARGUMENT_URL, createURL());
 		return args;
 	}
 

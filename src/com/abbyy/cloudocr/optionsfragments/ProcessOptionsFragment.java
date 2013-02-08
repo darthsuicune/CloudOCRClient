@@ -1,6 +1,5 @@
 package com.abbyy.cloudocr.optionsfragments;
 
-import java.io.InputStream;
 import java.util.HashMap;
 
 import android.os.Bundle;
@@ -9,7 +8,7 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.widget.Toast;
 
-import com.abbyy.cloudocr.AsyncInputStreamLoader;
+import com.abbyy.cloudocr.AsyncConnectionLoader;
 import com.abbyy.cloudocr.R;
 
 public abstract class ProcessOptionsFragment extends Fragment {
@@ -26,21 +25,21 @@ public abstract class ProcessOptionsFragment extends Fragment {
 				createArgs(), new ConnectionHelper());
 	}
 	
-	private class ConnectionHelper implements LoaderCallbacks<InputStream>{
+	private class ConnectionHelper implements LoaderCallbacks<String>{
 
 		@Override
-		public Loader<InputStream> onCreateLoader(int id, Bundle args) {
-			Loader<InputStream> loader = null;
+		public Loader<String> onCreateLoader(int id, Bundle args) {
+			Loader<String> loader = null;
 			switch(id){
 			case LOADER_LAUNCH_TASK:
-				loader = new AsyncInputStreamLoader(getActivity(), args);
+				loader = new AsyncConnectionLoader(getActivity(), args);
 				break;
 			}
 			return loader;
 		}
 
 		@Override
-		public void onLoadFinished(Loader<InputStream> loader, InputStream result) {
+		public void onLoadFinished(Loader<String> loader, String result) {
 			switch(loader.getId()){
 			case LOADER_LAUNCH_TASK:
 				if(result != null){
@@ -54,12 +53,12 @@ public abstract class ProcessOptionsFragment extends Fragment {
 		}
 
 		@Override
-		public void onLoaderReset(Loader<InputStream> loader) {
+		public void onLoaderReset(Loader<String> loader) {
 			loader.reset();
 		}
 	}
 	
-	private void parseData(InputStream stream){
+	private void parseData(String data){
 		
 	}
 }

@@ -1,5 +1,6 @@
 package com.abbyy.cloudocr;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -38,7 +39,16 @@ public class TasksFragment extends ListFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		isLandscape = getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+		setAdapter();
+	}
 
+	@Override
+	public void onListItemClick(ListView l, View v, int position, long id) {
+		String taskId = ((TextView) v.findViewById(0)).getText().toString(); //TODO replace 0 for ID
+		showTaskDetails(taskId);
+	}
+	
+	private void setAdapter(){
 		String[] from = {};
 		int[] to = {};
 		mAdapter = new SimpleCursorAdapter(getActivity(),
@@ -47,19 +57,13 @@ public class TasksFragment extends ListFragment {
 		setListAdapter(mAdapter);
 	}
 
-	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		String taskId = ((TextView) v.findViewById(0)).getText().toString();
-		showTaskDetails(taskId);
-	}
-
 	// TODO
 	private void showTaskDetails(String taskId) {
 		if (isLandscape) {
 
 		} else {
-			Intent intent = new Intent();
-			intent.putExtra("", taskId);
+			Intent intent = new Intent(getActivity(), TaskDetailsActivity.class);
+			intent.putExtra(TaskDetailsActivity.EXTRA_TASK_ID, taskId);
 			startActivity(intent);
 		}
 	}
@@ -156,25 +160,25 @@ public class TasksFragment extends ListFragment {
 
 	}
 
-	class ConnectionLoaderHelper implements LoaderCallbacks<InputStream> {
+	class ConnectionLoaderHelper implements LoaderCallbacks<String> {
 
 		@Override
-		public Loader<InputStream> onCreateLoader(int id, Bundle args) {
-			Loader<InputStream> loader = null;
+		public Loader<String> onCreateLoader(int id, Bundle args) {
+			Loader<String> loader = null;
 			switch (id) {
 			case LOADER_ACTIVE_INTERNET:
-				loader = new AsyncInputStreamLoader(getActivity(), args);
+				loader = new AsyncConnectionLoader(getActivity(), args);
 				break;
 			case LOADER_COMPLETED_INTERNET:
-				loader = new AsyncInputStreamLoader(getActivity(), args);
+				loader = new AsyncConnectionLoader(getActivity(), args);
 				break;
 			}
 			return loader;
 		}
 
 		@Override
-		public void onLoadFinished(Loader<InputStream> loader,
-				InputStream stream) {
+		public void onLoadFinished(Loader<String> loader,
+				String stream) {
 			switch (loader.getId()) {
 			case LOADER_ACTIVE_INTERNET:
 				try {
@@ -196,78 +200,77 @@ public class TasksFragment extends ListFragment {
 		}
 
 		@Override
-		public void onLoaderReset(Loader<InputStream> loader) {
+		public void onLoaderReset(Loader<String> loader) {
+		}
+	}
+
+	private void parseResponse(String response) throws IOException {
+		XmlPullParser parser = Xml.newPullParser();
+		try {
+			parser.setInput(new ByteArrayInputStream(response.getBytes()), null);
+			readData(parser);
+		} catch (XmlPullParserException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 
-		private void parseResponse(InputStream stream) throws IOException {
-			XmlPullParser parser = Xml.newPullParser();
-			try {
-				parser.setInput(stream, null);
-				readData(parser);
-			} catch (XmlPullParserException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+	}
 
-		}
-
-		/**
-		 * This method is in charge of parsing the XML data received.
-		 * 
-		 * @param parser
-		 *            XmlPullParser
-		 * @throws XmlPullParserException
-		 * @throws IOException
-		 */
-		private void readData(XmlPullParser parser)
-				throws XmlPullParserException, IOException {
-			parser.nextTag();
-			parser.require(XmlPullParser.START_TAG, null, getActivity()
-					.getString(R.string.tag_response));
-			while (parser.next() != XmlPullParser.END_TAG) {
-				if (parser.getEventType() != XmlPullParser.START_TAG) {
-					continue;
-				}
-				String name = parser.getName();
-				if (name.equals(getActivity().getString(R.string.tag_task))) {
-					Task newTask = new Task(
-							parser.getAttributeValue(null, getActivity().getString(R.string.field_id)),
-							parser.getAttributeValue(null, getActivity().getString(R.string.field_status)),
-							parser.getAttributeValue(null, getActivity().getString(R.string.field_registration_time)),
-							parser.getAttributeValue(null, getActivity().getString(R.string.field_status_change_time)),
-							Integer.parseInt(parser.getAttributeValue(null, getActivity().getString(R.string.field_files_count))),
-							Integer.parseInt(parser.getAttributeValue(null, getActivity().getString(R.string.field_credits))),
-							Integer.parseInt(parser.getAttributeValue(null, getActivity().getString(R.string.field_estimated_processing_time))),
-							parser.getAttributeValue(null, getActivity().getString(R.string.field_description)),
-							parser.getAttributeValue(null, getActivity().getString(R.string.field_result_url)),
-							parser.getAttributeValue(null, getActivity().getString(R.string.field_error)),
-							false);
-					
-					newTask.writeTaskToDb(getActivity().getContentResolver());
-					
-					if (Integer.parseInt(parser.getAttributeValue(
-							null,
-							getActivity().getString(
-									R.string.field_estimated_processing_time))) > 0) {
-						setAlarm();
-					}
-					finish(true);
-				} else if (name.equals(getActivity().getString(
-						R.string.tag_error))) {
-					finish(false);
-				}
+	/**
+	 * This method is in charge of parsing the XML data received.
+	 * 
+	 * @param parser
+	 *            XmlPullParser
+	 * @throws XmlPullParserException
+	 * @throws IOException
+	 */
+	private void readData(XmlPullParser parser)
+			throws XmlPullParserException, IOException {
+		parser.nextTag();
+		parser.require(XmlPullParser.START_TAG, null, getActivity()
+				.getString(R.string.tag_response));
+		while (parser.next() != XmlPullParser.END_TAG) {
+			if (parser.getEventType() != XmlPullParser.START_TAG) {
+				continue;
 			}
-			
-			
+			String name = parser.getName();
+			if (name.equals(getActivity().getString(R.string.tag_task))) {
+				Task newTask = new Task(
+						parser.getAttributeValue(null, getActivity().getString(R.string.field_id)),
+						parser.getAttributeValue(null, getActivity().getString(R.string.field_status)),
+						parser.getAttributeValue(null, getActivity().getString(R.string.field_registration_time)),
+						parser.getAttributeValue(null, getActivity().getString(R.string.field_status_change_time)),
+						Integer.parseInt(parser.getAttributeValue(null, getActivity().getString(R.string.field_files_count))),
+						Integer.parseInt(parser.getAttributeValue(null, getActivity().getString(R.string.field_credits))),
+						Integer.parseInt(parser.getAttributeValue(null, getActivity().getString(R.string.field_estimated_processing_time))),
+						parser.getAttributeValue(null, getActivity().getString(R.string.field_description)),
+						parser.getAttributeValue(null, getActivity().getString(R.string.field_result_url)),
+						parser.getAttributeValue(null, getActivity().getString(R.string.field_error)),
+						false);
+				
+				newTask.writeTaskToDb(getActivity().getContentResolver());
+				
+				if (Integer.parseInt(parser.getAttributeValue(
+						null,
+						getActivity().getString(
+								R.string.field_estimated_processing_time))) > 0) {
+					setAlarm();
+				}
+				finish(true);
+			} else if (name.equals(getActivity().getString(
+					R.string.tag_error))) {
+				finish(false);
+			}
 		}
 		
-		private void setAlarm(){
-			
-		}
+		
+	}
+	
+	private void setAlarm(){
+		
 	}
 	
 	private void finish(boolean isOK){
-		
 	}
 }
