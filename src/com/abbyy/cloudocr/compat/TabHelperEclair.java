@@ -15,12 +15,10 @@ public class TabHelperEclair extends TabHelper implements
 		TabHost.OnTabChangeListener {
 	private HashMap<String, CompatTab> mTabList = new HashMap<String, CompatTab>();
 	private TabHost mTabHost;
-	private ActionBarActivity mActivity;
 	private CompatTab mLastTab;
 
-	protected TabHelperEclair(ActionBarActivity activity) {
+	protected TabHelperEclair(TabCompatActivity activity) {
 		super(activity);
-		mActivity = activity;
 	}
 
 	@Override
@@ -60,6 +58,11 @@ public class TabHelperEclair extends TabHelper implements
 
         mTabList.put(tag, tab);
         mTabHost.addTab(spec);
+	}
+
+	@Override
+	public void setActiveTab(int position) {
+		mTabHost.setCurrentTab(position);
 	}
 
 	@Override

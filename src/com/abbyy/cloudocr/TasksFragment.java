@@ -2,7 +2,6 @@ package com.abbyy.cloudocr;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -32,8 +31,8 @@ public class TasksFragment extends ListFragment {
 	final static int LOADER_COMPLETED_INTERNET = 3;
 	final static int LOADER_COMPLETED_CURSOR = 4;
 
-	boolean isLandscape;
-	CursorAdapter mAdapter;
+	private boolean isLandscape;
+	private CursorAdapter mAdapter;
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -44,11 +43,15 @@ public class TasksFragment extends ListFragment {
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		String taskId = ((TextView) v.findViewById(0)).getText().toString(); //TODO replace 0 for ID
+		String taskId = ((TextView) v.findViewById(0)).getText().toString(); // TODO
+																				// replace
+																				// 0
+																				// for
+																				// ID
 		showTaskDetails(taskId);
 	}
-	
-	private void setAdapter(){
+
+	private void setAdapter() {
 		String[] from = {};
 		int[] to = {};
 		mAdapter = new SimpleCursorAdapter(getActivity(),
@@ -57,7 +60,7 @@ public class TasksFragment extends ListFragment {
 		setListAdapter(mAdapter);
 	}
 
-	// TODO
+	// TODO landscape
 	private void showTaskDetails(String taskId) {
 		if (isLandscape) {
 
@@ -90,6 +93,7 @@ public class TasksFragment extends ListFragment {
 		}
 	}
 
+	//TODO
 	void launchNewTask() {
 		if (isLandscape) {
 
@@ -97,6 +101,11 @@ public class TasksFragment extends ListFragment {
 			Intent intent = new Intent(getActivity(), StartActivity.class);
 			startActivity(intent);
 		}
+	}
+	
+	void openSettings(){
+		Intent intent = new Intent(getActivity(), SettingsActivity.class);
+		startActivity(intent);
 	}
 
 	void removeTaskFromList(String taskId) {
@@ -177,8 +186,7 @@ public class TasksFragment extends ListFragment {
 		}
 
 		@Override
-		public void onLoadFinished(Loader<String> loader,
-				String stream) {
+		public void onLoadFinished(Loader<String> loader, String stream) {
 			switch (loader.getId()) {
 			case LOADER_ACTIVE_INTERNET:
 				try {
@@ -225,11 +233,11 @@ public class TasksFragment extends ListFragment {
 	 * @throws XmlPullParserException
 	 * @throws IOException
 	 */
-	private void readData(XmlPullParser parser)
-			throws XmlPullParserException, IOException {
+	private void readData(XmlPullParser parser) throws XmlPullParserException,
+			IOException {
 		parser.nextTag();
-		parser.require(XmlPullParser.START_TAG, null, getActivity()
-				.getString(R.string.tag_response));
+		parser.require(XmlPullParser.START_TAG, null,
+				getActivity().getString(R.string.tag_response));
 		while (parser.next() != XmlPullParser.END_TAG) {
 			if (parser.getEventType() != XmlPullParser.START_TAG) {
 				continue;
@@ -248,29 +256,28 @@ public class TasksFragment extends ListFragment {
 						parser.getAttributeValue(null, getActivity().getString(R.string.field_result_url)),
 						parser.getAttributeValue(null, getActivity().getString(R.string.field_error)),
 						false);
-				
-				newTask.writeTaskToDb(getActivity().getContentResolver());
-				
-				if (Integer.parseInt(parser.getAttributeValue(
-						null,
-						getActivity().getString(
-								R.string.field_estimated_processing_time))) > 0) {
-					setAlarm();
-				}
-				finish(true);
-			} else if (name.equals(getActivity().getString(
-					R.string.tag_error))) {
+
+				handleNewTask(newTask);
+			} else if (name.equals(getActivity().getString(R.string.tag_error))) {
 				finish(false);
 			}
 		}
-		
-		
+
 	}
-	
-	private void setAlarm(){
-		
+
+	private void handleNewTask(Task task) {
+		task.writeTaskToDb(getActivity().getContentResolver());
+
+		if (task.mEstimatedProcessingTime > 0) {
+			setAlarm();
+		}
+		finish(true);
 	}
-	
-	private void finish(boolean isOK){
+
+	private void setAlarm() {
+
+	}
+
+	private void finish(boolean isOK) {
 	}
 }

@@ -29,7 +29,13 @@ public class ProcessMultipleOptionsFragment extends ProcessOptionsFragment {
 	}
 
 	@Override
-	public boolean setDefaultOptions(Bundle options) {
+	public boolean saveDefaultOptions() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean loadDefaultOptions() {
 		// TODO Auto-generated method stub
 		return false;
 	}

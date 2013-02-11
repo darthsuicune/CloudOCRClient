@@ -2,19 +2,17 @@ package com.abbyy.cloudocr.compat;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
-import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class TabHelperHoneycomb extends TabHelper{
 	ActionBar mActionBar;
-	Activity mActivity;
 	
-	protected TabHelperHoneycomb(Activity activity){
+	protected TabHelperHoneycomb(TabCompatActivity activity){
 		super(activity);
-		mActivity = activity;
-		mActionBar = activity.getActionBar();
 	}
 	
 	@Override
@@ -27,7 +25,14 @@ public class TabHelperHoneycomb extends TabHelper{
 
 	@Override
 	public void addTab(CompatTab tab) {
+		Fragment fragment = mActivity.getSupportFragmentManager().findFragmentByTag(tab.getTag());
+		if(fragment != null && !fragment.isDetached()){
+			FragmentTransaction ft = mActivity.getSupportFragmentManager().beginTransaction();
+			ft.detach(fragment);
+			ft.commit();
+		}
 		mActionBar.addTab((ActionBar.Tab) tab.getTab());
+		mTabList.add(tab);
 	}
 
 	@Override
@@ -41,4 +46,11 @@ public class TabHelperHoneycomb extends TabHelper{
         int position = savedInstanceState.getInt("tab_position");
         mActionBar.setSelectedNavigationItem(position);
     }
+
+	@Override
+	public void setActiveTab(int position) {
+		if(mActionBar != null){
+			mActionBar.setSelectedNavigationItem(position);
+		}
+	}
 }

@@ -8,23 +8,33 @@ import android.preference.PreferenceManager;
 import com.abbyy.cloudocr.compat.ActionBarActivity;
 
 public class SettingsActivity extends ActionBarActivity {
+	public static final int PROCESSING_MODE_IMAGE = 0;
+	public static final int PROCESSING_MODE_MULTIPLE = 1;
+	public static final int PROCESSING_MODE_BUSINESS_CARD = 2;
+	public static final int PROCESSING_MODE_TEXT_FIELD = 3;
+	public static final int PROCESSING_MODE_BARCODE_FIELD = 4;
+	public static final int PROCESSING_MODE_CHECKMARK_FIELD = 5;
+	public static final int PROCESSING_MODE_FIELDS = 6;
+	
+	public static final String DEFAULT_TAB = "defaultTab";
+	public static final String PREFERENCE_SAVE_TAB_DEFAULT = "saveTabDefault";
 
 	public static Bundle getDefaultOptions(Context context, int processingMode) {
 		Bundle options = new Bundle();
 		switch (processingMode) {
-		case CreateTaskActivity.EXTRA_PROCESS_BARCODE_FIELD:
+		case PROCESSING_MODE_IMAGE:
 			break;
-		case CreateTaskActivity.EXTRA_PROCESS_BUSINESS_CARD:
+		case PROCESSING_MODE_MULTIPLE:
 			break;
-		case CreateTaskActivity.EXTRA_PROCESS_CHECKMARK_FIELD:
+		case PROCESSING_MODE_BUSINESS_CARD:
 			break;
-		case CreateTaskActivity.EXTRA_PROCESS_FIELDS:
+		case PROCESSING_MODE_TEXT_FIELD:
 			break;
-		case CreateTaskActivity.EXTRA_PROCESS_IMAGE:
+		case PROCESSING_MODE_BARCODE_FIELD:
 			break;
-		case CreateTaskActivity.EXTRA_PROCESS_MULTIPLE:
+		case PROCESSING_MODE_CHECKMARK_FIELD:
 			break;
-		case CreateTaskActivity.EXTRA_PROCESS_TEXT_FIELD:
+		case PROCESSING_MODE_FIELDS:
 			break;
 		}
 		return options;
@@ -33,19 +43,19 @@ public class SettingsActivity extends ActionBarActivity {
 	public static void saveDefaultOptions(Context context, int processingMode) {
 		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 		switch (processingMode) {
-		case CreateTaskActivity.EXTRA_PROCESS_BARCODE_FIELD:
+		case PROCESSING_MODE_IMAGE:
 			break;
-		case CreateTaskActivity.EXTRA_PROCESS_BUSINESS_CARD:
+		case PROCESSING_MODE_MULTIPLE:
 			break;
-		case CreateTaskActivity.EXTRA_PROCESS_CHECKMARK_FIELD:
+		case PROCESSING_MODE_BUSINESS_CARD:
 			break;
-		case CreateTaskActivity.EXTRA_PROCESS_FIELDS:
+		case PROCESSING_MODE_TEXT_FIELD:
 			break;
-		case CreateTaskActivity.EXTRA_PROCESS_IMAGE:
+		case PROCESSING_MODE_BARCODE_FIELD:
 			break;
-		case CreateTaskActivity.EXTRA_PROCESS_MULTIPLE:
+		case PROCESSING_MODE_CHECKMARK_FIELD:
 			break;
-		case CreateTaskActivity.EXTRA_PROCESS_TEXT_FIELD:
+		case PROCESSING_MODE_FIELDS:
 			break;
 		}
 		editor.commit();

@@ -1,17 +1,20 @@
 package com.abbyy.cloudocr.compat;
 
-import android.app.Activity;
+import java.util.ArrayList;
+
 import android.os.Build;
 import android.os.Bundle;
 
 public abstract class TabHelper {
-	private Activity mActivity;
+	protected TabCompatActivity mActivity;
+	protected ArrayList<CompatTab> mTabList;
 	
-	protected TabHelper(Activity activity){
+	protected TabHelper(TabCompatActivity activity){
 		mActivity = activity;
+		mTabList = new ArrayList<CompatTab>();
 	}
 	
-	public static TabHelper createInstance(ActionBarActivity activity) {
+	public static TabHelper createInstance(TabCompatActivity activity) {
 		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
 			return new TabHelperHoneycomb(activity);
 		} else {
@@ -28,6 +31,8 @@ public abstract class TabHelper {
 	}
 	
 	public abstract void addTab(CompatTab tab);
+	
+	public abstract void setActiveTab(int position);
 	
 	protected abstract void setUp();
 	

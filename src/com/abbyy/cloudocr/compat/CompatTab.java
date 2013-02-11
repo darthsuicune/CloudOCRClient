@@ -1,14 +1,13 @@
 package com.abbyy.cloudocr.compat;
 
-import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.Fragment;
 
 public abstract class CompatTab {
-	final Activity mActivity;
+	final TabCompatActivity mActivity;
 	final String mTag;
 
-	protected CompatTab(Activity activity, String tag){
+	protected CompatTab(TabCompatActivity activity, String tag){
 		mActivity = activity;
 		mTag = tag;
 	}

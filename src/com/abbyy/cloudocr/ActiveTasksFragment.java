@@ -14,21 +14,23 @@ public class ActiveTasksFragment extends TasksFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.active_tasks_fragment, container,
+		View v = inflater.inflate(R.layout.active_tasks_fragment, container,
 				false);
+		v.findViewById(R.id.create_new_task).setOnClickListener(
+				new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						launchNewTask();
+					}
+				});
+		return v;
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		loadTasks(true);
-		getActivity().findViewById(R.id.create_new_task).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				launchNewTask();	
-			}
-		});
-	}	
+	}
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -40,6 +42,9 @@ public class ActiveTasksFragment extends TasksFragment {
 		switch (item.getItemId()) {
 		case R.id.menu_refresh:
 			downloadTasks(true);
+			break;
+		case R.id.menu_settings:
+			openSettings();
 			break;
 		default:
 			break;

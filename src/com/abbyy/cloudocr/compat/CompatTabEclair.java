@@ -1,18 +1,17 @@
 package com.abbyy.cloudocr.compat;
 
-import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.Fragment;
 
 public class CompatTabEclair extends CompatTab {
-	private Activity mActivity;
+	private TabCompatActivity mActivity;
 	
 	private CharSequence mText;
 	private Drawable mIcon;
 	private Fragment mFragment;
 	private CompatTabListener mCallback;
 
-	protected CompatTabEclair(Activity activity, String tag){
+	protected CompatTabEclair(TabCompatActivity activity, String tag){
 		super(activity, tag);
 		mActivity = activity;
 	}

@@ -13,8 +13,7 @@ public class CompletedTasksFragment extends TasksFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.completed_tasks_fragment, container,
-				false);
+		return inflater.inflate(R.layout.completed_tasks_fragment, container, false);
 	}
 
 	@Override
@@ -36,6 +35,9 @@ public class CompletedTasksFragment extends TasksFragment {
 			break;
 		case R.id.completed_tasks_clean_list:
 			removeFullList();
+			break;
+		case R.id.menu_settings:
+			openSettings();
 			break;
 		default:
 			break;

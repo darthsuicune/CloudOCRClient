@@ -18,7 +18,9 @@ public abstract class ProcessOptionsFragment extends Fragment {
 	HashMap<String, String> mOptions;
 
 	public abstract Bundle createArgs();
-	public abstract boolean setDefaultOptions(Bundle options);
+	
+	public abstract boolean saveDefaultOptions();
+	public abstract boolean loadDefaultOptions();
 
 	public void launchTask() {
 		getActivity().getSupportLoaderManager().initLoader(LOADER_LAUNCH_TASK,

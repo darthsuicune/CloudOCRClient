@@ -17,42 +17,6 @@ public class StartActivity extends ActionBarActivity implements OnClickListener 
 		prepareButtons();
 	}
 
-	@Override
-	public void onClick(View v) {
-		Intent intent = new Intent(this, CreateTaskActivity.class);
-		switch (v.getId()) {
-		case R.id.process_image:
-			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
-					CreateTaskActivity.EXTRA_PROCESS_IMAGE);
-			break;
-		case R.id.process_multiple:
-			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
-					CreateTaskActivity.EXTRA_PROCESS_MULTIPLE);
-			break;
-		case R.id.process_business_card:
-			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
-					CreateTaskActivity.EXTRA_PROCESS_BUSINESS_CARD);
-			break;
-		case R.id.process_text_field:
-			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
-					CreateTaskActivity.EXTRA_PROCESS_TEXT_FIELD);
-			break;
-		case R.id.process_barcode_field:
-			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
-					CreateTaskActivity.EXTRA_PROCESS_BARCODE_FIELD);
-			break;
-		case R.id.process_checkmark_field:
-			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
-					CreateTaskActivity.EXTRA_PROCESS_CHECKMARK_FIELD);
-			break;
-		case R.id.process_fields:
-			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
-					CreateTaskActivity.EXTRA_PROCESS_FIELDS);
-			break;
-		}
-		startActivity(intent);
-	}
-
 	private void prepareButtons() {
 		Button processImageButton = (Button) findViewById(R.id.process_image);
 		Button processMultipleImagesButton = (Button) findViewById(R.id.process_multiple);
@@ -69,5 +33,41 @@ public class StartActivity extends ActionBarActivity implements OnClickListener 
 		processBarcodeFieldButton.setOnClickListener(this);
 		processCheckmarkFieldButton.setOnClickListener(this);
 		processFieldsButton.setOnClickListener(this);
+	}
+
+	@Override
+	public void onClick(View v) {
+		Intent intent = new Intent(this, CreateTaskActivity.class);
+		switch (v.getId()) {
+		case R.id.process_image:
+			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
+					SettingsActivity.PROCESSING_MODE_IMAGE);
+			break;
+		case R.id.process_multiple:
+			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
+					SettingsActivity.PROCESSING_MODE_MULTIPLE);
+			break;
+		case R.id.process_business_card:
+			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
+					SettingsActivity.PROCESSING_MODE_BUSINESS_CARD);
+			break;
+		case R.id.process_text_field:
+			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
+					SettingsActivity.PROCESSING_MODE_TEXT_FIELD);
+			break;
+		case R.id.process_barcode_field:
+			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
+					SettingsActivity.PROCESSING_MODE_BARCODE_FIELD);
+			break;
+		case R.id.process_checkmark_field:
+			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
+					SettingsActivity.PROCESSING_MODE_CHECKMARK_FIELD);
+			break;
+		case R.id.process_fields:
+			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
+					SettingsActivity.PROCESSING_MODE_FIELDS);
+			break;
+		}
+		startActivity(intent);
 	}
 }

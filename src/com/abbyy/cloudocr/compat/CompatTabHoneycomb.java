@@ -3,18 +3,19 @@ package com.abbyy.cloudocr.compat;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
-import android.app.Activity;
-import android.app.FragmentTransaction;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class CompatTabHoneycomb extends CompatTab implements ActionBar.TabListener{
+public class CompatTabHoneycomb extends CompatTab implements
+		ActionBar.TabListener {
 	ActionBar.Tab mTab;
 	Fragment mFragment;
-	
-	protected CompatTabHoneycomb(Activity activity, String tag){
+	CompatTabListener mCompatListener;
+
+	protected CompatTabHoneycomb(TabCompatActivity activity, String tag) {
 		super(activity, tag);
 		mTab = activity.getActionBar().newTab();
 	}
@@ -33,7 +34,8 @@ public class CompatTabHoneycomb extends CompatTab implements ActionBar.TabListen
 
 	@Override
 	public CompatTab setTabListener(CompatTabListener callback) {
-//		mTab.setTabListener(callback);
+		mCompatListener = callback;
+		mTab.setTabListener(this);
 		return this;
 	}
 
@@ -46,33 +48,14 @@ public class CompatTabHoneycomb extends CompatTab implements ActionBar.TabListen
 	public Drawable getIcon() {
 		return mTab.getIcon();
 	}
-	
-	public ActionBar.Tab getTab(){
+
+	public ActionBar.Tab getTab() {
 		return mTab;
 	}
 
 	@Override
 	public CompatTabListener getCallback() {
-		return null;
-		//TODO
-	}
-
-	@Override
-	public void onTabReselected(Tab tab, FragmentTransaction ft) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onTabSelected(Tab tab, FragmentTransaction ft) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-		// TODO Auto-generated method stub
-		
+		return mCompatListener;
 	}
 
 	@Override
@@ -84,5 +67,37 @@ public class CompatTabHoneycomb extends CompatTab implements ActionBar.TabListen
 	@Override
 	public Fragment getFragment() {
 		return mFragment;
+	}
+
+	@Override
+	public void onTabSelected(Tab tab, android.app.FragmentTransaction ft) {
+
+		FragmentTransaction transaction = mActivity.getSupportFragmentManager()
+				.beginTransaction();
+
+		transaction.disallowAddToBackStack();
+		mCompatListener.onTabSelected(this, transaction);
+		transaction.commit();
+	}
+
+	@Override
+	public void onTabUnselected(Tab tab, android.app.FragmentTransaction ft) {
+		
+		FragmentTransaction transaction = mActivity.getSupportFragmentManager()
+				.beginTransaction();
+
+		transaction.disallowAddToBackStack();
+		mCompatListener.onTabUnselected(this, transaction);
+		transaction.commit();
+	}
+
+	@Override
+	public void onTabReselected(Tab tab, android.app.FragmentTransaction ft) {
+		
+		FragmentTransaction transaction = mActivity.getSupportFragmentManager()
+				.beginTransaction();
+		transaction.disallowAddToBackStack();
+		mCompatListener.onTabReselected(this, transaction);
+		transaction.commit();
 	}
 }

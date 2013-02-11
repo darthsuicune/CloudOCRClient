@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.Toast;
@@ -28,16 +29,8 @@ import com.abbyy.cloudocr.optionsfragments.ProcessTextFieldOptionsFragment;
 public class CreateTaskActivity extends ActionBarActivity {
 	public static final String EXTRA_PROCESS_MODE = "Process mode";
 
-	public static final int EXTRA_PROCESS_IMAGE = 0;
-	public static final int EXTRA_PROCESS_MULTIPLE = 1;
-	public static final int EXTRA_PROCESS_BUSINESS_CARD = 2;
-	public static final int EXTRA_PROCESS_TEXT_FIELD = 3;
-	public static final int EXTRA_PROCESS_BARCODE_FIELD = 4;
-	public static final int EXTRA_PROCESS_CHECKMARK_FIELD = 5;
-	public static final int EXTRA_PROCESS_FIELDS = 6;
-
 	private int mProcessingMode = -1;
-	
+
 	private Uri mImageToProcess = null;
 
 	private ProcessOptionsFragment mProcessOptionsFragment;
@@ -91,25 +84,25 @@ public class CreateTaskActivity extends ActionBarActivity {
 	private void setOptionsFragment() {
 		if (mProcessingMode != -1) {
 			switch (mProcessingMode) {
-			case EXTRA_PROCESS_BARCODE_FIELD:
+			case SettingsActivity.PROCESSING_MODE_BARCODE_FIELD:
 				mProcessOptionsFragment = new ProcessBarcodeFieldOptionsFragment();
 				break;
-			case EXTRA_PROCESS_BUSINESS_CARD:
+			case SettingsActivity.PROCESSING_MODE_BUSINESS_CARD:
 				mProcessOptionsFragment = new ProcessBusinessCardOptionsFragment();
 				break;
-			case EXTRA_PROCESS_CHECKMARK_FIELD:
+			case SettingsActivity.PROCESSING_MODE_CHECKMARK_FIELD:
 				mProcessOptionsFragment = new ProcessCheckmarkFieldOptionsFragment();
 				break;
-			case EXTRA_PROCESS_FIELDS:
+			case SettingsActivity.PROCESSING_MODE_FIELDS:
 				mProcessOptionsFragment = new ProcessFieldsOptionsFragment();
 				break;
-			case EXTRA_PROCESS_IMAGE:
+			case SettingsActivity.PROCESSING_MODE_IMAGE:
 				mProcessOptionsFragment = new ProcessImageOptionsFragment();
 				break;
-			case EXTRA_PROCESS_MULTIPLE:
+			case SettingsActivity.PROCESSING_MODE_MULTIPLE:
 				mProcessOptionsFragment = new ProcessMultipleOptionsFragment();
 				break;
-			case EXTRA_PROCESS_TEXT_FIELD:
+			case SettingsActivity.PROCESSING_MODE_TEXT_FIELD:
 				mProcessOptionsFragment = new ProcessTextFieldOptionsFragment();
 				break;
 			}
@@ -121,8 +114,6 @@ public class CreateTaskActivity extends ActionBarActivity {
 	}
 
 	private void setFragmentOptions() {
-		Bundle args = SettingsActivity.getDefaultOptions(this, mProcessingMode);
-		mProcessOptionsFragment.setDefaultOptions(args);
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -162,7 +153,11 @@ public class CreateTaskActivity extends ActionBarActivity {
 	}
 
 	private SpinnerAdapter getSpinnerAdapter() {
-		SpinnerAdapter adapter = null;
+		String[] strings = getResources().getStringArray(R.array.process_type);
+
+		SpinnerAdapter adapter = new ArrayAdapter<String>(this,
+				android.R.layout.simple_spinner_dropdown_item, android.R.id.text1,
+				strings);
 		return adapter;
 	}
 }
