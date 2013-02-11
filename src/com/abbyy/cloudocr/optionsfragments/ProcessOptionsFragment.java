@@ -12,15 +12,21 @@ import com.abbyy.cloudocr.AsyncConnectionLoader;
 import com.abbyy.cloudocr.R;
 
 public abstract class ProcessOptionsFragment extends Fragment {
+	protected final String BASE_URL = "http://cloud.ocrsdk.com/";
 	protected String mTaskId;
 	private static final int LOADER_LAUNCH_TASK = 1;
 	
 	HashMap<String, String> mOptions;
-
-	public abstract Bundle createArgs();
 	
 	public abstract boolean saveDefaultOptions();
 	public abstract boolean loadDefaultOptions();
+	abstract String createURL();
+
+	public Bundle createArgs() {
+		Bundle args = new Bundle();
+		args.putString(AsyncConnectionLoader.ARGUMENT_URL, createURL());
+		return args;
+	}
 
 	public void launchTask() {
 		getActivity().getSupportLoaderManager().initLoader(LOADER_LAUNCH_TASK,

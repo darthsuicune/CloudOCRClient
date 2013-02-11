@@ -5,21 +5,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.abbyy.cloudocr.AsyncConnectionLoader;
 import com.abbyy.cloudocr.R;
 
 public class ProcessBarcodeFieldOptionsFragment extends ProcessOptionsFragment {
 
-	private String createURL() {
+	@Override
+	String createURL() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public Bundle createArgs() {
-		Bundle args = new Bundle();
-		args.putString(AsyncConnectionLoader.ARGUMENT_URL, createURL());
-		return args;
 	}
 
 	@Override

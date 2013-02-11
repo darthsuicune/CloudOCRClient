@@ -10,16 +10,10 @@ import com.abbyy.cloudocr.R;
 
 public class ProcessBusinessCardOptionsFragment extends ProcessOptionsFragment {
 
-	private String createURL() {
+	@Override
+	String createURL() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public Bundle createArgs() {
-		Bundle args = new Bundle();
-		args.putString(AsyncConnectionLoader.ARGUMENT_URL, createURL());
-		return args;
 	}
 
 	@Override

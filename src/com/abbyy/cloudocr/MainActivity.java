@@ -1,6 +1,5 @@
 package com.abbyy.cloudocr;
 
-import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -12,13 +11,9 @@ import com.abbyy.cloudocr.compat.CompatTabListener;
 import com.abbyy.cloudocr.compat.TabCompatActivity;
 import com.abbyy.cloudocr.compat.TabHelper;
 
-@SuppressLint("NewApi")
 public class MainActivity extends TabCompatActivity {
 	private static final int TAB_ACTIVE = 0;
 	private static final int TAB_COMPLETED = 1;
-
-//	private ActiveTasksFragment mActiveTasksFragment;
-//	private CompletedTasksFragment mCompletedTasksFragment;
 
 	private SharedPreferences prefs;
 
@@ -27,14 +22,7 @@ public class MainActivity extends TabCompatActivity {
 		super.onCreate(savedInstanceState);
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		setContentView(R.layout.main_activity);
-		createFragments();
 		setTabs();
-
-	}
-
-	private void createFragments() {
-//		mActiveTasksFragment = new ActiveTasksFragment();
-//		mCompletedTasksFragment = new CompletedTasksFragment();
 	}
 
 
@@ -53,6 +41,7 @@ public class MainActivity extends TabCompatActivity {
 
 	private void createTab(TabHelper tabHelper, String tag,
 			int textResourceId, TabListener listener) {
+		
 		CompatTab tab = tabHelper.newTab(tag);
 
 		tab.setText(textResourceId);
