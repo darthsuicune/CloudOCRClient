@@ -12,12 +12,6 @@
     <string name="language">"language"</string>
     <string name="get_task_status">"getTaskStatus"</string>
     <string name="task_id">"taskId"</string>
-    <string name="export_format">"exportFormat"</string>
-    <string name="profile_document_conversion">"documentConversion"</string>
-    <string name="profile_document_archiving">"documentArchiving"</string>
-    <string name="profile_text_extraction">"textExtraction"</string>
-    <string name="profile_field_level_recognition">"fieldLevelRecognition"</string>
-    <string name="profile_barcode_recognition">"barcodeRecognition"</string>
     <string name="text_type_normal">"normal"</string>
     <string name="text_type_typewriter">"typewriter"</string>
     <string name="text_type_matrix">"software"</string>

@@ -22,17 +22,17 @@ public class TasksDBOpenHelper extends SQLiteOpenHelper {
 
 		db.execSQL(
 				"CREATE TABLE " + TasksContract.TasksTable.TABLE_NAME + " (" +
-				TasksContract.TasksTable._ID + " INTEGER PRIMARY KEY AUTOINCREMENT" +
-				TasksContract.TasksTable.TASK_ID + "TEXT NOT NULL,  " +
-				TasksContract.TasksTable.REGISTRATION_TIME + "TEXT, " +
-				TasksContract.TasksTable.STATUS_CHANGE_TIME + "TEXT, " +
-				TasksContract.TasksTable.STATUS + "TEXT, " +
-				TasksContract.TasksTable.CREDITS + "TEXT, " +
-				TasksContract.TasksTable.DESCRIPTION + "TEXT, " +
-				TasksContract.TasksTable.ESTIMATED_PROCESSING_TIME + "TEXT, " +
-				TasksContract.TasksTable.FILES_COUNT + "TEXT, " +
-				TasksContract.TasksTable.RESULT_URL + "TEXT, " +
-				TasksContract.TasksTable.ERROR + "TEXT" +
+				TasksContract.TasksTable._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+				TasksContract.TasksTable.TASK_ID + " TEXT NOT NULL,  " +
+				TasksContract.TasksTable.REGISTRATION_TIME + " TEXT, " +
+				TasksContract.TasksTable.STATUS_CHANGE_TIME + " TEXT, " +
+				TasksContract.TasksTable.STATUS + " TEXT, " +
+				TasksContract.TasksTable.CREDITS + " TEXT, " +
+				TasksContract.TasksTable.DESCRIPTION + " TEXT, " +
+				TasksContract.TasksTable.ESTIMATED_PROCESSING_TIME + " TEXT, " +
+				TasksContract.TasksTable.FILES_COUNT + " TEXT, " +
+				TasksContract.TasksTable.RESULT_URL + " TEXT, " +
+				TasksContract.TasksTable.ERROR + " TEXT" +
 				")"
 		);
 	}

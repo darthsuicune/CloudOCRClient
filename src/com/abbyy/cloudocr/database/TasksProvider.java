@@ -67,6 +67,8 @@ public class TasksProvider extends ContentProvider {
 		Uri result = ContentUris.withAppendedId(uri, db.insert(
 				TasksContract.TasksTable.TABLE_NAME, null, values));
 		db.close();
+		getContext().getContentResolver().notifyChange(TasksContract.CONTENT_TASKS, null);
+		getContext().getContentResolver().notifyChange(result, null);
 		return result;
 	}
 
@@ -94,6 +96,7 @@ public class TasksProvider extends ContentProvider {
 		Cursor cursor = builder.query(db, projection, selection, selectionArgs,
 				groupBy, having, sortOrder);
 		db.close();
+		cursor.setNotificationUri(getContext().getContentResolver(), uri);
 		return cursor;
 	}
 
@@ -115,6 +118,8 @@ public class TasksProvider extends ContentProvider {
 		int count = db.update(TasksContract.TasksTable.TABLE_NAME, values,
 				where, selectionArgs);
 		db.close();
+		getContext().getContentResolver().notifyChange(TasksContract.CONTENT_TASKS, null);
+		getContext().getContentResolver().notifyChange(uri, null);
 		return count;
 	}
 
@@ -135,6 +140,8 @@ public class TasksProvider extends ContentProvider {
 		int count = db.delete(TasksContract.TasksTable.TABLE_NAME, where,
 				selectionArgs);
 		db.close();
+		getContext().getContentResolver().notifyChange(TasksContract.CONTENT_TASKS, null);
+		getContext().getContentResolver().notifyChange(uri, null);
 		return count;
 	}
 

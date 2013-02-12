@@ -2,10 +2,14 @@ package com.abbyy.cloudocr.optionsfragments;
 
 import java.util.HashMap;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.abbyy.cloudocr.AsyncConnectionLoader;
@@ -20,8 +24,35 @@ public abstract class ProcessOptionsFragment extends Fragment {
 	
 	public abstract boolean saveDefaultOptions();
 	public abstract boolean loadDefaultOptions();
+	
+	abstract void addLanguage(String language);	
 	abstract String createURL();
+	abstract void setViews();
 
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		setHasOptionsMenu(true);
+		setViews(); 
+		loadDefaultOptions();
+	}
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.create_task, menu);
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()){
+		case R.id.menu_process:
+			saveDefaultOptions();
+//			launchTask();
+			Toast.makeText(getActivity(), createURL(), Toast.LENGTH_LONG).show();
+			break;
+		}
+		return true;
+	}
+	
 	public Bundle createArgs() {
 		Bundle args = new Bundle();
 		args.putString(AsyncConnectionLoader.ARGUMENT_URL, createURL());
@@ -67,6 +98,16 @@ public abstract class ProcessOptionsFragment extends Fragment {
 	}
 	
 	private void parseData(String data){
+		parseResponse();
+		createTaskInBackground();
+	}
+	
+	private void parseResponse(){
 		
+	}
+	
+	private void createTaskInBackground(){
+		Intent intent = new Intent();
+		getActivity().startService(intent);
 	}
 }

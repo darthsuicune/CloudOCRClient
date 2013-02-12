@@ -7,8 +7,8 @@ public class TasksContract {
 	public static final String DB_NAME = "grades";
 	public static final int DB_VERSION = 1;	
 	
-	static final String CONTENT_NAME = "com.abbyy.cloudocr.TasksProvider";
-	public static final Uri CONTENT_TASKS = Uri.parse("" + CONTENT_NAME);
+	static final String CONTENT_NAME = "com.abbyy.cloudocr.database.TasksProvider";
+	public static final Uri CONTENT_TASKS = Uri.parse("content://" + CONTENT_NAME + "/" + TasksTable.TABLE_NAME);
 
 	private TasksContract(){
 	}

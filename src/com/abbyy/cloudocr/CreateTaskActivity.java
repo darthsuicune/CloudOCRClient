@@ -8,6 +8,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -17,14 +19,8 @@ import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 import com.abbyy.cloudocr.compat.ActionBarActivity;
-import com.abbyy.cloudocr.optionsfragments.ProcessBarcodeFieldOptionsFragment;
-import com.abbyy.cloudocr.optionsfragments.ProcessBusinessCardOptionsFragment;
-import com.abbyy.cloudocr.optionsfragments.ProcessCheckmarkFieldOptionsFragment;
-import com.abbyy.cloudocr.optionsfragments.ProcessFieldsOptionsFragment;
 import com.abbyy.cloudocr.optionsfragments.ProcessImageOptionsFragment;
-import com.abbyy.cloudocr.optionsfragments.ProcessMultipleOptionsFragment;
 import com.abbyy.cloudocr.optionsfragments.ProcessOptionsFragment;
-import com.abbyy.cloudocr.optionsfragments.ProcessTextFieldOptionsFragment;
 
 public class CreateTaskActivity extends ActionBarActivity {
 	public static final String EXTRA_PROCESS_MODE = "Process mode";
@@ -42,7 +38,21 @@ public class CreateTaskActivity extends ActionBarActivity {
 		handleIncomingIntent();
 		setViews();
 		setOptionsFragment();
-		setFragmentOptions();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()){
+		case android.R.id.home:
+			finish();
+			break;
+		}
+		return true;
 	}
 
 	private void handleIncomingIntent() {
@@ -84,27 +94,27 @@ public class CreateTaskActivity extends ActionBarActivity {
 	private void setOptionsFragment() {
 		if (mProcessingMode != -1) {
 			switch (mProcessingMode) {
-			case SettingsActivity.PROCESSING_MODE_BARCODE_FIELD:
-				mProcessOptionsFragment = new ProcessBarcodeFieldOptionsFragment();
-				break;
-			case SettingsActivity.PROCESSING_MODE_BUSINESS_CARD:
-				mProcessOptionsFragment = new ProcessBusinessCardOptionsFragment();
-				break;
-			case SettingsActivity.PROCESSING_MODE_CHECKMARK_FIELD:
-				mProcessOptionsFragment = new ProcessCheckmarkFieldOptionsFragment();
-				break;
-			case SettingsActivity.PROCESSING_MODE_FIELDS:
-				mProcessOptionsFragment = new ProcessFieldsOptionsFragment();
-				break;
+//			case SettingsActivity.PROCESSING_MODE_BARCODE_FIELD:
+//				mProcessOptionsFragment = new ProcessBarcodeFieldOptionsFragment();
+//				break;
+//			case SettingsActivity.PROCESSING_MODE_BUSINESS_CARD:
+//				mProcessOptionsFragment = new ProcessBusinessCardOptionsFragment();
+//				break;
+//			case SettingsActivity.PROCESSING_MODE_CHECKMARK_FIELD:
+//				mProcessOptionsFragment = new ProcessCheckmarkFieldOptionsFragment();
+//				break;
+//			case SettingsActivity.PROCESSING_MODE_FIELDS:
+//				mProcessOptionsFragment = new ProcessFieldsOptionsFragment();
+//				break;
 			case SettingsActivity.PROCESSING_MODE_IMAGE:
 				mProcessOptionsFragment = new ProcessImageOptionsFragment();
 				break;
-			case SettingsActivity.PROCESSING_MODE_MULTIPLE:
-				mProcessOptionsFragment = new ProcessMultipleOptionsFragment();
-				break;
-			case SettingsActivity.PROCESSING_MODE_TEXT_FIELD:
-				mProcessOptionsFragment = new ProcessTextFieldOptionsFragment();
-				break;
+//			case SettingsActivity.PROCESSING_MODE_MULTIPLE:
+//				mProcessOptionsFragment = new ProcessMultipleOptionsFragment();
+//				break;
+//			case SettingsActivity.PROCESSING_MODE_TEXT_FIELD:
+//				mProcessOptionsFragment = new ProcessTextFieldOptionsFragment();
+//				break;
 			}
 		}
 		FragmentTransaction transaction = getSupportFragmentManager()
@@ -113,14 +123,12 @@ public class CreateTaskActivity extends ActionBarActivity {
 		transaction.commit();
 	}
 
-	private void setFragmentOptions() {
-	}
-
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void setActionBar() {
 		ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 		actionBar.setDisplayHomeAsUpEnabled(true);
+		actionBar.setDisplayShowTitleEnabled(false);
 		actionBar.setListNavigationCallbacks(getSpinnerAdapter(),
 				new OnNavigationListener() {
 					@Override
@@ -155,9 +163,9 @@ public class CreateTaskActivity extends ActionBarActivity {
 	private SpinnerAdapter getSpinnerAdapter() {
 		String[] strings = getResources().getStringArray(R.array.process_type);
 
-		SpinnerAdapter adapter = new ArrayAdapter<String>(this,
-				android.R.layout.simple_spinner_dropdown_item, android.R.id.text1,
-				strings);
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+				android.R.layout.simple_spinner_item, strings);
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		return adapter;
 	}
 }

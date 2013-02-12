@@ -37,10 +37,10 @@ public class Task {
 		isInDb = fromDb;
 	}
 
-	public void updateTask(String taskId, String status, String registrationTime,
-			String statusChangeTime, int filesCount, int credits,
-			int estimatedProcessingTime, String description, String resultUrl,
-			String error) {
+	public void updateTask(String taskId, String status,
+			String registrationTime, String statusChangeTime, int filesCount,
+			int credits, int estimatedProcessingTime, String description,
+			String resultUrl, String error) {
 		mTaskId = taskId;
 		mStatus = status;
 		mRegistrationTime = registrationTime;
@@ -78,7 +78,8 @@ public class Task {
 				return false;
 			}
 		} else {
-			if (cr.insert(uri, values) != null) {
+			Uri _uri = cr.insert(uri, values);
+			if (_uri != null) {
 				isInDb = true;
 			}
 		}

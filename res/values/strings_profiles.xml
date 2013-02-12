@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="profiles">
+        <item>@string/profile_document_conversion</item>
+        <item>@string/profile_document_archiving</item>
+        <item>@string/profile_text_extraction</item>
+        <item>@string/profile_field_level_recognition</item>
+        <item>@string/profile_barcode_recognition</item>
+    </string-array>
+    
+    <string name="profile_document_conversion">"documentConversion"</string>
+    <string name="profile_document_archiving">"documentArchiving"</string>
+    <string name="profile_text_extraction">"textExtraction"</string>
+    <string name="profile_field_level_recognition">"fieldLevelRecognition"</string>
+    <string name="profile_barcode_recognition">"barcodeRecognition"</string>
+</resources>

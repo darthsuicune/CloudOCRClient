@@ -1,21 +1,27 @@
 package com.abbyy.cloudocr;
 
 import android.content.SharedPreferences;
+import android.database.ContentObserver;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.view.Menu;
 
 import com.abbyy.cloudocr.compat.CompatTab;
 import com.abbyy.cloudocr.compat.CompatTabListener;
 import com.abbyy.cloudocr.compat.TabCompatActivity;
 import com.abbyy.cloudocr.compat.TabHelper;
+import com.abbyy.cloudocr.database.TasksContract;
 
 public class MainActivity extends TabCompatActivity {
 	private static final int TAB_ACTIVE = 0;
 	private static final int TAB_COMPLETED = 1;
 
 	private SharedPreferences prefs;
+	
+	TasksFragment mTasksFragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -23,25 +29,33 @@ public class MainActivity extends TabCompatActivity {
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		setContentView(R.layout.main_activity);
 		setTabs();
+		getContentResolver().registerContentObserver(
+				TasksContract.CONTENT_TASKS, true, new TasksObserver(null));
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		return true;
+	}
 
 	private void setTabs() {
 		TabHelper tabHelper = getTabHelper();
-		
-		createTab(tabHelper, getString(R.string.tab_active_tasks), R.string.tab_active_tasks,
-				new TabListener(this, ActiveTasksFragment.class));
 
-		createTab(tabHelper, getString(R.string.tab_completed_tasks), R.string.tab_completed_tasks,
-				new TabListener(this, CompletedTasksFragment.class));
+		createTab(tabHelper, getString(R.string.tab_active_tasks),
+				R.string.tab_active_tasks, new TabListener(this,
+						ActiveTasksFragment.class));
 
-		tabHelper.setActiveTab(prefs.getInt(
-				SettingsActivity.DEFAULT_TAB, TAB_ACTIVE));
+		createTab(tabHelper, getString(R.string.tab_completed_tasks),
+				R.string.tab_completed_tasks, new TabListener(this,
+						CompletedTasksFragment.class));
+
+		tabHelper.setActiveTab(prefs.getInt(SettingsActivity.DEFAULT_TAB,
+				TAB_ACTIVE));
 	}
 
-	private void createTab(TabHelper tabHelper, String tag,
-			int textResourceId, TabListener listener) {
-		
+	private void createTab(TabHelper tabHelper, String tag, int textResourceId,
+			TabListener listener) {
+
 		CompatTab tab = tabHelper.newTab(tag);
 
 		tab.setText(textResourceId);
@@ -72,6 +86,7 @@ public class MainActivity extends TabCompatActivity {
 		@Override
 		public void onTabSelected(CompatTab tab, FragmentTransaction ft) {
 			Fragment fragment = tab.getFragment();
+			mTasksFragment = (TasksFragment) fragment;
 			if (fragment == null) {
 				fragment = Fragment.instantiate(mActivity, mClass.getName());
 				tab.setFragment(fragment);
@@ -102,5 +117,19 @@ public class MainActivity extends TabCompatActivity {
 		}
 
 		prefs.edit().putInt(SettingsActivity.DEFAULT_TAB, currentTab);
+	}
+	
+	private class TasksObserver extends ContentObserver {
+
+		public TasksObserver(Handler handler) {
+			super(handler);
+		}
+
+		@Override
+		public void onChange(boolean selfChange) {
+			super.onChange(selfChange);
+			mTasksFragment.getId(); // TODO
+		}
+		
 	}
 }

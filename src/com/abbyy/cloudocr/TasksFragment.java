@@ -8,23 +8,28 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.ContentObserver;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.util.Log;
 import android.util.Xml;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.abbyy.cloudocr.database.TasksContract;
 
-public class TasksFragment extends ListFragment {
+public abstract class TasksFragment extends ListFragment {
 
 	final static int LOADER_ACTIVE_INTERNET = 1;
 	final static int LOADER_ACTIVE_CURSOR = 2;
@@ -33,6 +38,7 @@ public class TasksFragment extends ListFragment {
 
 	private boolean isLandscape;
 	private CursorAdapter mAdapter;
+	private Handler mHandler;
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -54,10 +60,17 @@ public class TasksFragment extends ListFragment {
 	private void setAdapter() {
 		String[] from = {};
 		int[] to = {};
+
+		mHandler = new Handler();
+		getActivity().getContentResolver().registerContentObserver(
+				TasksContract.CONTENT_TASKS, true, new TasksContentObserver());
+
 		mAdapter = new SimpleCursorAdapter(getActivity(),
 				R.layout.completed_entry, null, from, to,
 				SimpleCursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+
 		setListAdapter(mAdapter);
+
 	}
 
 	// TODO landscape
@@ -73,10 +86,10 @@ public class TasksFragment extends ListFragment {
 
 	void loadTasks(boolean active) {
 		if (active) {
-			getActivity().getSupportLoaderManager().initLoader(
+			getActivity().getSupportLoaderManager().restartLoader(
 					LOADER_ACTIVE_CURSOR, null, new CursorLoaderHelper());
 		} else {
-			getActivity().getSupportLoaderManager().initLoader(
+			getActivity().getSupportLoaderManager().restartLoader(
 					LOADER_COMPLETED_CURSOR, null, new CursorLoaderHelper());
 		}
 
@@ -93,7 +106,7 @@ public class TasksFragment extends ListFragment {
 		}
 	}
 
-	//TODO
+	// TODO
 	void launchNewTask() {
 		if (isLandscape) {
 
@@ -102,8 +115,8 @@ public class TasksFragment extends ListFragment {
 			startActivity(intent);
 		}
 	}
-	
-	void openSettings(){
+
+	void openSettings() {
 		Intent intent = new Intent(getActivity(), SettingsActivity.class);
 		startActivity(intent);
 	}
@@ -127,7 +140,8 @@ public class TasksFragment extends ListFragment {
 						TasksContract.TasksTable.REGISTRATION_TIME,
 						TasksContract.TasksTable.STATUS,
 						TasksContract.TasksTable.FILES_COUNT };
-				String activeSelection = TasksContract.TasksTable.STATUS + "!=";
+				String activeSelection = TasksContract.TasksTable.STATUS
+						+ "!=?";
 				String[] activeSelectionArgs = { getActivity().getString(
 						R.string.status_completed) };
 				String activeSortOrder = "";
@@ -186,25 +200,21 @@ public class TasksFragment extends ListFragment {
 		}
 
 		@Override
-		public void onLoadFinished(Loader<String> loader, String stream) {
+		public void onLoadFinished(Loader<String> loader, String response) {
+			try {
+				parseResponse(response);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			switch (loader.getId()) {
 			case LOADER_ACTIVE_INTERNET:
-				try {
-					parseResponse(stream);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				getActivity().getSupportLoaderManager().restartLoader(
-						LOADER_ACTIVE_CURSOR, null, new CursorLoaderHelper());
+//				loadTasks(true);
 				break;
 			case LOADER_COMPLETED_INTERNET:
-				try {
-					parseResponse(stream);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+//				loadTasks(false);
 				break;
 			}
+			loader.abandon();
 		}
 
 		@Override
@@ -245,16 +255,39 @@ public class TasksFragment extends ListFragment {
 			String name = parser.getName();
 			if (name.equals(getActivity().getString(R.string.tag_task))) {
 				Task newTask = new Task(
-						parser.getAttributeValue(null, getActivity().getString(R.string.field_id)),
-						parser.getAttributeValue(null, getActivity().getString(R.string.field_status)),
-						parser.getAttributeValue(null, getActivity().getString(R.string.field_registration_time)),
-						parser.getAttributeValue(null, getActivity().getString(R.string.field_status_change_time)),
-						Integer.parseInt(parser.getAttributeValue(null, getActivity().getString(R.string.field_files_count))),
-						Integer.parseInt(parser.getAttributeValue(null, getActivity().getString(R.string.field_credits))),
-						Integer.parseInt(parser.getAttributeValue(null, getActivity().getString(R.string.field_estimated_processing_time))),
-						parser.getAttributeValue(null, getActivity().getString(R.string.field_description)),
-						parser.getAttributeValue(null, getActivity().getString(R.string.field_result_url)),
-						parser.getAttributeValue(null, getActivity().getString(R.string.field_error)),
+						parser.getAttributeValue(null,
+								getActivity().getString(R.string.field_id)),
+						parser.getAttributeValue(null,
+								getActivity().getString(R.string.field_status)),
+						parser.getAttributeValue(
+								null,
+								getActivity().getString(
+										R.string.field_registration_time)),
+						parser.getAttributeValue(
+								null,
+								getActivity().getString(
+										R.string.field_status_change_time)),
+						Integer.parseInt(parser.getAttributeValue(
+								null,
+								getActivity().getString(
+										R.string.field_files_count))),
+						Integer.parseInt(parser
+								.getAttributeValue(null, getActivity()
+										.getString(R.string.field_credits))),
+						Integer.parseInt(parser
+								.getAttributeValue(
+										null,
+										getActivity()
+												.getString(
+														R.string.field_estimated_processing_time))),
+						parser.getAttributeValue(
+								null,
+								getActivity().getString(
+										R.string.field_description)), parser
+								.getAttributeValue(null, getActivity()
+										.getString(R.string.field_result_url)),
+						parser.getAttributeValue(null,
+								getActivity().getString(R.string.field_error)),
 						false);
 
 				handleNewTask(newTask);
@@ -279,5 +312,18 @@ public class TasksFragment extends ListFragment {
 	}
 
 	private void finish(boolean isOK) {
+	}
+
+	private class TasksContentObserver extends ContentObserver {
+
+		public TasksContentObserver() {
+			super(mHandler);
+		}
+
+		@Override
+		public void onChange(boolean selfChange) {
+			Toast.makeText(getActivity(), "CONTENT CHANGED!!!", Toast.LENGTH_LONG).show();
+		}
+
 	}
 }

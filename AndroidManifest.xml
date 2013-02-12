@@ -22,6 +22,10 @@
             android:name="com.abbyy.cloudocr.StartActivity"
             android:label="@string/app_name" >
         </activity>
+        <activity
+            android:name="com.abbyy.cloudocr.SettingsActivity"
+            android:label="@string/settings" >
+        </activity>
         <activity android:name="com.abbyy.cloudocr.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,6 +41,11 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <provider
+            android:name="com.abbyy.cloudocr.database.TasksProvider"
+            android:authorities="com.abbyy.cloudocr.database.TasksProvider" >
+            
+        </provider>
     </application>
 
 </manifest>
