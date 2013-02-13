@@ -4,7 +4,7 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 
 public class TasksContract {
-	public static final String DB_NAME = "grades";
+	public static final String DB_NAME = "tasks";
 	public static final int DB_VERSION = 1;	
 	
 	static final String CONTENT_NAME = "com.abbyy.cloudocr.database.TasksProvider";

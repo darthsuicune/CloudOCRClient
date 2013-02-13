@@ -66,7 +66,7 @@ public class TasksProvider extends ContentProvider {
 		
 		Uri result = ContentUris.withAppendedId(uri, db.insert(
 				TasksContract.TasksTable.TABLE_NAME, null, values));
-		db.close();
+//		db.close();
 		getContext().getContentResolver().notifyChange(TasksContract.CONTENT_TASKS, null);
 		getContext().getContentResolver().notifyChange(result, null);
 		return result;
@@ -77,7 +77,6 @@ public class TasksProvider extends ContentProvider {
 			String[] selectionArgs, String sortOrder) {
 		switch (sUriMatcher.match(uri)) {
 		case URI_TASK_ID:
-
 		case URI_TASK:
 			break;
 		default:
@@ -95,8 +94,8 @@ public class TasksProvider extends ContentProvider {
 
 		Cursor cursor = builder.query(db, projection, selection, selectionArgs,
 				groupBy, having, sortOrder);
-		db.close();
 		cursor.setNotificationUri(getContext().getContentResolver(), uri);
+//		db.close();
 		return cursor;
 	}
 

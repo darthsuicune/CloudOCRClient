@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,7 +19,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.util.Log;
 import android.util.Xml;
 import android.view.View;
 import android.widget.ListView;
@@ -49,17 +47,16 @@ public abstract class TasksFragment extends ListFragment {
 
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
-		String taskId = ((TextView) v.findViewById(0)).getText().toString(); // TODO
-																				// replace
-																				// 0
-																				// for
-																				// ID
+		String taskId = ((TextView) v.findViewById(R.id.task_list_item_task_id))
+				.getText().toString();
 		showTaskDetails(taskId);
 	}
 
 	private void setAdapter() {
-		String[] from = {};
-		int[] to = {};
+		String[] from = { TasksContract.TasksTable.TASK_ID,
+				TasksContract.TasksTable.REGISTRATION_TIME, };
+		int[] to = { R.id.task_list_item_task_id,
+				R.id.task_list_item_registration_time };
 
 		mHandler = new Handler();
 		getActivity().getContentResolver().registerContentObserver(
@@ -78,9 +75,11 @@ public abstract class TasksFragment extends ListFragment {
 		if (isLandscape) {
 
 		} else {
-			Intent intent = new Intent(getActivity(), TaskDetailsActivity.class);
-			intent.putExtra(TaskDetailsActivity.EXTRA_TASK_ID, taskId);
-			startActivity(intent);
+			Toast.makeText(getActivity(), taskId, Toast.LENGTH_LONG).show();
+			// Intent intent = new Intent(getActivity(),
+			// TaskDetailsActivity.class);
+			// intent.putExtra(TaskDetailsActivity.EXTRA_TASK_ID, taskId);
+			// startActivity(intent);
 		}
 	}
 
@@ -133,20 +132,22 @@ public abstract class TasksFragment extends ListFragment {
 		@Override
 		public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 			Loader<Cursor> loader = null;
+			String[] projection = { TasksContract.TasksTable._ID,
+					TasksContract.TasksTable.TASK_ID,
+					TasksContract.TasksTable.REGISTRATION_TIME,
+					TasksContract.TasksTable.STATUS,
+					TasksContract.TasksTable.FILES_COUNT };
+
 			switch (id) {
 			case LOADER_ACTIVE_CURSOR:
-				String[] activeProjection = { TasksContract.TasksTable._ID,
-						TasksContract.TasksTable.TASK_ID,
-						TasksContract.TasksTable.REGISTRATION_TIME,
-						TasksContract.TasksTable.STATUS,
-						TasksContract.TasksTable.FILES_COUNT };
 				String activeSelection = TasksContract.TasksTable.STATUS
 						+ "!=?";
 				String[] activeSelectionArgs = { getActivity().getString(
 						R.string.status_completed) };
-				String activeSortOrder = "";
+				String activeSortOrder = null;
+
 				loader = new CursorLoader(getActivity(),
-						TasksContract.CONTENT_TASKS, activeProjection,
+						TasksContract.CONTENT_TASKS, projection,
 						activeSelection, activeSelectionArgs, activeSortOrder);
 				break;
 			case LOADER_COMPLETED_CURSOR:
@@ -155,9 +156,11 @@ public abstract class TasksFragment extends ListFragment {
 				String[] completedSelectionArgs = { getActivity().getString(
 						R.string.status_completed) };
 				String completedSortOrder = null;
+
 				loader = new CursorLoader(getActivity(),
-						TasksContract.CONTENT_TASKS, null, completedSelection,
-						completedSelectionArgs, completedSortOrder);
+						TasksContract.CONTENT_TASKS, projection,
+						completedSelection, completedSelectionArgs,
+						completedSortOrder);
 				break;
 			}
 			return loader;
@@ -166,10 +169,10 @@ public abstract class TasksFragment extends ListFragment {
 		@Override
 		public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 			switch (loader.getId()) {
-			case LOADER_COMPLETED_CURSOR:
+			case LOADER_ACTIVE_CURSOR:
 				mAdapter.swapCursor(cursor);
 				break;
-			case LOADER_ACTIVE_CURSOR:
+			case LOADER_COMPLETED_CURSOR:
 				mAdapter.swapCursor(cursor);
 				break;
 			default:
@@ -208,10 +211,10 @@ public abstract class TasksFragment extends ListFragment {
 			}
 			switch (loader.getId()) {
 			case LOADER_ACTIVE_INTERNET:
-//				loadTasks(true);
+				// loadTasks(true);
 				break;
 			case LOADER_COMPLETED_INTERNET:
-//				loadTasks(false);
+				// loadTasks(false);
 				break;
 			}
 			loader.abandon();
@@ -322,7 +325,8 @@ public abstract class TasksFragment extends ListFragment {
 
 		@Override
 		public void onChange(boolean selfChange) {
-			Toast.makeText(getActivity(), "CONTENT CHANGED!!!", Toast.LENGTH_LONG).show();
+			Toast.makeText(getActivity(), "CONTENT CHANGED!!!",
+					Toast.LENGTH_LONG).show();
 		}
 
 	}
