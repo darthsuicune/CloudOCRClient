@@ -11,6 +11,8 @@ import com.abbyy.cloudocr.compat.CompatTab;
 import com.abbyy.cloudocr.compat.CompatTabListener;
 import com.abbyy.cloudocr.compat.TabCompatActivity;
 import com.abbyy.cloudocr.compat.TabHelper;
+import com.abbyy.cloudocr.fragments.ActiveTasksFragment;
+import com.abbyy.cloudocr.fragments.CompletedTasksFragment;
 
 public class MainActivity extends TabCompatActivity {
 	private static final int TAB_ACTIVE = 0;

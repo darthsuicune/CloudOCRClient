@@ -1,6 +1,7 @@
 package com.abbyy.cloudocr.database;
 
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
@@ -37,11 +38,13 @@ public class TasksProvider extends ContentProvider {
 	public String getType(Uri uri) {
 		switch (sUriMatcher.match(uri)) {
 		case URI_TASK:
-			return "vnd.android.cursor.dir/vnd." + TasksContract.CONTENT_NAME
-					+ "." + TasksContract.TasksTable.TABLE_NAME;
+			return ContentResolver.CURSOR_DIR_BASE_TYPE
+					+ TasksContract.CONTENT_NAME + "."
+					+ TasksContract.TasksTable.TABLE_NAME;
 		case URI_TASK_ID:
-			return "vnd.android.cursor.item/vnd." + TasksContract.CONTENT_NAME
-					+ "." + TasksContract.TasksTable.TABLE_NAME;
+			return ContentResolver.CURSOR_ITEM_BASE_TYPE
+					+ TasksContract.CONTENT_NAME + "."
+					+ TasksContract.TasksTable.TABLE_NAME;
 		default:
 			throw new IllegalArgumentException(getContext().getString(
 					R.string.illegal_uri)
@@ -53,7 +56,6 @@ public class TasksProvider extends ContentProvider {
 	public Uri insert(Uri uri, ContentValues values) {
 		switch (sUriMatcher.match(uri)) {
 		case URI_TASK_ID:
-
 		case URI_TASK:
 			break;
 		default:
@@ -61,13 +63,15 @@ public class TasksProvider extends ContentProvider {
 					R.string.illegal_uri)
 					+ uri.toString());
 		}
-		
+
 		SQLiteDatabase db = mDbHelper.getWritableDatabase();
-		
-		Uri result = ContentUris.withAppendedId(uri, db.insert(
-				TasksContract.TasksTable.TABLE_NAME, null, values));
-//		db.close();
-		getContext().getContentResolver().notifyChange(TasksContract.CONTENT_TASKS, null);
+		long id = db.insert(TasksContract.TasksTable.TABLE_NAME, null, values);
+		Uri result = null;
+		if (id != -1) {
+			result = ContentUris.withAppendedId(uri, id);
+		}
+		getContext().getContentResolver().notifyChange(
+				TasksContract.CONTENT_TASKS, null);
 		getContext().getContentResolver().notifyChange(result, null);
 		return result;
 	}
@@ -84,18 +88,17 @@ public class TasksProvider extends ContentProvider {
 					R.string.illegal_uri)
 					+ uri.toString());
 		}
-		
-		SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+		SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
 		SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
 		builder.setTables(TasksContract.TasksTable.TABLE_NAME);
-		String groupBy = TasksContract.TasksTable.TASK_ID;
+		String groupBy = null;
 		String having = null;
 
 		Cursor cursor = builder.query(db, projection, selection, selectionArgs,
 				groupBy, having, sortOrder);
 		cursor.setNotificationUri(getContext().getContentResolver(), uri);
-//		db.close();
 		return cursor;
 	}
 
@@ -112,13 +115,14 @@ public class TasksProvider extends ContentProvider {
 					R.string.illegal_uri)
 					+ uri.toString());
 		}
-		
+
 		SQLiteDatabase db = mDbHelper.getWritableDatabase();
 		int count = db.update(TasksContract.TasksTable.TABLE_NAME, values,
 				where, selectionArgs);
-		db.close();
-		getContext().getContentResolver().notifyChange(TasksContract.CONTENT_TASKS, null);
-		getContext().getContentResolver().notifyChange(uri, null);
+
+		if (count > 0) {
+			getContext().getContentResolver().notifyChange(uri, null);
+		}
 		return count;
 	}
 
@@ -134,13 +138,14 @@ public class TasksProvider extends ContentProvider {
 					R.string.illegal_uri)
 					+ uri.toString());
 		}
-		
+
 		SQLiteDatabase db = mDbHelper.getWritableDatabase();
 		int count = db.delete(TasksContract.TasksTable.TABLE_NAME, where,
 				selectionArgs);
-		db.close();
-		getContext().getContentResolver().notifyChange(TasksContract.CONTENT_TASKS, null);
-		getContext().getContentResolver().notifyChange(uri, null);
+
+		if (count > 0) {
+			getContext().getContentResolver().notifyChange(uri, null);
+		}
 		return count;
 	}
 

@@ -25,6 +25,7 @@
         android:layout_alignParentRight="true"
         android:clickable="true"
         android:src="@drawable/abbyy_logo"
+        android:background="@android:color/transparent"
         android:contentDescription="@string/app_name" />
         
 </RelativeLayout>

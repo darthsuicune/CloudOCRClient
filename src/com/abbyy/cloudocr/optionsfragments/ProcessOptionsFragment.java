@@ -1,5 +1,6 @@
 package com.abbyy.cloudocr.optionsfragments;
 
+import java.net.MalformedURLException;
 import java.util.HashMap;
 
 import android.content.Intent;
@@ -12,102 +13,93 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.abbyy.cloudocr.AsyncConnectionLoader;
+import com.abbyy.cloudocr.CloudClient;
+import com.abbyy.cloudocr.ConnectionLoader;
 import com.abbyy.cloudocr.R;
+import com.abbyy.cloudocr.Task;
 
 public abstract class ProcessOptionsFragment extends Fragment {
+	private static final int LOADER_LAUNCH_TASK = 1;
 	protected final String BASE_URL = "http://cloud.ocrsdk.com/";
 	protected String mTaskId;
-	private static final int LOADER_LAUNCH_TASK = 1;
-	
+	CloudClient mClient;
+
 	HashMap<String, String> mOptions;
-	
+
 	public abstract boolean saveDefaultOptions();
 	public abstract boolean loadDefaultOptions();
-	
-	abstract void addLanguage(String language);	
+	abstract void addLanguage(String language);
 	abstract String createURL();
 	abstract void setViews();
+	
+	
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		setHasOptionsMenu(true);
-		setViews(); 
+		setViews();
 		loadDefaultOptions();
 	}
+
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.create_task, menu);
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()){
+		switch (item.getItemId()) {
 		case R.id.menu_process:
 			saveDefaultOptions();
-//			launchTask();
-			Toast.makeText(getActivity(), createURL(), Toast.LENGTH_LONG).show();
+			// launchTask();
+			Toast.makeText(getActivity(), createURL(), Toast.LENGTH_LONG)
+					.show();
 			break;
 		}
 		return true;
 	}
-	
-	public Bundle createArgs() {
-		Bundle args = new Bundle();
-		args.putString(AsyncConnectionLoader.ARGUMENT_URL, createURL());
-		return args;
+
+	public void launchTask(String filePath) {
+		if(!filePath.equals("")){
+			
+		}
+		getActivity().getSupportLoaderManager().restartLoader(
+				LOADER_LAUNCH_TASK, null, new ConnectionHelper());
 	}
 
-	public void launchTask() {
-		getActivity().getSupportLoaderManager().initLoader(LOADER_LAUNCH_TASK,
-				createArgs(), new ConnectionHelper());
+	private void createTaskInBackground() {
+		Intent intent = new Intent();
+		getActivity().startService(intent);
 	}
-	
-	private class ConnectionHelper implements LoaderCallbacks<String>{
 
+	public class ConnectionHelper implements LoaderCallbacks<Task> {
 		@Override
-		public Loader<String> onCreateLoader(int id, Bundle args) {
-			Loader<String> loader = null;
-			switch(id){
-			case LOADER_LAUNCH_TASK:
-				loader = new AsyncConnectionLoader(getActivity(), args);
-				break;
+		public Loader<Task> onCreateLoader(int id, Bundle args) {
+			try {
+//				switch (id) {
+//				case LOADER_LAUNCH_TASK:
+//					break;
+//				}
+				if(mClient == null){
+					mClient = new CloudClient(getActivity(), createURL());
+				}
+				return new ConnectionLoader(getActivity(), mClient);
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
 			}
-			return loader;
+			return null;
 		}
 
 		@Override
-		public void onLoadFinished(Loader<String> loader, String result) {
-			switch(loader.getId()){
-			case LOADER_LAUNCH_TASK:
-				if(result != null){
-					parseData(result);
-				} else {
-					Toast.makeText(getActivity(), R.string.error_uploading, Toast.LENGTH_LONG).show();
-				}
-				break;
-			}
+		public void onLoadFinished(Loader<Task> loader,
+				Task response) {
+			createTaskInBackground();
 			loader.abandon();
 		}
 
 		@Override
-		public void onLoaderReset(Loader<String> loader) {
-			loader.reset();
+		public void onLoaderReset(Loader<Task> loader) {
 		}
-	}
-	
-	private void parseData(String data){
-		parseResponse();
-		createTaskInBackground();
-	}
-	
-	private void parseResponse(){
-		
-	}
-	
-	private void createTaskInBackground(){
-		Intent intent = new Intent();
-		getActivity().startService(intent);
 	}
 }

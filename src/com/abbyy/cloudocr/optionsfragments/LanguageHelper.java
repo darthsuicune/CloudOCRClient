@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import android.view.View;
 import android.view.View.OnClickListener;
 
-public class AddLanguagesListener implements OnClickListener {
+public class LanguageHelper implements OnClickListener {
 	private ProcessOptionsFragment mFragment;
 	private ArrayList<String> mLanguages;
 	
-	public AddLanguagesListener(ProcessOptionsFragment fragment, ArrayList<String> languages){
+	public LanguageHelper(ProcessOptionsFragment fragment, ArrayList<String> languages){
 		mFragment = fragment;
 		if(languages == null) {
 			mLanguages = new ArrayList<String>();

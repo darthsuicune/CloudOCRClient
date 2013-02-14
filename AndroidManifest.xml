@@ -7,11 +7,25 @@
     <uses-sdk
         android:minSdkVersion="4"
         android:targetSdkVersion="17" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <permission
+        android:name="com.abbyy.cloudocrclient.database.READ_TASKS"
+        android:description="@string/permission_provider_read_description"
+        android:label="@string/permission_provider_read_label"
+        android:protectionLevel="signature" >
+    </permission>
+    <permission
+        android:name="com.abbyy.cloudocrclient.database.WRITE_TASKS"
+        android:description="@string/permission_provider_write_description"
+        android:label="@string/permission_provider_write_label"
+        android:protectionLevel="signature" >
+    </permission>
 
     <application
         android:allowBackup="true"
@@ -26,25 +40,28 @@
             android:name="com.abbyy.cloudocr.SettingsActivity"
             android:label="@string/settings" >
         </activity>
-        <activity android:name="com.abbyy.cloudocr.MainActivity">
+        <activity android:name="com.abbyy.cloudocr.MainActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity 
-            android:name="com.abbyy.cloudocr.CreateTaskActivity" >
+        <activity android:name="com.abbyy.cloudocr.CreateTaskActivity" >
             <intent-filter>
-                <action android:name="android.intent.action.SEND"  />
-				<data android:mimeType="image/*" />
+                <action android:name="android.intent.action.SEND" />
+
+                <data android:mimeType="image/*" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
         <provider
             android:name="com.abbyy.cloudocr.database.TasksProvider"
-            android:authorities="com.abbyy.cloudocr.database.TasksProvider" >
-            
+            android:authorities="com.abbyy.cloudocr.database.TasksProvider"
+            android:readPermission="@string/permission_provider_read"
+            android:writePermission="@string/permission_provider_write" >
         </provider>
     </application>
 

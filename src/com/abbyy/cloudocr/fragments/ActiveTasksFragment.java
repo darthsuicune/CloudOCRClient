@@ -1,40 +1,51 @@
-package com.abbyy.cloudocr;
+package com.abbyy.cloudocr.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
-public class CompletedTasksFragment extends TasksFragment {
+import com.abbyy.cloudocr.R;
+import com.abbyy.cloudocr.StartActivity;
+
+public class ActiveTasksFragment extends TasksFragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.completed_tasks_fragment, container, false);
+		View v = inflater.inflate(R.layout.active_tasks_fragment, container,
+				false);
+		v.findViewById(R.id.create_new_task).setOnClickListener(
+				new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						launchNewTask();
+					}
+				});
+		return v;
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		loadTasks(false);
+		loadTasks(true);
 	}
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.completed_tasks, menu);
+		inflater.inflate(R.menu.active_tasks, menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_refresh:
-			downloadTasks(false);
-			break;
-		case R.id.completed_tasks_clean_list:
-			removeFullList();
+			downloadTasks(true);
 			break;
 		case R.id.menu_settings:
 			openSettings();
@@ -44,12 +55,14 @@ public class CompletedTasksFragment extends TasksFragment {
 		}
 		return true;
 	}
-	
-	private void removeFullList(){
-		for(int i = 0; i < getListView().getCount(); i++){
-			View v = (View) getListView().getItemAtPosition(i);
-			String taskId = v.findViewById(0).toString(); // TODO
-			this.removeTaskFromList(taskId);
+
+	// TODO
+	private void launchNewTask() {
+		if (isLandscape) {
+
+		} else {
+			Intent intent = new Intent(getActivity(), StartActivity.class);
+			startActivity(intent);
 		}
 	}
 }

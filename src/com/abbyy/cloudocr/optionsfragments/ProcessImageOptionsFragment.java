@@ -103,7 +103,7 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment {
 		mDescription = prefs.getString(DESCRIPTION, "");
 		createLanguages(prefs.getString(LANGUAGES, ""));
 
-		mAddLanguagesView.setOnClickListener(new AddLanguagesListener(this,
+		mAddLanguagesView.setOnClickListener(new LanguageHelper(this,
 				mLanguagesList));
 
 		return true;

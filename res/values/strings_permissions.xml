@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="permission_provider_read">"com.abbyy.cloudocrclient.database.READ_TASKS"</string>
+    <string name="permission_provider_read_label">""</string>
+    <string name="permission_provider_read_description">""</string>
+    <string name="permission_provider_write">"com.abbyy.cloudocrclient.database.WRITE_TASKS"</string>
+    <string name="permission_provider_write_label">""</string>
+    <string name="permission_provider_write_description">""</string>
+
+</resources>
