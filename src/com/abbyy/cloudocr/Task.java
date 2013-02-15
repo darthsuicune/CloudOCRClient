@@ -62,9 +62,7 @@ public class Task {
 				return false;
 			}
 		} else {
-			Uri _uri = context.getContentResolver().insert(uri, setValues());
-			if (_uri != null) {
-			}
+			context.getContentResolver().insert(uri, setValues());
 		}
 		return isInDb;
 	}

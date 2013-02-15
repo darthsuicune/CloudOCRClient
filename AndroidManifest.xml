@@ -40,6 +40,10 @@
             android:name="com.abbyy.cloudocr.SettingsActivity"
             android:label="@string/settings" >
         </activity>
+        <activity
+            android:name="com.abbyy.cloudocr.TaskDetailsActivity"
+            android:label="@string/task_details" >
+        </activity>
         <activity android:name="com.abbyy.cloudocr.MainActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

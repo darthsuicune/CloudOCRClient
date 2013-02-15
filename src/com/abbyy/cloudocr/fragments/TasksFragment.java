@@ -58,7 +58,7 @@ public abstract class TasksFragment extends ListFragment {
 		showTaskDetails(taskId);
 	}
 
-	// TODO
+	// TODO landscape
 	private void showTaskDetails(String taskId) {
 		if (isLandscape) {
 			Toast.makeText(getActivity(), taskId, Toast.LENGTH_LONG).show();

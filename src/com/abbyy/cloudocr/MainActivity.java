@@ -35,6 +35,9 @@ public class MainActivity extends TabCompatActivity {
 
 	private void setTabs() {
 		TabHelper tabHelper = getTabHelper();
+		
+		int defaultTab = prefs.getInt(SettingsActivity.DEFAULT_TAB,
+				TAB_ACTIVE);
 
 		createTab(tabHelper, getString(R.string.tab_active_tasks),
 				R.string.tab_active_tasks, new TabListener(this,
@@ -44,8 +47,7 @@ public class MainActivity extends TabCompatActivity {
 				R.string.tab_completed_tasks, new TabListener(this,
 						CompletedTasksFragment.class));
 
-		tabHelper.setActiveTab(prefs.getInt(SettingsActivity.DEFAULT_TAB,
-				TAB_ACTIVE));
+		tabHelper.setActiveTab(defaultTab);
 	}
 
 	private void createTab(TabHelper tabHelper, String tag, int textResourceId,
@@ -110,6 +112,6 @@ public class MainActivity extends TabCompatActivity {
 			currentTab = TAB_COMPLETED;
 		}
 
-		prefs.edit().putInt(SettingsActivity.DEFAULT_TAB, currentTab);
+		prefs.edit().putInt(SettingsActivity.DEFAULT_TAB, currentTab).commit();
 	}
 }
