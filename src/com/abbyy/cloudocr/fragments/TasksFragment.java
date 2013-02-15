@@ -29,16 +29,21 @@ import com.abbyy.cloudocr.ConnectionLoader;
 import com.abbyy.cloudocr.R;
 import com.abbyy.cloudocr.SettingsActivity;
 import com.abbyy.cloudocr.Task;
+import com.abbyy.cloudocr.TaskDetailsActivity;
 import com.abbyy.cloudocr.database.TasksContract;
 
 public abstract class TasksFragment extends ListFragment {
-	private final static int LOADER_ACTIVE = 1;
-	private final static int LOADER_COMPLETED = 2;
+	private final static int LOADER_ACTIVE_TASK = 1;
+	private final static int LOADER_COMPLETED_TASK = 2;
+	private final static int LOADER_ACTIVE_DOWNLOAD = 3;
+	private final static int LOADER_COMPLETED_DOWNLOAD = 4;
+	
+	abstract void setAdapter();
 
 	boolean isLandscape;
 
-	private TasksAdapter mAdapter;
-
+	protected CursorAdapter mAdapter;
+	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -53,42 +58,25 @@ public abstract class TasksFragment extends ListFragment {
 		showTaskDetails(taskId);
 	}
 
-	private void setAdapter() {
-		String[] from = { TasksContract.TasksTable.TASK_ID,
-				TasksContract.TasksTable.REGISTRATION_TIME, };
-		int[] to = { R.id.task_list_item_task_id,
-				R.id.task_list_item_registration_time };
-
-		// getActivity().getContentResolver().registerContentObserver(
-		// TasksContract.CONTENT_TASKS, true, new TasksContentObserver());
-
-		mAdapter = new TasksAdapter(getActivity(), R.layout.completed_entry,
-				null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-
-		setListAdapter(mAdapter);
-
-	}
-
 	// TODO
 	private void showTaskDetails(String taskId) {
 		if (isLandscape) {
-
-		} else {
 			Toast.makeText(getActivity(), taskId, Toast.LENGTH_LONG).show();
-			// Intent intent = new Intent(getActivity(),
-			// TaskDetailsActivity.class);
-			// intent.putExtra(TaskDetailsActivity.EXTRA_TASK_ID, taskId);
-			// startActivity(intent);
+		} else {
+			 Intent intent = new Intent(getActivity(),
+			 TaskDetailsActivity.class);
+			 intent.putExtra(TaskDetailsActivity.EXTRA_TASK_ID, taskId);
+			 startActivity(intent);
 		}
 	}
 
 	void loadTasks(boolean active) {
 		if (active) {
-			getActivity().getSupportLoaderManager().initLoader(LOADER_ACTIVE,
+			getActivity().getSupportLoaderManager().initLoader(LOADER_ACTIVE_TASK,
 					null, new CursorLoaderHelper());
 		} else {
 			getActivity().getSupportLoaderManager().initLoader(
-					LOADER_COMPLETED, null, new CursorLoaderHelper());
+					LOADER_COMPLETED_TASK, null, new CursorLoaderHelper());
 		}
 
 	}
@@ -96,10 +84,10 @@ public abstract class TasksFragment extends ListFragment {
 	void downloadTasks(boolean active) {
 		if (active) {
 			getActivity().getSupportLoaderManager().restartLoader(
-					LOADER_ACTIVE, null, new ConnectionHelper());
+					LOADER_ACTIVE_DOWNLOAD, null, new ConnectionHelper());
 		} else {
 			getActivity().getSupportLoaderManager().restartLoader(
-					LOADER_COMPLETED, null, new ConnectionHelper());
+					LOADER_COMPLETED_DOWNLOAD, null, new ConnectionHelper());
 		}
 	}
 
@@ -114,20 +102,6 @@ public abstract class TasksFragment extends ListFragment {
 		String[] selectionArgs = { taskId };
 		getActivity().getContentResolver().delete(uri, where, selectionArgs);
 	}
-
-	// class TasksContentObserver extends ContentObserver {
-	//
-	// public TasksContentObserver() {
-	// super(new Handler());
-	// }
-	//
-	// @Override
-	// public void onChange(boolean selfChange) {
-	// Toast.makeText(getActivity(), "CONTENT CHANGED!!!",
-	// Toast.LENGTH_LONG).show();
-	// }
-	//
-	// }
 
 	class CursorLoaderHelper implements LoaderCallbacks<Cursor> {
 
@@ -146,7 +120,7 @@ public abstract class TasksFragment extends ListFragment {
 			String sortOrder = null;
 
 			switch (id) {
-			case LOADER_ACTIVE:
+			case LOADER_ACTIVE_TASK:
 				String activeSelection = TasksContract.TasksTable.STATUS
 						+ "!=?";
 
@@ -154,7 +128,7 @@ public abstract class TasksFragment extends ListFragment {
 						TasksContract.CONTENT_TASKS, projection,
 						activeSelection, selectionArgs, sortOrder);
 				break;
-			case LOADER_COMPLETED:
+			case LOADER_COMPLETED_TASK:
 				String completedSelection = TasksContract.TasksTable.STATUS
 						+ "=?";
 
@@ -169,10 +143,10 @@ public abstract class TasksFragment extends ListFragment {
 		@Override
 		public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 			switch (loader.getId()) {
-			case LOADER_ACTIVE:
+			case LOADER_ACTIVE_TASK:
 				mAdapter.swapCursor(cursor);
 				break;
-			case LOADER_COMPLETED:
+			case LOADER_COMPLETED_TASK:
 				mAdapter.swapCursor(cursor);
 				break;
 			default:
@@ -193,9 +167,9 @@ public abstract class TasksFragment extends ListFragment {
 			String url = "http://cloud.ocrsdk.com/getTaskList";
 			try {
 				switch (id) {
-				case LOADER_ACTIVE:
+				case LOADER_ACTIVE_DOWNLOAD:
 					break;
-				case LOADER_COMPLETED:
+				case LOADER_COMPLETED_DOWNLOAD:
 					break;
 				}
 				return new ConnectionLoader(getActivity(), new CloudClient(
@@ -208,7 +182,6 @@ public abstract class TasksFragment extends ListFragment {
 
 		@Override
 		public void onLoadFinished(Loader<Task> loader, Task response) {
-			mAdapter.getCursor();
 		}
 
 		@Override
@@ -216,7 +189,7 @@ public abstract class TasksFragment extends ListFragment {
 		}
 	}
 
-	private class TasksAdapter extends SimpleCursorAdapter {
+	class TasksAdapter extends SimpleCursorAdapter {
 
 		public TasksAdapter(Context context, int layout, Cursor c,
 				String[] from, int[] to, int flags) {

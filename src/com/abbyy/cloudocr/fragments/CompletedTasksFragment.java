@@ -1,17 +1,16 @@
 package com.abbyy.cloudocr.fragments;
 
-import com.abbyy.cloudocr.R;
-import com.abbyy.cloudocr.R.id;
-import com.abbyy.cloudocr.R.layout;
-import com.abbyy.cloudocr.R.menu;
-
 import android.os.Bundle;
+import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.abbyy.cloudocr.R;
+import com.abbyy.cloudocr.database.TasksContract;
 
 public class CompletedTasksFragment extends TasksFragment {
 
@@ -56,5 +55,19 @@ public class CompletedTasksFragment extends TasksFragment {
 			String taskId = v.findViewById(0).toString(); // TODO
 			this.removeTaskFromList(taskId);
 		}
+	}
+
+	@Override
+	void setAdapter() {
+		String[] from = { TasksContract.TasksTable.TASK_ID,
+				TasksContract.TasksTable.REGISTRATION_TIME, };
+		int[] to = { R.id.task_list_item_task_id,
+				R.id.task_list_item_registration_time };
+
+		mAdapter = new TasksAdapter(getActivity(), R.layout.completed_entry,
+				null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+
+		setListAdapter(mAdapter);
+
 	}
 }

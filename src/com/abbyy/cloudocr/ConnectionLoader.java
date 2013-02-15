@@ -39,7 +39,7 @@ public class ConnectionLoader extends AsyncTaskLoader<Task> {
 		try {
 			// mClient.parseResponse(mClient.connect());
 			mClient
-					.parseResponse("<response><task id=\"c3387247-7e81-4d12-8767-bc886c1ab878\""
+					.parseResponse("<response><task id=\"c3187247-7e81-4d12-8767-bc886c1ab878\""
 							+ " registrationTime=\"2012-02-16T06:42:09Z\" statusChangeTime=\"2012-02-16T06:42:09Z\""
 							+ " status=\"Queued\" filesCount=\"1\"  credits=\"0\" estimatedProcessingTime=\"1\""
 							+ " description=\"Image.JPG to .pdf\" />    </response>");
