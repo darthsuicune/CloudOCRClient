@@ -9,6 +9,7 @@ public class TasksContract {
 	
 	static final String CONTENT_NAME = "com.abbyy.cloudocr.database.TasksProvider";
 	public static final Uri CONTENT_TASKS = Uri.parse("content://" + CONTENT_NAME + "/" + TasksTable.TABLE_NAME);
+	public static final Uri CONTENT_LANGUAGES = Uri.parse("content://" + CONTENT_NAME + "/" + LanguagesTable.TABLE_NAME);
 
 	private TasksContract(){
 	}
@@ -28,6 +29,19 @@ public class TasksContract {
 		
 		public static final String TABLE_NAME = "tasks";
 		public static final int _COUNT = 11;
+		public static final String DEFAULT_ORDER = _ID + " DESC";
+		
+	}
+	
+	public static class LanguagesTable implements BaseColumns{
+		public static final String _ID = "_id";
+		public static final String LANGUAGE = "language";
+		public static final String OCR = "ocr";
+		public static final String ICR = "icr";
+		public static final String BCR = "bcr";
+
+		public static final String TABLE_NAME = "languages";
+		public static final int _COUNT = 5;
 		public static final String DEFAULT_ORDER = _ID + " DESC";
 		
 	}

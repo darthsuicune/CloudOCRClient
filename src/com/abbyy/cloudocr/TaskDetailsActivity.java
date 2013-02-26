@@ -9,6 +9,7 @@ import com.abbyy.cloudocr.fragments.TaskDetailsFragment;
 
 public class TaskDetailsActivity extends ActionBarActivity {
 	public static final String EXTRA_TASK_ID = "taskId";
+	TaskDetailsFragment mFragment;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -22,14 +23,22 @@ public class TaskDetailsActivity extends ActionBarActivity {
 		
 		setContentView(R.layout.task_details_activity);
 		
-		TaskDetailsFragment fragment = new TaskDetailsFragment();
+		mFragment = new TaskDetailsFragment();
 		Bundle extras = getIntent().getExtras();
 		if(extras != null){
-			fragment.setArguments(extras);
-			fragment.setHasOptionsMenu(true);
+			mFragment.setArguments(extras);
+			mFragment.setHasOptionsMenu(true);
 			FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-			ft.replace(R.id.task_details_container, fragment);
+			ft.replace(R.id.task_details_container, mFragment);
 			ft.commit();
 		}
+	}
+
+	@Override
+	protected void onStop() {
+		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+		ft.remove(mFragment);
+		ft.commit();
+		super.onStop();
 	}
 }

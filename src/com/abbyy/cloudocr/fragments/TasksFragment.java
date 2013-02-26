@@ -24,13 +24,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.abbyy.cloudocr.CloudClient;
 import com.abbyy.cloudocr.ConnectionLoader;
 import com.abbyy.cloudocr.R;
 import com.abbyy.cloudocr.SettingsActivity;
-import com.abbyy.cloudocr.Task;
 import com.abbyy.cloudocr.TaskDetailsActivity;
 import com.abbyy.cloudocr.database.TasksContract;
+import com.abbyy.cloudocr.utils.CloudClient;
 
 public abstract class TasksFragment extends ListFragment {
 	private final static int LOADER_ACTIVE_TASK = 1;
@@ -72,10 +71,10 @@ public abstract class TasksFragment extends ListFragment {
 
 	void loadTasks(boolean active) {
 		if (active) {
-			getActivity().getSupportLoaderManager().initLoader(LOADER_ACTIVE_TASK,
+			getActivity().getSupportLoaderManager().restartLoader(LOADER_ACTIVE_TASK,
 					null, new CursorLoaderHelper());
 		} else {
-			getActivity().getSupportLoaderManager().initLoader(
+			getActivity().getSupportLoaderManager().restartLoader(
 					LOADER_COMPLETED_TASK, null, new CursorLoaderHelper());
 		}
 
@@ -142,16 +141,7 @@ public abstract class TasksFragment extends ListFragment {
 
 		@Override
 		public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-			switch (loader.getId()) {
-			case LOADER_ACTIVE_TASK:
-				mAdapter.swapCursor(cursor);
-				break;
-			case LOADER_COMPLETED_TASK:
-				mAdapter.swapCursor(cursor);
-				break;
-			default:
-				break;
-			}
+			mAdapter.swapCursor(cursor);
 		}
 
 		@Override
@@ -161,31 +151,25 @@ public abstract class TasksFragment extends ListFragment {
 
 	}
 
-	public class ConnectionHelper implements LoaderCallbacks<Task> {
+	public class ConnectionHelper implements LoaderCallbacks<Void> {
 		@Override
-		public Loader<Task> onCreateLoader(int id, Bundle args) {
-			String url = "http://cloud.ocrsdk.com/getTaskList";
+		public Loader<Void> onCreateLoader(int id, Bundle args) {
 			try {
-				switch (id) {
-				case LOADER_ACTIVE_DOWNLOAD:
-					break;
-				case LOADER_COMPLETED_DOWNLOAD:
-					break;
-				}
-				return new ConnectionLoader(getActivity(), new CloudClient(
-						getActivity(), url));
+				CloudClient client = new CloudClient();
+				client.setUrl(CloudClient.GET_TASK_LIST, null);
+				return new ConnectionLoader(getActivity(), client);
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
+				return null;
 			}
-			return null;
 		}
 
 		@Override
-		public void onLoadFinished(Loader<Task> loader, Task response) {
+		public void onLoadFinished(Loader<Void> loader, Void response) {
 		}
 
 		@Override
-		public void onLoaderReset(Loader<Task> loader) {
+		public void onLoaderReset(Loader<Void> loader) {
 		}
 	}
 

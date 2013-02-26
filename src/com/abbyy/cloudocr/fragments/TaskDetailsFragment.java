@@ -1,30 +1,35 @@
 package com.abbyy.cloudocr.fragments;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.abbyy.cloudocr.R;
+import com.abbyy.cloudocr.SettingsActivity;
 import com.abbyy.cloudocr.TaskDetailsActivity;
 import com.abbyy.cloudocr.database.TasksContract;
 
-public class TaskDetailsFragment extends ListFragment {
+public class TaskDetailsFragment extends Fragment {
 	private static final int LOADER_TASK_INFO = 0;
 	private String mTaskId;
-
-	private CursorAdapter mAdapter;
 
 	public TaskDetailsFragment() {
 	}
@@ -40,7 +45,6 @@ public class TaskDetailsFragment extends ListFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		loadTaskData();
-		setAdapter();
 	}
 
 	@Override
@@ -51,7 +55,10 @@ public class TaskDetailsFragment extends ListFragment {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-
+		case R.id.menu_settings:
+			Intent intent = new Intent(getActivity(), SettingsActivity.class);
+			startActivity(intent);
+			break;
 		}
 		return true;
 	}
@@ -60,19 +67,13 @@ public class TaskDetailsFragment extends ListFragment {
 		if (mTaskId == null) {
 			mTaskId = getArguments().getString(
 					TaskDetailsActivity.EXTRA_TASK_ID);
+
+			getActivity().getSupportLoaderManager().initLoader(
+					LOADER_TASK_INFO, null, new TaskInfoHelper());
+		} else {
+			getActivity().getSupportLoaderManager().restartLoader(
+					LOADER_TASK_INFO, null, new TaskInfoHelper());
 		}
-
-		getActivity().getSupportLoaderManager().initLoader(LOADER_TASK_INFO,
-				null, new TaskInfoHelper());
-	}
-
-	private void setAdapter() {
-		String[] from = { TasksContract.TasksTable.TASK_ID };
-		int[] to = { R.id.task_details_task_id };
-
-		mAdapter = new SimpleCursorAdapter(getActivity(), R.layout.task_details_item, null, from, to,
-				SimpleCursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-		setListAdapter(mAdapter);
 	}
 
 	private class TaskInfoHelper implements LoaderCallbacks<Cursor> {
@@ -81,12 +82,12 @@ public class TaskDetailsFragment extends ListFragment {
 		public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 			Loader<Cursor> loader = null;
 			Uri uri = TasksContract.CONTENT_TASKS;
-			String selection = TasksContract.TasksTable.TASK_ID + "=?"; 
+			String selection = TasksContract.TasksTable.TASK_ID + "=?";
 			String[] selectionArgs = { mTaskId };
 			switch (id) {
 			case LOADER_TASK_INFO:
-				loader = new CursorLoader(getActivity(), uri, null,
-						selection, selectionArgs, null);
+				loader = new CursorLoader(getActivity(), uri, null, selection,
+						selectionArgs, null);
 				break;
 			}
 			return loader;
@@ -94,13 +95,63 @@ public class TaskDetailsFragment extends ListFragment {
 
 		@Override
 		public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-			mAdapter.swapCursor(cursor);
+			populateScreen(cursor);
 		}
 
 		@Override
 		public void onLoaderReset(Loader<Cursor> loader) {
-			mAdapter.swapCursor(null);
 		}
 
+	}
+
+	private void populateScreen(Cursor cursor) {
+		if (cursor != null) {
+			if (cursor.moveToFirst()) {
+				DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd'T'HH:mm:ss'Z'",
+						Locale.GERMANY);
+				
+				TextView taskIdView = (TextView) getActivity().findViewById(R.id.task_details_task_id);
+				TextView descriptionView = (TextView) getActivity().findViewById(R.id.task_details_task_id);
+				TextView statusView = (TextView) getActivity().findViewById(R.id.task_details_task_id);
+				TextView registrationTimeView = (TextView) getActivity().findViewById(R.id.task_details_task_id);
+				TextView statusChangeTimeView = (TextView) getActivity().findViewById(R.id.task_details_task_id);
+				TextView filesCountView = (TextView) getActivity().findViewById(R.id.task_details_task_id);
+				TextView creditsView = (TextView) getActivity().findViewById(R.id.task_details_task_id);
+				TextView estimatedProcessingTimeView = (TextView) getActivity().findViewById(R.id.task_details_task_id);
+				TextView resultUrlView = (TextView) getActivity().findViewById(R.id.task_details_task_id);
+				TextView errorMessageView = (TextView) getActivity().findViewById(R.id.task_details_task_id);
+				
+				String description = cursor.getString(cursor.getColumnIndex(TasksContract.TasksTable.DESCRIPTION));
+				String status = cursor.getString(cursor.getColumnIndex(TasksContract.TasksTable.STATUS));
+				String registrationTime = cursor.getString(cursor.getColumnIndex(TasksContract.TasksTable.REGISTRATION_TIME));
+				String statusChangeTime = cursor.getString(cursor.getColumnIndex(TasksContract.TasksTable.STATUS_CHANGE_TIME));
+				String filesCount = cursor.getString(cursor.getColumnIndex(TasksContract.TasksTable.FILES_COUNT));
+				String credits = cursor.getString(cursor.getColumnIndex(TasksContract.TasksTable.CREDITS));
+				String estimatedProcessingTime = cursor.getString(cursor.getColumnIndex(TasksContract.TasksTable.ESTIMATED_PROCESSING_TIME));
+				String resultUrl = cursor.getString(cursor.getColumnIndex(TasksContract.TasksTable.RESULT_URL));
+				String errorMessage = cursor.getString(cursor.getColumnIndex(TasksContract.TasksTable.ERROR));
+				
+				Date registrationDate = null;
+				Date statusChangeDate = null;
+				try {
+					registrationDate = dateFormat.parse(registrationTime);
+					statusChangeDate = dateFormat.parse(statusChangeTime);
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+				
+				taskIdView.setText(mTaskId);
+				descriptionView.setText(description);
+				statusView.setText(status);
+				registrationTimeView.setText("" + registrationDate);
+				filesCountView.setText("" + filesCount);
+				creditsView.setText("" + credits);
+				estimatedProcessingTimeView.setText("" + estimatedProcessingTime);
+				resultUrlView.setText(resultUrl);
+				errorMessageView.setText(errorMessage);
+				statusChangeTimeView.setText("" + statusChangeDate);
+				
+			}
+		}
 	}
 }

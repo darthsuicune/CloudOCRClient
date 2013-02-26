@@ -26,5 +26,8 @@
     <string name="preview_image_not_available">"Image preview not available."</string>
     <string name="option_description_hint">"Insert a description for your file"</string>
     <string name="option_add_languages">"Add languages"</string>
+    <string name="option_change_file">"Change file"</string>
+    <string name="option_no_file">"No file selected"</string>
+    <string name="option_file_path_hint">"Press here to add an image"</string>
 
 </resources>

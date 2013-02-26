@@ -1,20 +1,25 @@
 package com.abbyy.cloudocr;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
+import android.widget.Toast;
 
 import com.abbyy.cloudocr.compat.CompatTab;
 import com.abbyy.cloudocr.compat.CompatTabListener;
 import com.abbyy.cloudocr.compat.TabCompatActivity;
 import com.abbyy.cloudocr.compat.TabHelper;
+import com.abbyy.cloudocr.database.TasksContract;
 import com.abbyy.cloudocr.fragments.ActiveTasksFragment;
 import com.abbyy.cloudocr.fragments.CompletedTasksFragment;
 
-public class MainActivity extends TabCompatActivity {
+public class MainActivity extends TabCompatActivity{
 	private static final int TAB_ACTIVE = 0;
 	private static final int TAB_COMPLETED = 1;
 
@@ -24,6 +29,10 @@ public class MainActivity extends TabCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		if(prefs.getBoolean(SettingsActivity.IS_FIRST_RUN, true)){
+			insertLanguages();
+			prefs.edit().putBoolean(SettingsActivity.IS_FIRST_RUN, false).commit();
+		}
 		setContentView(R.layout.main_activity);
 		setTabs();
 	}
@@ -113,5 +122,27 @@ public class MainActivity extends TabCompatActivity {
 		}
 
 		prefs.edit().putInt(SettingsActivity.DEFAULT_TAB, currentTab).commit();
+	}
+
+	private void insertLanguages() {
+		Toast.makeText(this, R.string.first_run_message, Toast.LENGTH_SHORT).show();
+		FirstRunTask task = new FirstRunTask();
+		task.execute(null, null);
+	}
+	
+	public class FirstRunTask extends AsyncTask<Void, Void, Void>{
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			ContentResolver cr = getContentResolver();
+			String[] languagesList = getResources().getStringArray(R.array.languages);
+			for(int i = 0; i < languagesList.length; i++){
+				ContentValues values = new ContentValues();
+				values.put(TasksContract.LanguagesTable.LANGUAGE, languagesList[i]);
+				cr.insert(TasksContract.CONTENT_LANGUAGES, values);
+			}
+			return null;
+		}
+		
 	}
 }

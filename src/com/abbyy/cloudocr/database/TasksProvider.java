@@ -6,8 +6,6 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
 import com.abbyy.cloudocr.R;
@@ -18,6 +16,8 @@ public class TasksProvider extends ContentProvider {
 
 	private static final int URI_TASK = 1;
 	private static final int URI_TASK_ID = 2;
+	private static final int URI_LANGUAGE = 3;
+	private static final int URI_LANGUAGE_ID = 4;
 
 	static UriMatcher sUriMatcher;
 	static {
@@ -26,6 +26,12 @@ public class TasksProvider extends ContentProvider {
 				TasksContract.TasksTable.TABLE_NAME, URI_TASK);
 		sUriMatcher.addURI(TasksContract.CONTENT_NAME,
 				TasksContract.TasksTable.TABLE_NAME + "/#", URI_TASK_ID);
+		sUriMatcher.addURI(TasksContract.CONTENT_NAME,
+				TasksContract.LanguagesTable.TABLE_NAME, URI_LANGUAGE);
+		sUriMatcher
+				.addURI(TasksContract.CONTENT_NAME,
+						TasksContract.LanguagesTable.TABLE_NAME + "/#",
+						URI_LANGUAGE_ID);
 	}
 
 	@Override
@@ -45,6 +51,14 @@ public class TasksProvider extends ContentProvider {
 			return ContentResolver.CURSOR_ITEM_BASE_TYPE
 					+ TasksContract.CONTENT_NAME + "."
 					+ TasksContract.TasksTable.TABLE_NAME;
+		case URI_LANGUAGE:
+			return ContentResolver.CURSOR_DIR_BASE_TYPE
+					+ TasksContract.CONTENT_NAME + "."
+					+ TasksContract.LanguagesTable.TABLE_NAME;
+		case URI_LANGUAGE_ID:
+			return ContentResolver.CURSOR_ITEM_BASE_TYPE
+					+ TasksContract.CONTENT_NAME + "."
+					+ TasksContract.LanguagesTable.TABLE_NAME;
 		default:
 			throw new IllegalArgumentException(getContext().getString(
 					R.string.illegal_uri)
@@ -54,9 +68,19 @@ public class TasksProvider extends ContentProvider {
 
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
+		String table = null;
 		switch (sUriMatcher.match(uri)) {
 		case URI_TASK_ID:
 		case URI_TASK:
+			table = TasksContract.TasksTable.TABLE_NAME;
+
+			getContext().getContentResolver().notifyChange(
+					TasksContract.CONTENT_TASKS, null);
+			break;
+		case URI_LANGUAGE_ID:
+		case URI_LANGUAGE:
+			table = TasksContract.LanguagesTable.TABLE_NAME;
+
 			break;
 		default:
 			throw new IllegalArgumentException(getContext().getString(
@@ -64,14 +88,12 @@ public class TasksProvider extends ContentProvider {
 					+ uri.toString());
 		}
 
-		SQLiteDatabase db = mDbHelper.getWritableDatabase();
-		long id = db.insert(TasksContract.TasksTable.TABLE_NAME, null, values);
+		long id = mDbHelper.getWritableDatabase().insert(table, null, values);
 		Uri result = null;
 		if (id != -1) {
 			result = ContentUris.withAppendedId(uri, id);
 		}
-		getContext().getContentResolver().notifyChange(
-				TasksContract.CONTENT_TASKS, null);
+		getContext().getContentResolver().notifyChange(uri, null);
 		getContext().getContentResolver().notifyChange(result, null);
 		return result;
 	}
@@ -79,9 +101,15 @@ public class TasksProvider extends ContentProvider {
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder) {
+		String table = "";
 		switch (sUriMatcher.match(uri)) {
 		case URI_TASK_ID:
 		case URI_TASK:
+			table = TasksContract.TasksTable.TABLE_NAME;
+			break;
+		case URI_LANGUAGE_ID:
+		case URI_LANGUAGE:
+			table = TasksContract.LanguagesTable.TABLE_NAME;
 			break;
 		default:
 			throw new IllegalArgumentException(getContext().getString(
@@ -89,15 +117,12 @@ public class TasksProvider extends ContentProvider {
 					+ uri.toString());
 		}
 
-		SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
-		SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-		builder.setTables(TasksContract.TasksTable.TABLE_NAME);
 		String groupBy = null;
 		String having = null;
 
-		Cursor cursor = builder.query(db, projection, selection, selectionArgs,
-				groupBy, having, sortOrder);
+		Cursor cursor = mDbHelper.getReadableDatabase().query(table,
+				projection, selection, selectionArgs, groupBy, having,
+				sortOrder);
 		cursor.setNotificationUri(getContext().getContentResolver(), uri);
 		return cursor;
 	}
@@ -105,21 +130,25 @@ public class TasksProvider extends ContentProvider {
 	@Override
 	public int update(Uri uri, ContentValues values, String where,
 			String[] selectionArgs) {
+		int count = 0;
 		switch (sUriMatcher.match(uri)) {
 		case URI_TASK_ID:
-
 		case URI_TASK:
+			count = mDbHelper.getWritableDatabase().update(
+					TasksContract.TasksTable.TABLE_NAME, values, where,
+					selectionArgs);
+			break;
+		case URI_LANGUAGE_ID:
+		case URI_LANGUAGE:
+			count = mDbHelper.getWritableDatabase().update(
+					TasksContract.LanguagesTable.TABLE_NAME, values, where,
+					selectionArgs);
 			break;
 		default:
 			throw new IllegalArgumentException(getContext().getString(
 					R.string.illegal_uri)
 					+ uri.toString());
 		}
-
-		SQLiteDatabase db = mDbHelper.getWritableDatabase();
-		int count = db.update(TasksContract.TasksTable.TABLE_NAME, values,
-				where, selectionArgs);
-
 		if (count > 0) {
 			getContext().getContentResolver().notifyChange(uri, null);
 		}
@@ -128,20 +157,24 @@ public class TasksProvider extends ContentProvider {
 
 	@Override
 	public int delete(Uri uri, String where, String[] selectionArgs) {
+		int count = 0;
 		switch (sUriMatcher.match(uri)) {
 		case URI_TASK_ID:
-
 		case URI_TASK:
+			count = mDbHelper.getWritableDatabase().delete(
+					TasksContract.TasksTable.TABLE_NAME, where, selectionArgs);
+			break;
+		case URI_LANGUAGE_ID:
+		case URI_LANGUAGE:
+			count = mDbHelper.getWritableDatabase().delete(
+					TasksContract.LanguagesTable.TABLE_NAME, where,
+					selectionArgs);
 			break;
 		default:
 			throw new IllegalArgumentException(getContext().getString(
 					R.string.illegal_uri)
 					+ uri.toString());
 		}
-
-		SQLiteDatabase db = mDbHelper.getWritableDatabase();
-		int count = db.delete(TasksContract.TasksTable.TABLE_NAME, where,
-				selectionArgs);
 
 		if (count > 0) {
 			getContext().getContentResolver().notifyChange(uri, null);

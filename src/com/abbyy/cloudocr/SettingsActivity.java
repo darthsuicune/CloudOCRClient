@@ -19,6 +19,8 @@ public class SettingsActivity extends ActionBarActivity {
 	public static final String DEFAULT_TAB = "defaultTab";
 	public static final String PREFERENCE_SAVE_TAB_DEFAULT = "saveTabDefault";
 	public static final String PREFERENCES_PROCESS_IMAGE = "processImageOptions";
+	
+	public static final String IS_FIRST_RUN = "isFirstRun";
 
 	public static Bundle getDefaultOptions(Context context, int processingMode) {
 		Bundle options = new Bundle();

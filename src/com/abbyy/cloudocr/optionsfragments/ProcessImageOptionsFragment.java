@@ -1,72 +1,69 @@
 package com.abbyy.cloudocr.optionsfragments;
 
-import java.util.ArrayList;
+import java.net.MalformedURLException;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v4.widget.SimpleCursorAdapter.CursorToStringConverter;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.abbyy.cloudocr.R;
 import com.abbyy.cloudocr.SettingsActivity;
+import com.abbyy.cloudocr.database.TasksContract;
+import com.abbyy.cloudocr.utils.CloudClient;
+import com.abbyy.cloudocr.utils.LanguageHelper;
 
-public class ProcessImageOptionsFragment extends ProcessOptionsFragment {
+public class ProcessImageOptionsFragment extends ProcessOptionsFragment implements OnClickListener{
+	private static final int LOADER_LAUNCH_TASK = 1;
+	private static final int LOADER_AUTOCOMPLETE = 2;
+
+	private static final int ACTIVITY_GET_FILE = 1;
+
 	private static final int CODE_EXPORT_FORMAT = 1;
 	private static final int CODE_PROFILE = 2;
 
-	private static final String EXPORT_FORMAT = "exportFormat";
-	private static final String PROFILE = "profile";
-	private static final String DESCRIPTION = "description";
-	private static final String LANGUAGES = "language";
+	private LanguageHelper mLanguageHelper;
 
-	private ArrayList<String> mLanguagesList;
 	private String mProfile;
 	private String mExportFormat;
 	private String mDescription;
+	private String mFilePath;
 
 	private Spinner mExportFormatView;
 	private Spinner mProfileView;
 	private EditText mDescriptionView;
-	private Button mAddLanguagesView;
+	private TextView mFileViewHint;
+	private ImageView mFileView;
 
-	String createURL() {
-		return BASE_URL + addOptionsToURL();
-	}
-
-	private String addOptionsToURL() {
-		Bundle options = getOptions();
-		String result = "processImage?";
-
-		String exportFormat = options.getString(EXPORT_FORMAT);
-		if (!exportFormat.equals("")) {
-			result = result.concat(EXPORT_FORMAT + "=" + exportFormat + "&");
-		}
-
-		String profile = options.getString(PROFILE);
-		if (!profile.equals("")) {
-			result = result.concat(PROFILE + "=" + profile + "&");
-		}
-
-		String description = options.getString(DESCRIPTION);
-		if (!description.equals("")) {
-			result = result.concat(DESCRIPTION + "=\"" + description + "\"&");
-		}
-
-		String languages = options.getString(LANGUAGES);
-		if (!languages.equals("")) {
-			result = result.concat(LANGUAGES + "=" + languages);
-		}
-		return result;
-	}
+	// Necessary for autocompletion
+	private AutoCompleteTextView mAddLanguagesView;
+	private SimpleCursorAdapter mAutoCompleteAdapter;
+	private String mLanguage;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -77,34 +74,90 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment {
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
+		prefs = getActivity().getSharedPreferences(
+				SettingsActivity.PREFERENCES_PROCESS_IMAGE,
+				Activity.MODE_PRIVATE);
+		mLanguageHelper = new LanguageHelper(getActivity().getResources()
+				.getStringArray(R.array.languages));
 		super.onActivityCreated(savedInstanceState);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_process:
+			launchTask();
+			break;
+		}
+		return true;
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		switch (requestCode) {
+		case ACTIVITY_GET_FILE:
+			switch (resultCode) {
+			case Activity.RESULT_OK:
+				addFile(data.getData().toString());
+				break;
+			}
+			break;
+		}
+	}
+
+	@Override
+	public void launchTask() {
+		if (mFilePath != null) {
+			mClient.setFilePath(mFilePath);
+		}
+		if (mClient.getFilePath() == null) {
+			Toast.makeText(getActivity(), R.string.error_no_file_selected,
+					Toast.LENGTH_LONG).show();
+		} else {
+			saveDefaultOptions();
+			try {
+				mClient.setUrl(CloudClient.PROCESS_IMAGE, getOptions());
+				getActivity().getSupportLoaderManager().restartLoader(
+						LOADER_LAUNCH_TASK, null, this);
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@Override
+	public void addFile(String filePath) {
+		mFilePath = filePath;
+		if (mFileView != null) {
+			mFileViewHint.setVisibility(View.GONE);
+			mFileView.setVisibility(View.VISIBLE);
+			mFileView.setImageURI(Uri.parse(filePath));
+		}
 	}
 
 	@Override
 	public boolean saveDefaultOptions() {
 		Bundle bundle = getOptions();
-		SharedPreferences.Editor editor = getActivity().getSharedPreferences(
-				SettingsActivity.PREFERENCES_PROCESS_IMAGE,
-				Activity.MODE_PRIVATE).edit();
-		editor.putString(EXPORT_FORMAT, bundle.getString(EXPORT_FORMAT));
-		editor.putString(PROFILE, bundle.getString(PROFILE));
-		editor.putString(DESCRIPTION, bundle.getString(DESCRIPTION));
-		editor.putString(LANGUAGES, createLanguages());
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putString(CloudClient.ARGUMENT_EXPORT_FORMAT,
+				bundle.getString(CloudClient.ARGUMENT_EXPORT_FORMAT));
+		editor.putString(CloudClient.ARGUMENT_PROFILE,
+				bundle.getString(CloudClient.ARGUMENT_PROFILE));
+		editor.putString(CloudClient.ARGUMENT_DESCRIPTION,
+				bundle.getString(CloudClient.ARGUMENT_DESCRIPTION));
+		editor.putString(CloudClient.ARGUMENT_LANGUAGE,
+				bundle.getString(CloudClient.ARGUMENT_LANGUAGE));
 		return editor.commit();
 	}
 
 	@Override
 	public boolean loadDefaultOptions() {
-		SharedPreferences prefs = getActivity().getSharedPreferences(
-				SettingsActivity.PREFERENCES_PROCESS_IMAGE,
-				Activity.MODE_PRIVATE);
-		mExportFormat = prefs.getString(EXPORT_FORMAT, "");
-		mProfile = prefs.getString(PROFILE, "");
-		mDescription = prefs.getString(DESCRIPTION, "");
-		createLanguages(prefs.getString(LANGUAGES, ""));
-
-		mAddLanguagesView.setOnClickListener(new LanguageHelper(this,
-				mLanguagesList));
+		mExportFormat = prefs.getString(CloudClient.ARGUMENT_EXPORT_FORMAT, "");
+		mProfile = prefs.getString(CloudClient.ARGUMENT_PROFILE, "");
+		mDescription = prefs.getString(CloudClient.ARGUMENT_DESCRIPTION, "");
+		mLanguageHelper.createLanguages(prefs.getString(
+				CloudClient.ARGUMENT_LANGUAGE, ""));
 
 		return true;
 	}
@@ -112,10 +165,11 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment {
 	public Bundle getOptions() {
 		mDescription = mDescriptionView.getText().toString();
 		Bundle bundle = new Bundle();
-		bundle.putString(EXPORT_FORMAT, mExportFormat);
-		bundle.putString(PROFILE, mProfile);
-		bundle.putString(DESCRIPTION, mDescription);
-		bundle.putString(LANGUAGES, createLanguages());
+		bundle.putString(CloudClient.ARGUMENT_EXPORT_FORMAT, mExportFormat);
+		bundle.putString(CloudClient.ARGUMENT_PROFILE, mProfile);
+		bundle.putString(CloudClient.ARGUMENT_DESCRIPTION, mDescription);
+		bundle.putString(CloudClient.ARGUMENT_LANGUAGE,
+				mLanguageHelper.getLanguages());
 		return bundle;
 	}
 
@@ -127,8 +181,11 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment {
 				.findViewById(R.id.option_profile);
 		mDescriptionView = (EditText) getActivity().findViewById(
 				R.id.option_description);
-		mAddLanguagesView = (Button) getActivity().findViewById(
+		mAddLanguagesView = (AutoCompleteTextView) getActivity().findViewById(
 				R.id.option_add_languages);
+		mFileView = (ImageView) getActivity().findViewById(
+				R.id.option_file_path);
+		mFileViewHint = (TextView) getActivity().findViewById(R.id.option_file_path_hint);
 
 		mExportFormatView.setAdapter(getSpinnerAdapter(CODE_EXPORT_FORMAT));
 		mExportFormatView
@@ -137,11 +194,89 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment {
 		mProfileView.setAdapter(getSpinnerAdapter(CODE_PROFILE));
 		mProfileView
 				.setOnItemSelectedListener(getOnItemSelectedListener(CODE_PROFILE));
+
+		mFileViewHint.setOnClickListener(this);
+		mFileView.setOnClickListener(this);
+
+		prepareLanguageAutoComplete();
+	}
+
+	private void prepareLanguageAutoComplete() {
+		// Prepare the adapter for the language auto complete field
+		String[] from = { TasksContract.LanguagesTable.LANGUAGE };
+		int[] to = { android.R.id.text1 };
+		mAutoCompleteAdapter = new SimpleCursorAdapter(getActivity(),
+				android.R.layout.simple_spinner_dropdown_item, null, from, to,
+				0);
+		mAddLanguagesView.setAdapter(mAutoCompleteAdapter);
+		mAddLanguagesView.setThreshold(0);
+		
+
+		// Set the text watcher
+		mAddLanguagesView.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void afterTextChanged(Editable s) {
+				if (!s.equals("")) {
+					mLanguage = s.toString();
+					getActivity().getSupportLoaderManager().restartLoader(
+							LOADER_AUTOCOMPLETE, null,
+							new LanguageLoaderHelper());
+				} else {
+					mLanguage = "";
+				}
+				if (mLanguageHelper.addLanguage(s.toString())) {
+					Toast.makeText(getActivity(), s.toString() + " " + getString(R.string.added),
+							Toast.LENGTH_SHORT).show();
+					s.clear();
+				}
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int count,
+					int after) {
+			}
+
+		});
+
+		// Add the right language to the field
+		mAutoCompleteAdapter
+				.setCursorToStringConverter(new CursorToStringConverter() {
+					@Override
+					public CharSequence convertToString(Cursor cursor) {
+						return cursor.getString(cursor
+								.getColumnIndex(TasksContract.LanguagesTable.LANGUAGE));
+					}
+				});
+
+		// Add the language to the languages list
+		Button manageLanguagesButton = (Button) getActivity().findViewById(
+				R.id.option_button_manage_language);
+		manageLanguagesButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+			}
+		});
+	}
+
+	private void getFile() {
+		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+		intent.setType("image/*");
+		startActivityForResult(intent, ACTIVITY_GET_FILE);
+	}
+
+	private void manageLanguages() {
+		Toast.makeText(getActivity(), mLanguageHelper.getLanguages(),
+				Toast.LENGTH_SHORT).show();
+
 	}
 
 	private OnItemSelectedListener getOnItemSelectedListener(final int code) {
 		OnItemSelectedListener listener = new OnItemSelectedListener() {
-
 			@Override
 			public void onItemSelected(AdapterView<?> adapterView, View v,
 					int position, long id) {
@@ -186,42 +321,41 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment {
 		return adapter;
 	}
 
-	private String createLanguages() {
-		String languages = "";
-		for (int i = 0; i < mLanguagesList.size(); i++) {
-			if (i > 0) {
-				languages = languages.concat(",");
-			}
-			languages = languages.concat(mLanguagesList.get(i));
-		}
-		return languages;
-	}
+	private class LanguageLoaderHelper implements LoaderCallbacks<Cursor> {
 
-	private void createLanguages(String languages) {
-		if(mLanguagesList == null){
-			mLanguagesList = new ArrayList<String>();
+		@Override
+		public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+			Uri uri = TasksContract.CONTENT_LANGUAGES;
+			String selection = TasksContract.LanguagesTable.LANGUAGE
+					+ " LIKE ?";
+			String[] selectionArgs = { "%" + mLanguage + "%" };
+			Loader<Cursor> loader = new CursorLoader(getActivity(), uri, null,
+					selection, selectionArgs, null);
+			return loader;
 		}
 
-		if (!languages.equals("")) {
-			if (!languages.contains(",")) {
-				mLanguagesList.add(languages);
-			} else {
-				String language = languages.substring(
-						languages.lastIndexOf(',') + 1, languages.length());
-				mLanguagesList.add(language);
-				int index = languages.lastIndexOf(',');
-				if (index > 0) {
-					createLanguages(languages.substring(0, index));
-				}
-			}
+		@Override
+		public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+			mAutoCompleteAdapter.swapCursor(cursor);
+		}
+
+		@Override
+		public void onLoaderReset(Loader<Cursor> loader) {
+			mAutoCompleteAdapter.swapCursor(null);
 		}
 	}
 
 	@Override
-	void addLanguage(String language) {
-		if (mLanguagesList == null) {
-			mLanguagesList = new ArrayList<String>();
+	public void onClick(View v) {
+		switch(v.getId()){
+		case R.id.option_file_path:
+		case R.id.option_file_path_hint:
+			getFile();
+			break;
+		case R.id.option_button_manage_language:
+			manageLanguages();
+			break;
 		}
-		mLanguagesList.add(language);
+			
 	}
 }

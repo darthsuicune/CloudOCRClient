@@ -3,21 +3,26 @@ package com.abbyy.cloudocr;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 
-public class ConnectionLoader extends AsyncTaskLoader<Task> {
+import com.abbyy.cloudocr.utils.CloudClient;
+import com.abbyy.cloudocr.utils.XMLParser;
 
-	private ArrayList<Task> mTasksList = null;
-
+public class ConnectionLoader extends AsyncTaskLoader<Void> {
+	private Context mContext;
 	private CloudClient mClient;
+	private String startTag;
+	private String tag;
 
 	public ConnectionLoader(Context context, CloudClient client)
 			throws MalformedURLException {
 		super(context);
+		mContext = context;
 		mClient = client;
 	}
 
@@ -28,21 +33,26 @@ public class ConnectionLoader extends AsyncTaskLoader<Task> {
 	 */
 	@Override
 	protected void onStartLoading() {
-		if(mTasksList == null){
+		if (tag == null) {
 			forceLoad();
 		}
 	}
 
 	@Override
-	public Task loadInBackground() {
-
+	public Void loadInBackground() {
 		try {
-			// mClient.parseResponse(mClient.connect());
-			mClient
-					.parseResponse("<response><task id=\"c3187247-7e81-4d12-8767-bc886c1ab878\""
-							+ " registrationTime=\"2012-02-16T06:42:09Z\" statusChangeTime=\"2012-02-16T06:42:09Z\""
-							+ " status=\"Queued\" filesCount=\"1\"  credits=\"0\" estimatedProcessingTime=\"1\""
-							+ " description=\"Image.JPG to .pdf\" />    </response>");
+			startTag = mContext.getString(R.string.tag_response);
+			tag = mContext.getString(R.string.tag_task);
+			String response = mClient.makePetition();
+
+			XMLParser xmlParser = new XMLParser(response);
+			ArrayList<HashMap<String, String>> tasks = xmlParser.parseData(
+					startTag, tag);
+			if (tasks != null) {
+				for (int i = 0; i < tasks.size(); i++) {
+					new Task(mContext, tasks.get(i)).writeTaskToDb();
+				}
+			}
 		} catch (XmlPullParserException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

@@ -1,5 +1,7 @@
 package com.abbyy.cloudocr;
 
+import java.util.HashMap;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -8,6 +10,7 @@ import android.net.Uri;
 import com.abbyy.cloudocr.database.TasksContract;
 
 public class Task {
+	private Context mContext;
 	private boolean isInDb;
 
 	public String mTaskId;
@@ -21,58 +24,45 @@ public class Task {
 	public String mResultUrl;
 	public String mError;
 
-	public Task(String taskId, String status, String registrationTime,
-			String statusChangeTime, int filesCount, int credits,
-			int estimatedProcessingTime, String description, String resultUrl,
-			String error, boolean fromDb) {
-		
-		updateTask(taskId, status, registrationTime, statusChangeTime,
-				filesCount, credits, estimatedProcessingTime, description,
-				resultUrl, error);
-		isInDb = fromDb;
+	public Task(Context context, HashMap<String, String> data) {
+		mContext = context;
+		mTaskId = data.get(context.getString(R.string.field_id));
+		mStatus = data.get(context.getString(R.string.field_status));
+		mRegistrationTime = data.get(context.getString(R.string.field_registration_time));
+		mStatusChangeTime = data.get(context.getString(R.string.field_status_change_time));
+		mFilesCount = Integer.parseInt(data.get(context.getString(R.string.field_files_count)));
+		mCredits = Integer.parseInt(data.get(context.getString(R.string.field_credits)));
+		mEstimatedProcessingTime = Integer.parseInt(data.get(context.getString(R.string.field_estimated_processing_time)));
+		mDescription = data.get(context.getString(R.string.field_description));
+		mResultUrl = data.get(context.getString(R.string.field_result_url));
+		mError = data.get(context.getString(R.string.field_error));
 	}
 
-	public void updateTask(String taskId, String status,
-			String registrationTime, String statusChangeTime, int filesCount,
-			int credits, int estimatedProcessingTime, String description,
-			String resultUrl, String error) {
-		mTaskId = taskId;
-		mStatus = status;
-		mRegistrationTime = registrationTime;
-		mStatusChangeTime = statusChangeTime;
-		mFilesCount = filesCount;
-		mCredits = credits;
-		mEstimatedProcessingTime = estimatedProcessingTime;
-		mDescription = description;
-		mResultUrl = resultUrl;
-		mError = error;
-	}
-
-	public boolean writeTaskToDb(Context context) {
-		isInDb = checkDb(context);
+	public boolean writeTaskToDb() {
+		isInDb = checkDb();
 
 		Uri uri = TasksContract.CONTENT_TASKS;
 
 		if (isInDb) {
 			String where = TasksContract.TasksTable.TASK_ID + "=?";
 			String[] selectionArgs = { mTaskId };
-			int count = context.getContentResolver().update(uri, setValues(),
+			int count = mContext.getContentResolver().update(uri, setValues(),
 					where, selectionArgs);
 			if (count < 1) {
 				return false;
 			}
 		} else {
-			context.getContentResolver().insert(uri, setValues());
+			mContext.getContentResolver().insert(uri, setValues());
 		}
 		return isInDb;
 	}
 
-	private boolean checkDb(Context context) {
+	private boolean checkDb() {
 		Uri uri = TasksContract.CONTENT_TASKS;
 		String selection = TasksContract.TasksTable.TASK_ID + "=?";
 		String[] selectionArgs = { mTaskId };
 
-		Cursor cursor = context.getContentResolver().query(uri, null, selection,
+		Cursor cursor = mContext.getContentResolver().query(uri, null, selection,
 				selectionArgs, null);
 		return cursor.getCount() == 1;
 	}

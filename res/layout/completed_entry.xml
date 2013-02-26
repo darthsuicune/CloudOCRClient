@@ -24,7 +24,7 @@
         android:layout_height="match_parent"
         android:layout_alignParentRight="true"
         android:clickable="true"
-        android:src="@drawable/abbyy_logo"
+        android:src="@android:drawable/ic_delete"
         android:background="@android:color/transparent"
         android:contentDescription="@string/app_name" />
         

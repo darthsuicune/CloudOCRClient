@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="illegal_uri">"Unsupported URI: "</string>
+    <string name="invalid_language">"Invalid language"</string>
     <string name="error_loading_image">"Error loading image"</string>
     <string name="error_uploading">"Error uploading data"</string>
+    <string name="error_no_file_selected">"No file selected for processing"</string>
 </resources>

@@ -2,7 +2,6 @@ package com.abbyy.cloudocr.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -67,7 +66,7 @@ public class ActiveTasksFragment extends TasksFragment {
 				R.id.task_list_item_registration_time };
 
 		mAdapter = new TasksAdapter(getActivity(), R.layout.completed_entry,
-				null, from, to, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+				null, from, to, 0);
 
 		setListAdapter(mAdapter);
 

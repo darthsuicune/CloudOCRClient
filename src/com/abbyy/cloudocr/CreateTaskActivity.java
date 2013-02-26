@@ -19,8 +19,14 @@ import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 import com.abbyy.cloudocr.compat.ActionBarActivity;
+import com.abbyy.cloudocr.optionsfragments.ProcessBarcodeFieldOptionsFragment;
+import com.abbyy.cloudocr.optionsfragments.ProcessBusinessCardOptionsFragment;
+import com.abbyy.cloudocr.optionsfragments.ProcessCheckmarkFieldOptionsFragment;
+import com.abbyy.cloudocr.optionsfragments.ProcessFieldsOptionsFragment;
 import com.abbyy.cloudocr.optionsfragments.ProcessImageOptionsFragment;
+import com.abbyy.cloudocr.optionsfragments.ProcessMultipleOptionsFragment;
 import com.abbyy.cloudocr.optionsfragments.ProcessOptionsFragment;
+import com.abbyy.cloudocr.optionsfragments.ProcessTextFieldOptionsFragment;
 
 public class CreateTaskActivity extends ActionBarActivity {
 	public static final String EXTRA_PROCESS_MODE = "Process mode";
@@ -52,7 +58,7 @@ public class CreateTaskActivity extends ActionBarActivity {
 			finish();
 			break;
 		}
-		return true;
+		return super.onOptionsItemSelected(item);
 	}
 
 	private void handleIncomingIntent() {
@@ -65,9 +71,7 @@ public class CreateTaskActivity extends ActionBarActivity {
 				if (type != null && type.startsWith("image")) {
 					mImageToProcess = (Uri) getIntent().getParcelableExtra(
 							Intent.EXTRA_STREAM);
-					if (mImageToProcess != null) {
-
-					} else {
+					if (mImageToProcess == null) {
 						Toast.makeText(this, R.string.error_loading_image,
 								Toast.LENGTH_LONG).show();
 						this.finish();
@@ -94,33 +98,36 @@ public class CreateTaskActivity extends ActionBarActivity {
 	private void setOptionsFragment() {
 		if (mProcessingMode != -1) {
 			switch (mProcessingMode) {
-//			case SettingsActivity.PROCESSING_MODE_BARCODE_FIELD:
-//				mProcessOptionsFragment = new ProcessBarcodeFieldOptionsFragment();
-//				break;
-//			case SettingsActivity.PROCESSING_MODE_BUSINESS_CARD:
-//				mProcessOptionsFragment = new ProcessBusinessCardOptionsFragment();
-//				break;
-//			case SettingsActivity.PROCESSING_MODE_CHECKMARK_FIELD:
-//				mProcessOptionsFragment = new ProcessCheckmarkFieldOptionsFragment();
-//				break;
-//			case SettingsActivity.PROCESSING_MODE_FIELDS:
-//				mProcessOptionsFragment = new ProcessFieldsOptionsFragment();
-//				break;
+			case SettingsActivity.PROCESSING_MODE_BARCODE_FIELD:
+				mProcessOptionsFragment = new ProcessBarcodeFieldOptionsFragment();
+				break;
+			case SettingsActivity.PROCESSING_MODE_BUSINESS_CARD:
+				mProcessOptionsFragment = new ProcessBusinessCardOptionsFragment();
+				break;
+			case SettingsActivity.PROCESSING_MODE_CHECKMARK_FIELD:
+				mProcessOptionsFragment = new ProcessCheckmarkFieldOptionsFragment();
+				break;
+			case SettingsActivity.PROCESSING_MODE_FIELDS:
+				mProcessOptionsFragment = new ProcessFieldsOptionsFragment();
+				break;
 			case SettingsActivity.PROCESSING_MODE_IMAGE:
 				mProcessOptionsFragment = new ProcessImageOptionsFragment();
 				break;
-//			case SettingsActivity.PROCESSING_MODE_MULTIPLE:
-//				mProcessOptionsFragment = new ProcessMultipleOptionsFragment();
-//				break;
-//			case SettingsActivity.PROCESSING_MODE_TEXT_FIELD:
-//				mProcessOptionsFragment = new ProcessTextFieldOptionsFragment();
-//				break;
+			case SettingsActivity.PROCESSING_MODE_MULTIPLE:
+				mProcessOptionsFragment = new ProcessMultipleOptionsFragment();
+				break;
+			case SettingsActivity.PROCESSING_MODE_TEXT_FIELD:
+				mProcessOptionsFragment = new ProcessTextFieldOptionsFragment();
+				break;
 			}
 		}
 		FragmentTransaction transaction = getSupportFragmentManager()
 				.beginTransaction();
 		transaction.replace(R.id.create_task_options, mProcessOptionsFragment);
 		transaction.commit();
+		if(mImageToProcess != null){
+			mProcessOptionsFragment.addFile(mImageToProcess.toString());
+		}
 	}
 
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)

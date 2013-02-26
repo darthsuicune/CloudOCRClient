@@ -12,7 +12,7 @@
         android:padding="5dp"
         android:text="@string/create_new_task"
         android:clickable="true"
-        android:drawableRight="@drawable/abbyy_logo" >
+        android:drawableRight="@android:drawable/ic_input_add" >
 
     </TextView>
     
