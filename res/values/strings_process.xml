@@ -2,4 +2,5 @@
 <resources>
     <string name="manage">Manage</string>
     <string name="added">added!</string>
+    <string name="process_started">Processing has started!</string>
 </resources>

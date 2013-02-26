@@ -3,6 +3,7 @@ package com.abbyy.cloudocr.fragments;
 import java.net.MalformedURLException;
 
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -28,6 +29,7 @@ import com.abbyy.cloudocr.R;
 import com.abbyy.cloudocr.SettingsActivity;
 import com.abbyy.cloudocr.TaskDetailsActivity;
 import com.abbyy.cloudocr.database.TasksContract;
+import com.abbyy.cloudocr.optionsfragments.ProcessOptionsFragment;
 import com.abbyy.cloudocr.utils.CloudClient;
 import com.abbyy.cloudocr.utils.ConnectionLoader;
 
@@ -36,13 +38,13 @@ public abstract class TasksFragment extends ListFragment {
 	private final static int LOADER_COMPLETED_TASK = 2;
 	private final static int LOADER_ACTIVE_DOWNLOAD = 3;
 	private final static int LOADER_COMPLETED_DOWNLOAD = 4;
-	
+
 	abstract void setAdapter();
 
 	boolean isLandscape;
 
 	protected CursorAdapter mAdapter;
-	
+
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -62,17 +64,16 @@ public abstract class TasksFragment extends ListFragment {
 		if (isLandscape) {
 			Toast.makeText(getActivity(), taskId, Toast.LENGTH_LONG).show();
 		} else {
-			 Intent intent = new Intent(getActivity(),
-			 TaskDetailsActivity.class);
-			 intent.putExtra(TaskDetailsActivity.EXTRA_TASK_ID, taskId);
-			 startActivity(intent);
+			Intent intent = new Intent(getActivity(), TaskDetailsActivity.class);
+			intent.putExtra(TaskDetailsActivity.EXTRA_TASK_ID, taskId);
+			startActivity(intent);
 		}
 	}
 
 	void loadTasks(boolean active) {
 		if (active) {
-			getActivity().getSupportLoaderManager().restartLoader(LOADER_ACTIVE_TASK,
-					null, new CursorLoaderHelper());
+			getActivity().getSupportLoaderManager().restartLoader(
+					LOADER_ACTIVE_TASK, null, new CursorLoaderHelper());
 		} else {
 			getActivity().getSupportLoaderManager().restartLoader(
 					LOADER_COMPLETED_TASK, null, new CursorLoaderHelper());
@@ -142,6 +143,16 @@ public abstract class TasksFragment extends ListFragment {
 		@Override
 		public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 			mAdapter.swapCursor(cursor);
+			if (cursor.getCount() == 0) {
+				cancelNotification();
+			}
+		}
+
+		protected void cancelNotification() {
+			NotificationManager nm = (NotificationManager) getActivity()
+					.getSystemService(Activity.NOTIFICATION_SERVICE);
+			nm.cancel(ProcessOptionsFragment.NOTIFICATION_TAG,
+					ProcessOptionsFragment.NOTIFICATION_ID);
 		}
 
 		@Override
@@ -190,7 +201,8 @@ public abstract class TasksFragment extends ListFragment {
 			}
 			ImageView button = (ImageView) row
 					.findViewById(R.id.task_list_item_delete_task);
-			final TextView taskIdView = (TextView) row.findViewById(R.id.task_list_item_task_id);
+			final TextView taskIdView = (TextView) row
+					.findViewById(R.id.task_list_item_task_id);
 
 			button.setOnClickListener(new OnClickListener() {
 

@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -38,7 +39,8 @@ import com.abbyy.cloudocr.database.TasksContract;
 import com.abbyy.cloudocr.utils.CloudClient;
 import com.abbyy.cloudocr.utils.LanguageHelper;
 
-public class ProcessImageOptionsFragment extends ProcessOptionsFragment implements OnClickListener{
+public class ProcessImageOptionsFragment extends ProcessOptionsFragment
+		implements OnClickListener {
 	private static final int LOADER_LAUNCH_TASK = 1;
 	private static final int LOADER_AUTOCOMPLETE = 2;
 
@@ -57,6 +59,7 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment implemen
 	private Spinner mExportFormatView;
 	private Spinner mProfileView;
 	private EditText mDescriptionView;
+	private Button mManageLanguagesView;
 	private TextView mFileViewHint;
 	private ImageView mFileView;
 
@@ -183,9 +186,12 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment implemen
 				R.id.option_description);
 		mAddLanguagesView = (AutoCompleteTextView) getActivity().findViewById(
 				R.id.option_add_languages);
+		mManageLanguagesView = (Button) getActivity().findViewById(
+				R.id.option_button_manage_language);
 		mFileView = (ImageView) getActivity().findViewById(
 				R.id.option_file_path);
-		mFileViewHint = (TextView) getActivity().findViewById(R.id.option_file_path_hint);
+		mFileViewHint = (TextView) getActivity().findViewById(
+				R.id.option_file_path_hint);
 
 		mExportFormatView.setAdapter(getSpinnerAdapter(CODE_EXPORT_FORMAT));
 		mExportFormatView
@@ -194,6 +200,8 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment implemen
 		mProfileView.setAdapter(getSpinnerAdapter(CODE_PROFILE));
 		mProfileView
 				.setOnItemSelectedListener(getOnItemSelectedListener(CODE_PROFILE));
+
+		mManageLanguagesView.setOnClickListener(this);
 
 		mFileViewHint.setOnClickListener(this);
 		mFileView.setOnClickListener(this);
@@ -208,9 +216,22 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment implemen
 		mAutoCompleteAdapter = new SimpleCursorAdapter(getActivity(),
 				android.R.layout.simple_spinner_dropdown_item, null, from, to,
 				0);
-		mAddLanguagesView.setAdapter(mAutoCompleteAdapter);
-		mAddLanguagesView.setThreshold(0);
 		
+		mAddLanguagesView.setAdapter(mAutoCompleteAdapter);
+		mAddLanguagesView.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> view, View v, int position,
+					long id) {
+				TextView languageView = (TextView) v; 
+				if (mLanguageHelper.addLanguage(languageView.getText().toString())) {
+					Toast.makeText(getActivity(),
+							languageView.getText().toString() + " " + getString(R.string.added),
+							Toast.LENGTH_SHORT).show();
+					mAddLanguagesView.setText("");
+				}
+			}
+		});
+		mAddLanguagesView.setThreshold(0);
 
 		// Set the text watcher
 		mAddLanguagesView.addTextChangedListener(new TextWatcher() {
@@ -223,11 +244,6 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment implemen
 							new LanguageLoaderHelper());
 				} else {
 					mLanguage = "";
-				}
-				if (mLanguageHelper.addLanguage(s.toString())) {
-					Toast.makeText(getActivity(), s.toString() + " " + getString(R.string.added),
-							Toast.LENGTH_SHORT).show();
-					s.clear();
 				}
 			}
 
@@ -252,15 +268,6 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment implemen
 								.getColumnIndex(TasksContract.LanguagesTable.LANGUAGE));
 					}
 				});
-
-		// Add the language to the languages list
-		Button manageLanguagesButton = (Button) getActivity().findViewById(
-				R.id.option_button_manage_language);
-		manageLanguagesButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-			}
-		});
 	}
 
 	private void getFile() {
@@ -347,7 +354,7 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment implemen
 
 	@Override
 	public void onClick(View v) {
-		switch(v.getId()){
+		switch (v.getId()) {
 		case R.id.option_file_path:
 		case R.id.option_file_path_hint:
 			getFile();
@@ -356,6 +363,6 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment implemen
 			manageLanguages();
 			break;
 		}
-			
+
 	}
 }

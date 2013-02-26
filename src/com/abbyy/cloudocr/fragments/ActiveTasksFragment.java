@@ -10,8 +10,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
+import com.abbyy.cloudocr.CreateTaskActivity;
 import com.abbyy.cloudocr.R;
-import com.abbyy.cloudocr.StartActivity;
+import com.abbyy.cloudocr.SettingsActivity;
 import com.abbyy.cloudocr.database.TasksContract;
 
 public class ActiveTasksFragment extends TasksFragment {
@@ -35,7 +36,7 @@ public class ActiveTasksFragment extends TasksFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		loadTasks(true);
-		
+
 	}
 
 	@Override
@@ -77,7 +78,10 @@ public class ActiveTasksFragment extends TasksFragment {
 		if (isLandscape) {
 
 		} else {
-			Intent intent = new Intent(getActivity(), StartActivity.class);
+			// Intent intent = new Intent(getActivity(), StartActivity.class);
+			Intent intent = new Intent(getActivity(), CreateTaskActivity.class);
+			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
+					SettingsActivity.PROCESSING_MODE_IMAGE);
 			startActivity(intent);
 		}
 	}

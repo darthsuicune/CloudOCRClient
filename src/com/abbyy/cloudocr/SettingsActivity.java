@@ -21,6 +21,7 @@ public class SettingsActivity extends ActionBarActivity {
 	public static final String PREFERENCES_PROCESS_IMAGE = "processImageOptions";
 	
 	public static final String IS_FIRST_RUN = "isFirstRun";
+	public static final String SHOW_NOTIFICATION = "showNotification";
 
 	public static Bundle getDefaultOptions(Context context, int processingMode) {
 		Bundle options = new Bundle();

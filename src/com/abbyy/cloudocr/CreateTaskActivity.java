@@ -89,9 +89,9 @@ public class CreateTaskActivity extends ActionBarActivity {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			mProcessSpinnerView.setVisibility(View.GONE);
 			setActionBar();
-		} else {
-			mProcessSpinnerView.setVisibility(View.VISIBLE);
-			setSpinner();
+//		} else {
+//			mProcessSpinnerView.setVisibility(View.VISIBLE);
+//			setSpinner();
 		}
 	}
 
@@ -133,46 +133,46 @@ public class CreateTaskActivity extends ActionBarActivity {
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void setActionBar() {
 		ActionBar actionBar = getActionBar();
-		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+//		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setDisplayShowTitleEnabled(false);
-		actionBar.setListNavigationCallbacks(getSpinnerAdapter(),
-				new OnNavigationListener() {
-					@Override
-					public boolean onNavigationItemSelected(int itemPosition,
-							long itemId) {
-						mProcessingMode = itemPosition;
-						setOptionsFragment();
-						return true;
-					}
-				});
+//		actionBar.setListNavigationCallbacks(getSpinnerAdapter(),
+//				new OnNavigationListener() {
+//					@Override
+//					public boolean onNavigationItemSelected(int itemPosition,
+//							long itemId) {
+//						mProcessingMode = itemPosition;
+//						setOptionsFragment();
+//						return true;
+//					}
+//				});
 	}
 
-	private void setSpinner() {
-		mProcessSpinnerView.setAdapter(getSpinnerAdapter());
-		mProcessSpinnerView
-				.setOnItemSelectedListener(new OnItemSelectedListener() {
-					@Override
-					public void onItemSelected(AdapterView<?> adapterView,
-							View view, int itemPosition, long itemId) {
-						mProcessingMode = itemPosition;
-						setOptionsFragment();
-
-					}
-
-					@Override
-					public void onNothingSelected(AdapterView<?> adapterView) {
-						return;
-					}
-				});
-	}
-
-	private SpinnerAdapter getSpinnerAdapter() {
-		String[] strings = getResources().getStringArray(R.array.process_type);
-
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-				android.R.layout.simple_spinner_item, strings);
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		return adapter;
-	}
+//	private void setSpinner() {
+//		mProcessSpinnerView.setAdapter(getSpinnerAdapter());
+//		mProcessSpinnerView
+//				.setOnItemSelectedListener(new OnItemSelectedListener() {
+//					@Override
+//					public void onItemSelected(AdapterView<?> adapterView,
+//							View view, int itemPosition, long itemId) {
+//						mProcessingMode = itemPosition;
+//						setOptionsFragment();
+//
+//					}
+//
+//					@Override
+//					public void onNothingSelected(AdapterView<?> adapterView) {
+//						return;
+//					}
+//				});
+//	}
+//
+//	private SpinnerAdapter getSpinnerAdapter() {
+//		String[] strings = getResources().getStringArray(R.array.process_type);
+//
+//		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+//				android.R.layout.simple_spinner_item, strings);
+//		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//		return adapter;
+//	}
 }
