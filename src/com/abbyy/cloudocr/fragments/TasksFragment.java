@@ -24,12 +24,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.abbyy.cloudocr.ConnectionLoader;
 import com.abbyy.cloudocr.R;
 import com.abbyy.cloudocr.SettingsActivity;
 import com.abbyy.cloudocr.TaskDetailsActivity;
 import com.abbyy.cloudocr.database.TasksContract;
 import com.abbyy.cloudocr.utils.CloudClient;
+import com.abbyy.cloudocr.utils.ConnectionLoader;
 
 public abstract class TasksFragment extends ListFragment {
 	private final static int LOADER_ACTIVE_TASK = 1;

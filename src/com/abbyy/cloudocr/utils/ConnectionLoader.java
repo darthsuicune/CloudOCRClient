@@ -1,4 +1,4 @@
-package com.abbyy.cloudocr;
+package com.abbyy.cloudocr.utils;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -10,8 +10,8 @@ import org.xmlpull.v1.XmlPullParserException;
 import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 
-import com.abbyy.cloudocr.utils.CloudClient;
-import com.abbyy.cloudocr.utils.XMLParser;
+import com.abbyy.cloudocr.R;
+import com.abbyy.cloudocr.Task;
 
 public class ConnectionLoader extends AsyncTaskLoader<Void> {
 	private Context mContext;

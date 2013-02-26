@@ -24,6 +24,24 @@ public class Task {
 	public String mResultUrl;
 	public String mError;
 
+	public Task(Context context, String taskId, String status, String registrationTime,
+			String statusChangeTime, int filesCount, int credits,
+			int estimatedProcessingTime, String description, String resultUrl,
+			String error, boolean isInDb) {
+		mContext = context;
+		this.isInDb = isInDb;
+		mTaskId = taskId;
+		mStatus = status;
+		mRegistrationTime = registrationTime;
+		mStatusChangeTime = statusChangeTime;
+		mFilesCount = filesCount;
+		mCredits = credits;
+		mEstimatedProcessingTime = estimatedProcessingTime;
+		mDescription = description;
+		mResultUrl = resultUrl;
+		mError = error;
+	}
+
 	public Task(Context context, HashMap<String, String> data) {
 		mContext = context;
 		mTaskId = data.get(context.getString(R.string.field_id));

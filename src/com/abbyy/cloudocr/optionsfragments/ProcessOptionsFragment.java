@@ -12,9 +12,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.abbyy.cloudocr.ConnectionLoader;
 import com.abbyy.cloudocr.R;
 import com.abbyy.cloudocr.utils.CloudClient;
+import com.abbyy.cloudocr.utils.ConnectionLoader;
 
 public abstract class ProcessOptionsFragment extends Fragment implements LoaderCallbacks<Void> {
 	protected String mTaskId;
