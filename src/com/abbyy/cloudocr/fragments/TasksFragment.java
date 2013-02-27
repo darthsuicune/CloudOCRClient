@@ -8,13 +8,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,7 +41,7 @@ public abstract class TasksFragment extends ListFragment {
 
 	boolean isLandscape;
 
-	protected CursorAdapter mAdapter;
+	protected SimpleCursorAdapter mAdapter;
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -96,12 +94,7 @@ public abstract class TasksFragment extends ListFragment {
 		startActivity(intent);
 	}
 
-	void removeTaskFromList(String taskId) {
-		Uri uri = TasksContract.CONTENT_TASKS;
-		String where = TasksContract.TasksTable.TASK_ID + "=?";
-		String[] selectionArgs = { taskId };
-		getActivity().getContentResolver().delete(uri, where, selectionArgs);
-	}
+	abstract void removeTaskFromList(String taskId);
 
 	class CursorLoaderHelper implements LoaderCallbacks<Cursor> {
 

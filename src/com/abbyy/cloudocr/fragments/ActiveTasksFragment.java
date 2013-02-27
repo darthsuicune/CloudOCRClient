@@ -85,4 +85,9 @@ public class ActiveTasksFragment extends TasksFragment {
 			startActivity(intent);
 		}
 	}
+
+	@Override
+	void removeTaskFromList(String taskId) {
+		
+	}
 }
