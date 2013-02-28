@@ -2,6 +2,7 @@ package com.abbyy.cloudocr.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -13,9 +14,13 @@ import android.view.ViewGroup;
 import com.abbyy.cloudocr.CreateTaskActivity;
 import com.abbyy.cloudocr.R;
 import com.abbyy.cloudocr.SettingsActivity;
+import com.abbyy.cloudocr.TasksManagerService;
 import com.abbyy.cloudocr.database.TasksContract;
+import com.abbyy.cloudocr.optionsfragments.ProcessImageOptionsFragment;
+import com.abbyy.cloudocr.optionsfragments.ProcessOptionsFragment;
 
 public class ActiveTasksFragment extends TasksFragment {
+	private ProcessOptionsFragment mProcessOptionsFragment;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -35,8 +40,13 @@ public class ActiveTasksFragment extends TasksFragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		loadTasks(true);
+		getActivity().getSupportLoaderManager().restartLoader(
+				LOADER_ACTIVE_TASKS, null, this);
+	}
 
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
 	}
 
 	@Override
@@ -49,34 +59,38 @@ public class ActiveTasksFragment extends TasksFragment {
 		switch (item.getItemId()) {
 		case R.id.menu_refresh:
 			downloadTasks(true);
-			break;
+			return true;
 		case R.id.menu_settings:
 			openSettings();
-			break;
+			return true;
 		default:
-			break;
+			return super.onOptionsItemSelected(item);
 		}
-		return true;
 	}
 
 	@Override
 	void setAdapter() {
 		String[] from = { TasksContract.TasksTable.TASK_ID,
-				TasksContract.TasksTable.REGISTRATION_TIME, };
+				TasksContract.TasksTable.ESTIMATED_PROCESSING_TIME };
 		int[] to = { R.id.task_list_item_task_id,
-				R.id.task_list_item_registration_time };
+				R.id.task_list_item_estimated_time };
 
 		mAdapter = new TasksAdapter(getActivity(), R.layout.completed_entry,
-				null, from, to, 0);
+				null, from, to, 0, true);
 
 		setListAdapter(mAdapter);
 
 	}
 
-	// TODO
 	private void launchNewTask() {
 		if (isLandscape) {
-
+			mProcessOptionsFragment = new ProcessImageOptionsFragment();
+			FragmentTransaction transaction = getActivity()
+					.getSupportFragmentManager().beginTransaction();
+			transaction.disallowAddToBackStack();
+			transaction.replace(R.id.main_activity_second_fragment,
+					mProcessOptionsFragment);
+			transaction.commit();
 		} else {
 			// Intent intent = new Intent(getActivity(), StartActivity.class);
 			Intent intent = new Intent(getActivity(), CreateTaskActivity.class);
@@ -87,7 +101,11 @@ public class ActiveTasksFragment extends TasksFragment {
 	}
 
 	@Override
-	void removeTaskFromList(String taskId) {
-		
+	void removeTask(String taskId) {
+		Intent service = new Intent(getActivity(), TasksManagerService.class);
+		service.putExtra(TasksManagerService.EXTRA_ACTION,
+				TasksManagerService.ACTION_DELETE_ACTIVE_TASK);
+		service.putExtra(TasksManagerService.EXTRA_TASK_ID, taskId);
+		getActivity().startService(service);
 	}
 }

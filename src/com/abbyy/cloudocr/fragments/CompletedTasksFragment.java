@@ -1,5 +1,6 @@
 package com.abbyy.cloudocr.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.abbyy.cloudocr.R;
+import com.abbyy.cloudocr.TasksManagerService;
 import com.abbyy.cloudocr.database.TasksContract;
 
 public class CompletedTasksFragment extends TasksFragment {
@@ -16,13 +18,14 @@ public class CompletedTasksFragment extends TasksFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.completed_tasks_fragment, container, false);
+		return inflater.inflate(R.layout.completed_tasks_fragment, container,
+				false);
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		loadTasks(false);
+		getActivity().getSupportLoaderManager().restartLoader(LOADER_COMPLETED_TASKS, null, this);
 	}
 
 	@Override
@@ -47,12 +50,12 @@ public class CompletedTasksFragment extends TasksFragment {
 		}
 		return true;
 	}
-	
-	private void removeFullList(){
-		for(int i = 0; i < getListView().getCount(); i++){
+
+	private void removeFullList() {
+		for (int i = 0; i < getListView().getCount(); i++) {
 			View v = (View) getListView().getItemAtPosition(i);
 			String taskId = v.findViewById(0).toString(); // TODO
-			this.removeTaskFromList(taskId);
+			removeTask(taskId);
 		}
 	}
 
@@ -64,9 +67,18 @@ public class CompletedTasksFragment extends TasksFragment {
 				R.id.task_list_item_registration_time };
 
 		mAdapter = new TasksAdapter(getActivity(), R.layout.completed_entry,
-				null, from, to, 0);
+				null, from, to, 0, false);
 
 		setListAdapter(mAdapter);
 
+	}
+
+	@Override
+	void removeTask(String taskId) {
+		Intent service = new Intent(getActivity(), TasksManagerService.class);
+		service.putExtra(TasksManagerService.EXTRA_ACTION,
+				TasksManagerService.ACTION_DELETE_COMPLETED_TASK);
+		service.putExtra(TasksManagerService.EXTRA_TASK_ID, taskId);
+		getActivity().startService(service);
 	}
 }

@@ -1,7 +1,5 @@
 package com.abbyy.cloudocr.fragments;
 
-import java.net.MalformedURLException;
-
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -26,18 +24,17 @@ import android.widget.Toast;
 import com.abbyy.cloudocr.R;
 import com.abbyy.cloudocr.SettingsActivity;
 import com.abbyy.cloudocr.TaskDetailsActivity;
+import com.abbyy.cloudocr.TasksManagerService;
 import com.abbyy.cloudocr.database.TasksContract;
-import com.abbyy.cloudocr.optionsfragments.ProcessOptionsFragment;
-import com.abbyy.cloudocr.utils.CloudClient;
-import com.abbyy.cloudocr.utils.ConnectionLoader;
 
-public abstract class TasksFragment extends ListFragment {
-	private final static int LOADER_ACTIVE_TASK = 1;
-	private final static int LOADER_COMPLETED_TASK = 2;
-	private final static int LOADER_ACTIVE_DOWNLOAD = 3;
-	private final static int LOADER_COMPLETED_DOWNLOAD = 4;
+public abstract class TasksFragment extends ListFragment implements
+		LoaderCallbacks<Cursor> {
+
+	protected static final int LOADER_ACTIVE_TASKS = 1;
+	protected static final int LOADER_COMPLETED_TASKS = 2;
 
 	abstract void setAdapter();
+	abstract void removeTask(String taskId);
 
 	boolean isLandscape;
 
@@ -68,25 +65,16 @@ public abstract class TasksFragment extends ListFragment {
 		}
 	}
 
-	void loadTasks(boolean active) {
-		if (active) {
-			getActivity().getSupportLoaderManager().restartLoader(
-					LOADER_ACTIVE_TASK, null, new CursorLoaderHelper());
-		} else {
-			getActivity().getSupportLoaderManager().restartLoader(
-					LOADER_COMPLETED_TASK, null, new CursorLoaderHelper());
-		}
-
-	}
-
 	void downloadTasks(boolean active) {
+		Intent service = new Intent(getActivity(), TasksManagerService.class);
 		if (active) {
-			getActivity().getSupportLoaderManager().restartLoader(
-					LOADER_ACTIVE_DOWNLOAD, null, new ConnectionHelper());
+			service.putExtra(TasksManagerService.EXTRA_ACTION,
+					TasksManagerService.ACTION_UPDATE_ACTIVE_TASKS);
 		} else {
-			getActivity().getSupportLoaderManager().restartLoader(
-					LOADER_COMPLETED_DOWNLOAD, null, new ConnectionHelper());
+			service.putExtra(TasksManagerService.EXTRA_ACTION,
+					TasksManagerService.ACTION_UPDATE_COMPLETED_TASKS);
 		}
+		getActivity().startService(service);
 	}
 
 	void openSettings() {
@@ -94,94 +82,67 @@ public abstract class TasksFragment extends ListFragment {
 		startActivity(intent);
 	}
 
-	abstract void removeTaskFromList(String taskId);
+	@Override
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		Loader<Cursor> loader = null;
+		String[] projection = { TasksContract.TasksTable._ID,
+				TasksContract.TasksTable.TASK_ID,
+				TasksContract.TasksTable.REGISTRATION_TIME,
+				TasksContract.TasksTable.ESTIMATED_PROCESSING_TIME,
+				TasksContract.TasksTable.STATUS,
+				TasksContract.TasksTable.FILES_COUNT };
 
-	class CursorLoaderHelper implements LoaderCallbacks<Cursor> {
+		String[] selectionArgs = { getActivity().getString(
+				R.string.status_completed) };
 
-		@Override
-		public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-			Loader<Cursor> loader = null;
-			String[] projection = { TasksContract.TasksTable._ID,
-					TasksContract.TasksTable.TASK_ID,
-					TasksContract.TasksTable.REGISTRATION_TIME,
-					TasksContract.TasksTable.STATUS,
-					TasksContract.TasksTable.FILES_COUNT };
+		String sortOrder = null;
 
-			String[] selectionArgs = { getActivity().getString(
-					R.string.status_completed) };
+		switch (id) {
+		case LOADER_ACTIVE_TASKS:
+			String activeSelection = TasksContract.TasksTable.STATUS + "!=?";
 
-			String sortOrder = null;
+			loader = new CursorLoader(getActivity(),
+					TasksContract.CONTENT_TASKS, projection, activeSelection,
+					selectionArgs, sortOrder);
+			break;
+		case LOADER_COMPLETED_TASKS:
+			String completedSelection = TasksContract.TasksTable.STATUS + "=?";
 
-			switch (id) {
-			case LOADER_ACTIVE_TASK:
-				String activeSelection = TasksContract.TasksTable.STATUS
-						+ "!=?";
-
-				loader = new CursorLoader(getActivity(),
-						TasksContract.CONTENT_TASKS, projection,
-						activeSelection, selectionArgs, sortOrder);
-				break;
-			case LOADER_COMPLETED_TASK:
-				String completedSelection = TasksContract.TasksTable.STATUS
-						+ "=?";
-
-				loader = new CursorLoader(getActivity(),
-						TasksContract.CONTENT_TASKS, projection,
-						completedSelection, selectionArgs, sortOrder);
-				break;
-			}
-			return loader;
+			loader = new CursorLoader(getActivity(),
+					TasksContract.CONTENT_TASKS, projection,
+					completedSelection, selectionArgs, sortOrder);
+			break;
 		}
-
-		@Override
-		public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-			mAdapter.swapCursor(cursor);
-			if (cursor.getCount() == 0) {
-				cancelNotification();
-			}
-		}
-
-		protected void cancelNotification() {
-			NotificationManager nm = (NotificationManager) getActivity()
-					.getSystemService(Activity.NOTIFICATION_SERVICE);
-			nm.cancel(ProcessOptionsFragment.NOTIFICATION_TAG,
-					ProcessOptionsFragment.NOTIFICATION_ID);
-		}
-
-		@Override
-		public void onLoaderReset(Loader<Cursor> loader) {
-			mAdapter.swapCursor(null);
-		}
-
+		return loader;
 	}
 
-	public class ConnectionHelper implements LoaderCallbacks<Void> {
-		@Override
-		public Loader<Void> onCreateLoader(int id, Bundle args) {
-			try {
-				CloudClient client = new CloudClient();
-				client.setUrl(CloudClient.GET_TASK_LIST, null);
-				return new ConnectionLoader(getActivity(), client);
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-				return null;
-			}
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		mAdapter.swapCursor(cursor);
+		if (cursor.getCount() == 0) {
+			cancelNotification();
 		}
+	}
 
-		@Override
-		public void onLoadFinished(Loader<Void> loader, Void response) {
-		}
+	@Override
+	public void onLoaderReset(Loader<Cursor> loader) {
+		mAdapter.swapCursor(null);
+	}
 
-		@Override
-		public void onLoaderReset(Loader<Void> loader) {
-		}
+	protected void cancelNotification() {
+		NotificationManager nm = (NotificationManager) getActivity()
+				.getSystemService(Activity.NOTIFICATION_SERVICE);
+		nm.cancel(TasksManagerService.NOTIFICATION_TAG,
+				TasksManagerService.NOTIFICATION_ID);
 	}
 
 	class TasksAdapter extends SimpleCursorAdapter {
+		boolean isActive;
 
 		public TasksAdapter(Context context, int layout, Cursor c,
-				String[] from, int[] to, int flags) {
+				String[] from, int[] to, int flags, boolean isActive) {
 			super(context, layout, c, from, to, flags);
+			this.isActive = isActive;
 		}
 
 		@Override
@@ -190,7 +151,13 @@ public abstract class TasksFragment extends ListFragment {
 			if (row == null) {
 				LayoutInflater inflater = (LayoutInflater) getActivity()
 						.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-				row = inflater.inflate(R.layout.completed_entry, parent, false);
+				if (isActive) {
+					row = inflater
+							.inflate(R.layout.active_entry, parent, false);
+				} else {
+					row = inflater.inflate(R.layout.completed_entry, parent,
+							false);
+				}
 			}
 			ImageView button = (ImageView) row
 					.findViewById(R.id.task_list_item_delete_task);
@@ -201,7 +168,7 @@ public abstract class TasksFragment extends ListFragment {
 
 				@Override
 				public void onClick(View v) {
-					removeTaskFromList(taskIdView.getText().toString());
+					removeTask(taskIdView.getText().toString());
 				}
 			});
 			return super.getView(position, row, parent);

@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 public class ProcessMultipleOptionsFragment extends ProcessOptionsFragment {
-	private static final int LOADER_LAUNCH_TASK = 1;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -37,14 +36,14 @@ public class ProcessMultipleOptionsFragment extends ProcessOptionsFragment {
 	}
 
 	@Override
-	void setViews() {
+	boolean setViews() {
 		// TODO Auto-generated method stub
+		return false;
 	}
 
 	@Override
 	void launchTask() {
-		getActivity().getSupportLoaderManager().restartLoader(
-				LOADER_LAUNCH_TASK, null, this);
+		
 	}
 
 	@Override

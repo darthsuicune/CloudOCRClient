@@ -15,9 +15,9 @@ public class ProcessBusinessCardOptionsFragment extends ProcessOptionsFragment {
 	}
 
 	@Override
-	void setViews() {
+	boolean setViews() {
 		// TODO Auto-generated method stub
-		
+		return false;
 	}
 
 	@Override

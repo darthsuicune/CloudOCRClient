@@ -22,7 +22,7 @@ import com.abbyy.cloudocr.fragments.CompletedTasksFragment;
 public class MainActivity extends TabCompatActivity{
 	private static final int TAB_ACTIVE = 0;
 	private static final int TAB_COMPLETED = 1;
-
+	
 	private SharedPreferences prefs;
 
 	@Override
@@ -35,6 +35,11 @@ public class MainActivity extends TabCompatActivity{
 		}
 		setContentView(R.layout.main_activity);
 		setTabs();
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
 	}
 
 	@Override

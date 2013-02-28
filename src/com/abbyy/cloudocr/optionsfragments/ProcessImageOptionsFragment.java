@@ -1,7 +1,5 @@
 package com.abbyy.cloudocr.optionsfragments;
 
-import java.net.MalformedURLException;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -35,14 +33,14 @@ import android.widget.Toast;
 
 import com.abbyy.cloudocr.R;
 import com.abbyy.cloudocr.SettingsActivity;
+import com.abbyy.cloudocr.TasksManagerService;
 import com.abbyy.cloudocr.database.TasksContract;
 import com.abbyy.cloudocr.utils.CloudClient;
 import com.abbyy.cloudocr.utils.LanguageHelper;
 
 public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 		implements OnClickListener {
-	private static final int LOADER_LAUNCH_TASK = 1;
-	private static final int LOADER_AUTOCOMPLETE = 2;
+	private static final int LOADER_AUTOCOMPLETE = 1;
 
 	private static final int ACTIVITY_GET_FILE = 1;
 
@@ -71,6 +69,9 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+		if(container == null) {
+			return null;
+		}
 		return inflater.inflate(R.layout.process_image_fragment, container,
 				false);
 	}
@@ -91,6 +92,8 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 		case R.id.menu_process:
 			launchTask();
 			break;
+		default:
+			return super.onOptionsItemSelected(item);
 		}
 		return true;
 	}
@@ -119,13 +122,13 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 					Toast.LENGTH_LONG).show();
 		} else {
 			saveDefaultOptions();
-			try {
-				mClient.setUrl(CloudClient.PROCESS_IMAGE, getOptions());
-				getActivity().getSupportLoaderManager().restartLoader(
-						LOADER_LAUNCH_TASK, null, this);
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			}
+			Intent service = new Intent(getActivity(),
+					TasksManagerService.class);
+			service.putExtra(TasksManagerService.EXTRA_ACTION,
+					TasksManagerService.ACTION_CREATE_NEW_TASK);
+			service.putExtra(TasksManagerService.EXTRA_NEW_TASK_OPTIONS,
+					getOptions());
+			getActivity().startService(service);
 		}
 	}
 
@@ -177,7 +180,7 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 	}
 
 	@Override
-	void setViews() {
+	boolean setViews() {
 		mExportFormatView = (Spinner) getActivity().findViewById(
 				R.id.option_export_format);
 		mProfileView = (Spinner) getActivity()
@@ -193,6 +196,9 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 		mFileViewHint = (TextView) getActivity().findViewById(
 				R.id.option_file_path_hint);
 
+		if(mExportFormatView == null){
+			return false;
+		}
 		mExportFormatView.setAdapter(getSpinnerAdapter(CODE_EXPORT_FORMAT));
 		mExportFormatView
 				.setOnItemSelectedListener(getOnItemSelectedListener(CODE_EXPORT_FORMAT));
@@ -207,6 +213,7 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 		mFileView.setOnClickListener(this);
 
 		prepareLanguageAutoComplete();
+		return true;
 	}
 
 	private void prepareLanguageAutoComplete() {
@@ -216,16 +223,19 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 		mAutoCompleteAdapter = new SimpleCursorAdapter(getActivity(),
 				android.R.layout.simple_spinner_dropdown_item, null, from, to,
 				0);
-		
+
 		mAddLanguagesView.setAdapter(mAutoCompleteAdapter);
 		mAddLanguagesView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> view, View v, int position,
 					long id) {
-				TextView languageView = (TextView) v; 
-				if (mLanguageHelper.addLanguage(languageView.getText().toString())) {
-					Toast.makeText(getActivity(),
-							languageView.getText().toString() + " " + getString(R.string.added),
+				TextView languageView = (TextView) v;
+				if (mLanguageHelper.addLanguage(languageView.getText()
+						.toString())) {
+					Toast.makeText(
+							getActivity(),
+							languageView.getText().toString() + " "
+									+ getString(R.string.added),
 							Toast.LENGTH_SHORT).show();
 					mAddLanguagesView.setText("");
 				}

@@ -16,9 +16,9 @@ public class ProcessCheckmarkFieldOptionsFragment extends
 	}
 
 	@Override
-	void setViews() {
+	boolean setViews() {
 		// TODO Auto-generated method stub
-		
+		return false;
 	}
 
 	@Override

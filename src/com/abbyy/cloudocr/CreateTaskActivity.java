@@ -2,8 +2,8 @@ package com.abbyy.cloudocr;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
-import android.app.ActionBar.OnNavigationListener;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,11 +11,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 import com.abbyy.cloudocr.compat.ActionBarActivity;
@@ -32,8 +28,8 @@ public class CreateTaskActivity extends ActionBarActivity {
 	public static final String EXTRA_PROCESS_MODE = "Process mode";
 
 	private int mProcessingMode = -1;
-
 	private Uri mImageToProcess = null;
+	private boolean isLandscape;
 
 	private ProcessOptionsFragment mProcessOptionsFragment;
 	private Spinner mProcessSpinnerView;
@@ -41,6 +37,7 @@ public class CreateTaskActivity extends ActionBarActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		isLandscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 		handleIncomingIntent();
 		setViews();
 		setOptionsFragment();
@@ -78,7 +75,11 @@ public class CreateTaskActivity extends ActionBarActivity {
 					}
 				}
 			} else {
+				if(isLandscape){
+					this.finish();
+				}
 				mProcessingMode = extras.getInt(EXTRA_PROCESS_MODE);
+				
 			}
 		}
 	}
@@ -133,9 +134,9 @@ public class CreateTaskActivity extends ActionBarActivity {
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void setActionBar() {
 		ActionBar actionBar = getActionBar();
-//		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setDisplayShowTitleEnabled(false);
+//		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 //		actionBar.setListNavigationCallbacks(getSpinnerAdapter(),
 //				new OnNavigationListener() {
 //					@Override
