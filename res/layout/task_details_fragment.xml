@@ -4,9 +4,65 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <TextView 
+    <TextView
         android:id="@+id/task_details_task_id"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_width="wrap_content" />
+        android:textIsSelectable="true" />
+
+    <TextView
+        android:id="@+id/task_details_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textIsSelectable="true" />
+
+    <TextView
+        android:id="@+id/task_details_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textIsSelectable="true" />
+
+    <TextView
+        android:id="@+id/task_details_registration_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textIsSelectable="true" />
+
+    <TextView
+        android:id="@+id/task_details_status_change_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textIsSelectable="true" />
+
+    <TextView
+        android:id="@+id/task_details_files_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textIsSelectable="true" />
+
+    <TextView
+        android:id="@+id/task_details_credits"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textIsSelectable="true" />
+
+    <TextView
+        android:id="@+id/task_details_estimated_processing_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textIsSelectable="true" />
+
+    <TextView
+        android:id="@+id/task_details_result_url"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:autoLink="web"
+        android:textIsSelectable="true" />
+
+    <TextView
+        android:id="@+id/task_details_error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textIsSelectable="true" />
 
 </LinearLayout>

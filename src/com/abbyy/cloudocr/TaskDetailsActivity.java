@@ -36,9 +36,6 @@ public class TaskDetailsActivity extends ActionBarActivity {
 
 	@Override
 	protected void onStop() {
-		FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-		ft.remove(mFragment);
-		ft.commit();
 		super.onStop();
 	}
 }

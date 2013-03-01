@@ -25,10 +25,4 @@ public class ProcessBarcodeFieldOptionsFragment extends ProcessOptionsFragment {
 		// TODO Auto-generated method stub
 		
 	}
-
-	@Override
-	public void addFile(String filePath) {
-		// TODO Auto-generated method stub
-		
-	}
 }

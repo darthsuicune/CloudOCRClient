@@ -26,11 +26,4 @@ public class ProcessCheckmarkFieldOptionsFragment extends
 		// TODO Auto-generated method stub
 		
 	}
-
-	@Override
-	public void addFile(String filePath) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

@@ -127,7 +127,7 @@ public class CreateTaskActivity extends ActionBarActivity {
 		transaction.replace(R.id.create_task_options, mProcessOptionsFragment);
 		transaction.commit();
 		if(mImageToProcess != null){
-			mProcessOptionsFragment.addFile(mImageToProcess.toString());
+			mProcessOptionsFragment.addFile(mImageToProcess);
 		}
 	}
 

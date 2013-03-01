@@ -26,10 +26,4 @@ public class ProcessFieldsOptionsFragment extends ProcessOptionsFragment {
 		
 	}
 
-	@Override
-	public void addFile(String filePath) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

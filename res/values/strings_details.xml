@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="details_task_id">"Task ID: "</string>
+    <string name="details_description">"Description: "</string>
+    <string name="details_status">"Status: "</string>
+    <string name="details_registration_time">"Time registered: "</string>
+    <string name="details_status_change_time">"Time status changed: "</string>
+    <string name="details_files_count">"Files amount: "</string>
+    <string name="details_credits">"Credits: "</string>
+    <string name="details_estimated_processing_time">"Estimated processing time: "</string>
+    <string name="details_result_url">"Result: "</string>
+    <string name="details_error">"Error: "</string>
+
+</resources>

@@ -1,11 +1,18 @@
 package com.abbyy.cloudocr.optionsfragments;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -36,6 +43,7 @@ import com.abbyy.cloudocr.SettingsActivity;
 import com.abbyy.cloudocr.TasksManagerService;
 import com.abbyy.cloudocr.database.TasksContract;
 import com.abbyy.cloudocr.utils.CloudClient;
+import com.abbyy.cloudocr.utils.FilePicturesManager;
 import com.abbyy.cloudocr.utils.LanguageHelper;
 
 public class ProcessImageOptionsFragment extends ProcessOptionsFragment
@@ -43,16 +51,17 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 	private static final int LOADER_AUTOCOMPLETE = 1;
 
 	private static final int ACTIVITY_GET_FILE = 1;
+	private static final int ACTIVITY_TAKE_PICTURE = 2;
 
 	private static final int CODE_EXPORT_FORMAT = 1;
 	private static final int CODE_PROFILE = 2;
 
+	private static final String SAVED_FILE_PATH = "savedFilePath";
 	private LanguageHelper mLanguageHelper;
 
 	private String mProfile;
 	private String mExportFormat;
 	private String mDescription;
-	private String mFilePath;
 
 	private Spinner mExportFormatView;
 	private Spinner mProfileView;
@@ -60,6 +69,8 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 	private Button mManageLanguagesView;
 	private TextView mFileViewHint;
 	private ImageView mFileView;
+
+	private Uri mFileUri;
 
 	// Necessary for autocompletion
 	private AutoCompleteTextView mAddLanguagesView;
@@ -69,7 +80,7 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		if(container == null) {
+		if (container == null) {
 			return null;
 		}
 		return inflater.inflate(R.layout.process_image_fragment, container,
@@ -84,6 +95,19 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 		mLanguageHelper = new LanguageHelper(getActivity().getResources()
 				.getStringArray(R.array.languages));
 		super.onActivityCreated(savedInstanceState);
+		if (savedInstanceState != null
+				&& savedInstanceState.containsKey(SAVED_FILE_PATH)) {
+			addFile(Uri.parse(savedInstanceState.getString(SAVED_FILE_PATH)));
+
+		}
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		if (mFileUri != null) {
+			outState.putString(SAVED_FILE_PATH, mFileUri.toString());
+		}
 	}
 
 	@Override
@@ -105,17 +129,86 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 		case ACTIVITY_GET_FILE:
 			switch (resultCode) {
 			case Activity.RESULT_OK:
-				addFile(data.getData().toString());
-				break;
+				if (data != null) {
+					addFile(data.getData());
+				} else {
+					addFile(mFileUri);
+				}
 			}
 			break;
+		case ACTIVITY_TAKE_PICTURE:
+			galleryAddPic();
+			switch (resultCode) {
+			case Activity.RESULT_OK:
+				if (data != null) {
+					addFile(data.getData());
+				} else {
+					addFile(mFileUri);
+				}
+			}
 		}
 	}
 
 	@Override
+	public void addFile(Uri filePath) {
+		mFileUri = filePath;
+		if (mFileView != null) {
+			mFileViewHint.setVisibility(View.GONE);
+			mFileView.setVisibility(View.VISIBLE);
+			setPreview();
+
+		}
+	}
+
+	private void setPreview() {
+		Bitmap bm;
+		try {
+			bm = mFileUri.getScheme().equals("file") ? getSmallImage(false)
+					: getSmallImage(true);
+			mFileView.setImageBitmap(bm);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private Bitmap getSmallImage(boolean isContent)
+			throws FileNotFoundException {
+		// Create a BitmapFactory Options to scale the image down
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		// This parameter avoids the next call image from being loaded into
+		// memory
+		options.inJustDecodeBounds = true;
+		BitmapFactory.decodeStream(getActivity().getContentResolver()
+				.openInputStream(mFileUri));
+
+		// Obtain a sampling ratio
+		int outHeight = options.outHeight;
+		int outWidth = options.outWidth;
+		options.inSampleSize = getSampleSize(outHeight, outWidth);
+		// Now we can decode the image and load the small sample size into
+		// memory
+		options.inJustDecodeBounds = false;
+		return BitmapFactory.decodeStream(getActivity().getContentResolver()
+				.openInputStream(mFileUri));
+	}
+
+	private int getSampleSize(int outHeight, int outWidth) {
+		int height = mFileView.getHeight();
+		int width = mFileView.getWidth();
+		int sampleSize = 1;
+		if (height > outHeight || width > outWidth) {
+			final int heightRatio = Math.round((float) height
+					/ (float) outHeight);
+			final int widthRatio = Math.round((float) width / (float) outWidth);
+			sampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
+		}
+		return sampleSize;
+	}
+
+	@Override
 	public void launchTask() {
-		if (mFilePath != null) {
-			mClient.setFilePath(mFilePath);
+		if (mFileUri != null) {
+			mClient.setFilePath(mFileUri.toString());
 		}
 		if (mClient.getFilePath() == null) {
 			Toast.makeText(getActivity(), R.string.error_no_file_selected,
@@ -129,16 +222,6 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 			service.putExtra(TasksManagerService.EXTRA_NEW_TASK_OPTIONS,
 					getOptions());
 			getActivity().startService(service);
-		}
-	}
-
-	@Override
-	public void addFile(String filePath) {
-		mFilePath = filePath;
-		if (mFileView != null) {
-			mFileViewHint.setVisibility(View.GONE);
-			mFileView.setVisibility(View.VISIBLE);
-			mFileView.setImageURI(Uri.parse(filePath));
 		}
 	}
 
@@ -196,7 +279,7 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 		mFileViewHint = (TextView) getActivity().findViewById(
 				R.id.option_file_path_hint);
 
-		if(mExportFormatView == null){
+		if (mExportFormatView == null) {
 			return false;
 		}
 		mExportFormatView.setAdapter(getSpinnerAdapter(CODE_EXPORT_FORMAT));
@@ -280,12 +363,6 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 				});
 	}
 
-	private void getFile() {
-		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-		intent.setType("image/*");
-		startActivityForResult(intent, ACTIVITY_GET_FILE);
-	}
-
 	private void manageLanguages() {
 		Toast.makeText(getActivity(), mLanguageHelper.getLanguages(),
 				Toast.LENGTH_SHORT).show();
@@ -367,12 +444,49 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 		switch (v.getId()) {
 		case R.id.option_file_path:
 		case R.id.option_file_path_hint:
-			getFile();
+			takePicture();
 			break;
 		case R.id.option_button_manage_language:
 			manageLanguages();
 			break;
 		}
+	}
 
+	private void takePicture() {
+
+		// Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+		// intent.setType("image/*");
+		// startActivityForResult(intent, ACTIVITY_GET_FILE);
+
+		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		mFileUri = FilePicturesManager
+				.getOutputMediaFileUri(FilePicturesManager.MEDIA_TYPE_IMAGE);
+		if (mFileUri == null) {
+			return;
+		}
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, mFileUri);
+		startActivityForResult(intent, ACTIVITY_TAKE_PICTURE);
+	}
+
+	private void galleryAddPic() {
+		new Thread(new GalleryAddThread().addContext(getActivity())).start();
+	}
+	
+	private class GalleryAddThread implements Runnable{
+		Context mContext;
+		@Override
+		public void run() {
+			Intent mediaScanIntent = new Intent(
+					Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+			File f = new File(mFileUri.toString());
+			Uri contentUri = Uri.fromFile(f);
+			mediaScanIntent.setData(contentUri);
+			mContext.sendBroadcast(mediaScanIntent);
+			return;
+		}
+		public GalleryAddThread addContext(Context context){
+			mContext = context;
+			return this;
+		}	
 	}
 }

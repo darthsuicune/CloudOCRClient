@@ -45,11 +45,4 @@ public class ProcessMultipleOptionsFragment extends ProcessOptionsFragment {
 	void launchTask() {
 		
 	}
-
-	@Override
-	public void addFile(String filePath) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }

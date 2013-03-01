@@ -14,6 +14,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -111,15 +112,15 @@ public class TaskDetailsFragment extends Fragment {
 						Locale.GERMANY);
 				
 				TextView taskIdView = (TextView) getActivity().findViewById(R.id.task_details_task_id);
-				TextView descriptionView = (TextView) getActivity().findViewById(R.id.task_details_task_id);
-				TextView statusView = (TextView) getActivity().findViewById(R.id.task_details_task_id);
-				TextView registrationTimeView = (TextView) getActivity().findViewById(R.id.task_details_task_id);
-				TextView statusChangeTimeView = (TextView) getActivity().findViewById(R.id.task_details_task_id);
-				TextView filesCountView = (TextView) getActivity().findViewById(R.id.task_details_task_id);
-				TextView creditsView = (TextView) getActivity().findViewById(R.id.task_details_task_id);
-				TextView estimatedProcessingTimeView = (TextView) getActivity().findViewById(R.id.task_details_task_id);
-				TextView resultUrlView = (TextView) getActivity().findViewById(R.id.task_details_task_id);
-				TextView errorMessageView = (TextView) getActivity().findViewById(R.id.task_details_task_id);
+				TextView descriptionView = (TextView) getActivity().findViewById(R.id.task_details_description);
+				TextView statusView = (TextView) getActivity().findViewById(R.id.task_details_status);
+				TextView registrationTimeView = (TextView) getActivity().findViewById(R.id.task_details_registration_time);
+				TextView statusChangeTimeView = (TextView) getActivity().findViewById(R.id.task_details_status_change_time);
+				TextView filesCountView = (TextView) getActivity().findViewById(R.id.task_details_files_count);
+				TextView creditsView = (TextView) getActivity().findViewById(R.id.task_details_credits);
+				TextView estimatedProcessingTimeView = (TextView) getActivity().findViewById(R.id.task_details_estimated_processing_time);
+				TextView resultUrlView = (TextView) getActivity().findViewById(R.id.task_details_result_url);
+				TextView errorMessageView = (TextView) getActivity().findViewById(R.id.task_details_error);
 				
 				String description = cursor.getString(cursor.getColumnIndex(TasksContract.TasksTable.DESCRIPTION));
 				String status = cursor.getString(cursor.getColumnIndex(TasksContract.TasksTable.STATUS));
@@ -140,16 +141,21 @@ public class TaskDetailsFragment extends Fragment {
 					e.printStackTrace();
 				}
 				
-				taskIdView.setText(mTaskId);
-				descriptionView.setText(description);
-				statusView.setText(status);
-				registrationTimeView.setText("" + registrationDate);
-				filesCountView.setText("" + filesCount);
-				creditsView.setText("" + credits);
-				estimatedProcessingTimeView.setText("" + estimatedProcessingTime);
-				resultUrlView.setText(resultUrl);
-				errorMessageView.setText(errorMessage);
-				statusChangeTimeView.setText("" + statusChangeDate);
+				taskIdView.setText(getActivity().getString(R.string.details_task_id) + mTaskId);
+				descriptionView.setText(getActivity().getString(R.string.details_description) + description);
+				statusView.setText(getActivity().getString(R.string.details_status) + status);
+				registrationTimeView.setText(getActivity().getString(R.string.details_registration_time) + registrationDate);
+				filesCountView.setText(getActivity().getString(R.string.details_files_count) + filesCount);
+				creditsView.setText(getActivity().getString(R.string.details_credits) + credits);
+				estimatedProcessingTimeView.setText(getActivity().getString(R.string.details_estimated_processing_time) + estimatedProcessingTime);
+				statusChangeTimeView.setText(getActivity().getString(R.string.details_status_change_time) + statusChangeDate);
+				if(resultUrl != null && !TextUtils.isEmpty(resultUrl)){
+					resultUrlView.setText(getActivity().getString(R.string.details_result_url) + resultUrl);
+				}
+				if(errorMessage != null && !TextUtils.isEmpty(errorMessage)){
+					errorMessageView.setText(getActivity().getString(R.string.details_error) + errorMessage);
+				}
+				
 				
 			}
 		}

@@ -1,6 +1,7 @@
 package com.abbyy.cloudocr.optionsfragments;
 
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.Menu;
@@ -16,8 +17,9 @@ public abstract class ProcessOptionsFragment extends Fragment {
 	CloudClient mClient;
 	SharedPreferences prefs;
 
-	public abstract void addFile(String filePath);
-
+	public void addFile(Uri uri){
+		//Stub for those who need to use it
+	}
 	public abstract boolean saveDefaultOptions();
 
 	public abstract boolean loadDefaultOptions();
