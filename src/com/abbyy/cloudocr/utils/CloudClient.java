@@ -1,16 +1,20 @@
 package com.abbyy.cloudocr.utils;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.BufferedHttpEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -18,6 +22,8 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
+import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -61,11 +67,14 @@ public class CloudClient {
 	public static final String ARGUMENT_CHECKMARK_TYPE = "checkmarkType";
 	public static final String ARGUMENT_CORRECTION_ALLOWED = "correctionAllowed";
 
-	private URL mUrl;
-	private String mFilePath;
-	private String mProcessType;
+	public URL mUrl;
+	public Uri mFilePath;
+	public String mProcessType;
 
-	public CloudClient() {
+	private Context mContext;
+
+	public CloudClient(Context context) {
+		mContext = context;
 	}
 
 	public void setUrl(String processType, Bundle args)
@@ -73,61 +82,67 @@ public class CloudClient {
 		mProcessType = processType;
 		String url = BASE_URL + processType;
 		if (args != null) {
-			url = url.concat(createArgs(args));
+			url = url + "?" + createArgs(args);
 		}
 		mUrl = new URL(url);
 	}
 
 	public void setFilePath(String filePath) {
-		mFilePath = filePath;
+		mFilePath = Uri.parse(filePath);
 	}
 
-	public String getFilePath() {
+	public Uri getFilePath() {
 		return mFilePath;
 	}
 
 	public String makePetition() {
-		String test = "<response><task id=\"c3187247-7e81-4d12-8767-bc886c1ab878\""
-				+ " registrationTime=\"2012-02-16T06:42:09Z\" statusChangeTime=\"2012-02-16T06:42:09Z\""
-				+ " status=\"Queued\" filesCount=\"1\"  credits=\"0\" estimatedProcessingTime=\"1\""
-				+ " description=\"Image.JPG to .pdf\" />    </response>";
-		return test;
-//		if (mUrl == null) {
-//			return null;
-//		}
-//
-//		DefaultHttpClient httpClient = createHttpClient();
-//
-//		try {
-//			HttpUriRequest request;
-//
-//			if (isGet()) {
-//				request = new HttpGet(mUrl.toExternalForm());
-//			} else {
-//				HttpPost postRequest = new HttpPost(mUrl.toExternalForm());
-//				if (mFilePath != null) {
-//					addFile(postRequest);
-//				}
-//				request = postRequest;
-//			}
-//
-//			HttpResponse response = httpClient.execute(request);
-//			return new BufferedReader(new InputStreamReader(response
-//					.getEntity().getContent())).readLine();
-//		} catch (ClientProtocolException e) {
-//			logError(e.getLocalizedMessage());
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//		return null;
+		// String test =
+		// "<response><task id=\"c3187247-7e81-4d12-8767-bc886c1ab878\""
+		// +
+		// " registrationTime=\"2012-02-16T06:42:09Z\" statusChangeTime=\"2012-02-16T06:42:09Z\""
+		// +
+		// " status=\"Queued\" filesCount=\"1\"  credits=\"0\" estimatedProcessingTime=\"1\""
+		// + " description=\"Image.JPG to .pdf\" />    </response>";
+		// return test;
+		if (mUrl == null) {
+			return null;
+		}
+
+		DefaultHttpClient httpClient = createHttpClient();
+
+		try {
+			HttpUriRequest request;
+			Log.d("Connection URL", mUrl.toExternalForm());
+
+			if (isGet()) {
+				request = new HttpGet(mUrl.toExternalForm());
+			} else {
+				HttpPost postRequest = new HttpPost(mUrl.toExternalForm());
+				if (mFilePath != null) {
+					addFile(postRequest);
+				} else {
+					return null;
+				}
+				request = postRequest;
+			}
+
+			HttpResponse response = httpClient.execute(request);
+			return new BufferedReader(new InputStreamReader(response
+					.getEntity().getContent())).readLine();
+		} catch (ClientProtocolException e) {
+			logError(e.getLocalizedMessage());
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	private void addFile(HttpPost request) throws FileNotFoundException,
 			IOException {
 		InputStreamEntity entity = null;
-		entity = new InputStreamEntity(
-				new FileInputStream(new File(mFilePath)), -1);
+		entity = new InputStreamEntity(mContext.getContentResolver()
+				.openInputStream(mFilePath), -1);
 		entity.setContentType("application/octet-stream");
 		entity.setChunked(true);
 		BufferedHttpEntity bufferedEntity = new BufferedHttpEntity(entity);

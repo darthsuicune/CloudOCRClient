@@ -9,12 +9,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import com.abbyy.cloudocr.R;
-import com.abbyy.cloudocr.utils.CloudClient;
 
 public abstract class ProcessOptionsFragment extends Fragment {
 
 	protected String mTaskId;
-	CloudClient mClient;
 	SharedPreferences prefs;
 
 	public void addFile(Uri uri){
@@ -31,7 +29,6 @@ public abstract class ProcessOptionsFragment extends Fragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		mClient = new CloudClient();
 		if(setViews()){
 			setHasOptionsMenu(true);
 			loadDefaultOptions();

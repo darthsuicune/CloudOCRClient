@@ -24,10 +24,10 @@ public class Task {
 	public String mResultUrl;
 	public String mError;
 
-	public Task(Context context, String taskId, String status, String registrationTime,
-			String statusChangeTime, int filesCount, int credits,
-			int estimatedProcessingTime, String description, String resultUrl,
-			String error, boolean isInDb) {
+	public Task(Context context, String taskId, String status,
+			String registrationTime, String statusChangeTime, int filesCount,
+			int credits, int estimatedProcessingTime, String description,
+			String resultUrl, String error, boolean isInDb) {
 		mContext = context;
 		this.isInDb = isInDb;
 		mTaskId = taskId;
@@ -46,14 +46,28 @@ public class Task {
 		mContext = context;
 		mTaskId = data.get(context.getString(R.string.field_id));
 		mStatus = data.get(context.getString(R.string.field_status));
-		mRegistrationTime = data.get(context.getString(R.string.field_registration_time));
-		mStatusChangeTime = data.get(context.getString(R.string.field_status_change_time));
-		mFilesCount = Integer.parseInt(data.get(context.getString(R.string.field_files_count)));
-		mCredits = Integer.parseInt(data.get(context.getString(R.string.field_credits)));
-		mEstimatedProcessingTime = Integer.parseInt(data.get(context.getString(R.string.field_estimated_processing_time)));
+		mRegistrationTime = data.get(context
+				.getString(R.string.field_registration_time));
+		mStatusChangeTime = data.get(context
+				.getString(R.string.field_status_change_time));
+		mFilesCount = Integer.parseInt(data.get(context
+				.getString(R.string.field_files_count)));
+		mCredits = Integer.parseInt(data.get(context
+				.getString(R.string.field_credits)));
+		if (data.get(context
+				.getString(R.string.field_estimated_processing_time)) != null) {
+			mEstimatedProcessingTime = Integer.parseInt(data.get(context
+					.getString(R.string.field_estimated_processing_time)));
+		}
 		mDescription = data.get(context.getString(R.string.field_description));
-		mResultUrl = data.get(context.getString(R.string.field_result_url));
-		mError = data.get(context.getString(R.string.field_error));
+		if (data.get(context
+				.getString(R.string.field_result_url)) != null) {
+			mResultUrl = data.get(context.getString(R.string.field_result_url));
+		}
+		if (data.get(context
+				.getString(R.string.field_error)) != null) {
+			mError = data.get(context.getString(R.string.field_error));
+		}
 	}
 
 	public boolean writeTaskToDb() {
@@ -80,8 +94,8 @@ public class Task {
 		String selection = TasksContract.TasksTable.TASK_ID + "=?";
 		String[] selectionArgs = { mTaskId };
 
-		Cursor cursor = mContext.getContentResolver().query(uri, null, selection,
-				selectionArgs, null);
+		Cursor cursor = mContext.getContentResolver().query(uri, null,
+				selection, selectionArgs, null);
 		return cursor.getCount() == 1;
 	}
 

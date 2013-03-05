@@ -9,16 +9,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" 
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:textIsSelectable="true" />
+        android:layout_alignParentTop="true" />
 
     <TextView
         android:id="@+id/task_list_item_registration_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/task_list_item_task_id"
-        android:textIsSelectable="true" />
+        android:layout_below="@+id/task_list_item_task_id" />
 
     <ImageView
         android:id="@+id/task_list_item_delete_task"

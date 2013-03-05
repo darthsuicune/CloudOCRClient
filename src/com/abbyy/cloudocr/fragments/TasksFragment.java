@@ -34,6 +34,7 @@ public abstract class TasksFragment extends ListFragment implements
 	protected static final int LOADER_COMPLETED_TASKS = 2;
 
 	abstract void setAdapter();
+
 	abstract void removeTask(String taskId);
 
 	boolean isLandscape;
@@ -119,8 +120,11 @@ public abstract class TasksFragment extends ListFragment implements
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		mAdapter.swapCursor(cursor);
-		if (cursor.getCount() == 0) {
-			cancelNotification();
+		switch (loader.getId()) {
+		case LOADER_ACTIVE_TASKS:
+			if (cursor.getCount() == 0) {
+				cancelNotification();
+			}
 		}
 	}
 

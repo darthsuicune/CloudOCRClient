@@ -14,6 +14,7 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import com.abbyy.cloudocr.database.TasksContract;
 import com.abbyy.cloudocr.utils.CloudClient;
@@ -26,6 +27,8 @@ public class TasksManagerService extends IntentService {
 	public static final int REQUEST_ACTIVE_TASKS = 1;
 
 	public static final String EXTRA_ACTION = "action";
+	public static final String EXTRA_CREATE = "create";
+	public static final String EXTRA_FILE_PATH = "filePath";
 	public static final String EXTRA_TASK_ID = "taskId";
 	public static final String EXTRA_NEW_TASK_OPTIONS = "taskOptions";
 
@@ -35,24 +38,29 @@ public class TasksManagerService extends IntentService {
 	public static final int ACTION_UPDATE_COMPLETED_TASKS = 4;
 	public static final int ACTION_CREATE_NEW_TASK = 5;
 
+	public static final int CREATE_IMAGE = 1;
+	public static final int CREATE_BUSINESS_CARD = 2;
+
 	private CloudClient mClient;
 	private String mURL;
 	private Bundle mArgs;
 
 	public TasksManagerService() {
 		super(SERVICE_NAME);
-		mClient = new CloudClient();
+		mClient = new CloudClient(this);
 	}
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		Bundle extras = intent.getExtras();
 		if (extras != null) {
+			mArgs = intent.getExtras();
 			boolean needsConnection = false;
 			switch (extras.getInt(EXTRA_ACTION)) {
 			case ACTION_CREATE_NEW_TASK:
-				needsConnection = createNewTask(extras
-						.getBundle(EXTRA_NEW_TASK_OPTIONS));
+				needsConnection = createNewTask(
+						extras.getBundle(EXTRA_NEW_TASK_OPTIONS),
+						extras.getInt(EXTRA_CREATE));
 				break;
 			case ACTION_DELETE_ACTIVE_TASK:
 				needsConnection = deleteTask(extras.getString(EXTRA_TASK_ID),
@@ -69,6 +77,10 @@ public class TasksManagerService extends IntentService {
 				needsConnection = refreshTasks(false);
 				break;
 			}
+			if (mArgs.containsKey(EXTRA_FILE_PATH)) {
+				mClient.setFilePath(mArgs.getString(EXTRA_FILE_PATH));
+				Log.d("Image", "Processing " + mClient.mFilePath);
+			}
 			if (needsConnection) {
 				try {
 					mClient.setUrl(mURL, mArgs);
@@ -81,23 +93,33 @@ public class TasksManagerService extends IntentService {
 		}
 	}
 
-	private boolean createNewTask(Bundle args) {
-		updateNotificationStatus();
+	private boolean createNewTask(Bundle args, int create) {
+		switch (create) {
+		case R.string.process_business_card:
+			mURL = CloudClient.PROCESS_BUSINESS_CARD;
+			break;
+		case R.string.process_image:
+			mURL = CloudClient.PROCESS_IMAGE;
+			break;
+		}
 		return true;
 	}
 
 	private boolean refreshTasks(boolean isActive) {
 		if (isActive) {
+			mURL = CloudClient.GET_TASK_LIST;
 		} else {
+			mURL = CloudClient.GET_FINISHED_TASK_LIST;
 		}
 		return true;
 	}
 
 	private boolean deleteTask(String taskId, boolean isActive) {
 		if (isActive) {
-			Bundle args = new Bundle();
-			args.putString(CloudClient.ARGUMENT_TASK_ID, taskId);
-			// } else {
+			mArgs.putString(CloudClient.ARGUMENT_TASK_ID, taskId);
+			mURL = CloudClient.DELETE_TASK;
+			return true;
+		} else {
 			String where = TasksContract.TasksTable.TASK_ID + "=?";
 			String[] selectionArgs = { taskId };
 			getContentResolver().delete(TasksContract.CONTENT_TASKS, where,
@@ -108,6 +130,10 @@ public class TasksManagerService extends IntentService {
 	}
 
 	private void parseResponse(String response) {
+		Log.d("Response", response);
+		if (response == null) {
+			return;
+		}
 		XMLParser parser = new XMLParser(response);
 		ArrayList<HashMap<String, String>> result = null;
 		ArrayList<HashMap<String, String>> error = null;
@@ -131,8 +157,8 @@ public class TasksManagerService extends IntentService {
 		}
 		if (result != null) {
 			for (int i = 0; i < result.size(); i++) {
-				Task task = new Task(getBaseContext(), result.get(i));
-				task.writeTaskToDb();
+				new Task(getBaseContext(), result.get(i)).writeTaskToDb();
+				updateNotificationStatus();
 			}
 		} else if (error != null) {
 			// Parse error message and do something.
@@ -152,7 +178,8 @@ public class TasksManagerService extends IntentService {
 		builder.setSmallIcon(R.drawable.abbyy_logo)
 				.setContentTitle(getString(R.string.notification_title))
 				.setContentText(getString(R.string.notification_message))
-				.setContentIntent(pendingIntent);
+				.setContentIntent(pendingIntent).setAutoCancel(false)
+				.setOngoing(true);
 
 		nm.notify(NOTIFICATION_TAG, NOTIFICATION_ID, builder.build());
 	}

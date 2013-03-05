@@ -207,16 +207,15 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 
 	@Override
 	public void launchTask() {
-		if (mFileUri != null) {
-			mClient.setFilePath(mFileUri.toString());
-		}
-		if (mClient.getFilePath() == null) {
+		if (mFileUri == null) {
 			Toast.makeText(getActivity(), R.string.error_no_file_selected,
 					Toast.LENGTH_LONG).show();
 		} else {
 			saveDefaultOptions();
 			Intent service = new Intent(getActivity(),
 					TasksManagerService.class);
+			service.putExtra(TasksManagerService.EXTRA_FILE_PATH,
+					mFileUri.toString());
 			service.putExtra(TasksManagerService.EXTRA_ACTION,
 					TasksManagerService.ACTION_CREATE_NEW_TASK);
 			service.putExtra(TasksManagerService.EXTRA_NEW_TASK_OPTIONS,
@@ -377,7 +376,7 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 				switch (code) {
 				case CODE_EXPORT_FORMAT:
 					String[] exportFormats = getActivity().getResources()
-							.getStringArray(R.array.export_formats);
+							.getStringArray(R.array.image_export_formats);
 
 					mExportFormat = exportFormats[position];
 					break;
@@ -403,7 +402,7 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 			adapter = new ArrayAdapter<String>(getActivity(),
 					android.R.layout.simple_spinner_item, getActivity()
 							.getResources().getStringArray(
-									R.array.export_formats));
+									R.array.image_export_formats));
 			break;
 		case CODE_PROFILE:
 			adapter = new ArrayAdapter<String>(getActivity(),
@@ -471,9 +470,10 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 	private void galleryAddPic() {
 		new Thread(new GalleryAddThread().addContext(getActivity())).start();
 	}
-	
-	private class GalleryAddThread implements Runnable{
+
+	private class GalleryAddThread implements Runnable {
 		Context mContext;
+
 		@Override
 		public void run() {
 			Intent mediaScanIntent = new Intent(
@@ -484,9 +484,10 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 			mContext.sendBroadcast(mediaScanIntent);
 			return;
 		}
-		public GalleryAddThread addContext(Context context){
+
+		public GalleryAddThread addContext(Context context) {
 			mContext = context;
 			return this;
-		}	
+		}
 	}
 }

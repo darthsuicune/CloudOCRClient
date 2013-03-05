@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import com.abbyy.cloudocr.CreateTaskActivity;
 import com.abbyy.cloudocr.R;
 import com.abbyy.cloudocr.SettingsActivity;
+import com.abbyy.cloudocr.StartActivity;
 import com.abbyy.cloudocr.TasksManagerService;
 import com.abbyy.cloudocr.database.TasksContract;
 import com.abbyy.cloudocr.optionsfragments.ProcessImageOptionsFragment;
@@ -42,11 +43,6 @@ public class ActiveTasksFragment extends TasksFragment {
 		super.onActivityCreated(savedInstanceState);
 		getActivity().getSupportLoaderManager().restartLoader(
 				LOADER_ACTIVE_TASKS, null, this);
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
 	}
 
 	@Override
@@ -92,8 +88,7 @@ public class ActiveTasksFragment extends TasksFragment {
 					mProcessOptionsFragment);
 			transaction.commit();
 		} else {
-			// Intent intent = new Intent(getActivity(), StartActivity.class);
-			Intent intent = new Intent(getActivity(), CreateTaskActivity.class);
+			Intent intent = new Intent(getActivity(), StartActivity.class);
 			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
 					SettingsActivity.PROCESSING_MODE_IMAGE);
 			startActivity(intent);
