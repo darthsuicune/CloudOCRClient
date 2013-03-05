@@ -58,9 +58,8 @@ public class TasksManagerService extends IntentService {
 			boolean needsConnection = false;
 			switch (extras.getInt(EXTRA_ACTION)) {
 			case ACTION_CREATE_NEW_TASK:
-				needsConnection = createNewTask(
-						extras.getBundle(EXTRA_NEW_TASK_OPTIONS),
-						extras.getInt(EXTRA_CREATE));
+				needsConnection = createNewTask(extras.getInt(EXTRA_CREATE));
+				mArgs.putAll(extras.getBundle(EXTRA_NEW_TASK_OPTIONS));
 				break;
 			case ACTION_DELETE_ACTIVE_TASK:
 				needsConnection = deleteTask(extras.getString(EXTRA_TASK_ID),
@@ -93,7 +92,7 @@ public class TasksManagerService extends IntentService {
 		}
 	}
 
-	private boolean createNewTask(Bundle args, int create) {
+	private boolean createNewTask(int create) {
 		switch (create) {
 		case R.string.process_business_card:
 			mURL = CloudClient.PROCESS_BUSINESS_CARD;
@@ -161,6 +160,7 @@ public class TasksManagerService extends IntentService {
 				updateNotificationStatus();
 			}
 		} else if (error != null) {
+			Log.d("ERROR", "Error upon download: " + error);
 			// Parse error message and do something.
 		}
 	}

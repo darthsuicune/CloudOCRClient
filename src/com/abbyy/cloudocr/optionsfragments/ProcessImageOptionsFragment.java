@@ -43,7 +43,7 @@ import com.abbyy.cloudocr.SettingsActivity;
 import com.abbyy.cloudocr.TasksManagerService;
 import com.abbyy.cloudocr.database.TasksContract;
 import com.abbyy.cloudocr.utils.CloudClient;
-import com.abbyy.cloudocr.utils.FilePicturesManager;
+import com.abbyy.cloudocr.utils.FileManager;
 import com.abbyy.cloudocr.utils.LanguageHelper;
 
 public class ProcessImageOptionsFragment extends ProcessOptionsFragment
@@ -218,6 +218,8 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 					mFileUri.toString());
 			service.putExtra(TasksManagerService.EXTRA_ACTION,
 					TasksManagerService.ACTION_CREATE_NEW_TASK);
+			service.putExtra(TasksManagerService.EXTRA_CREATE,
+					R.string.process_image);
 			service.putExtra(TasksManagerService.EXTRA_NEW_TASK_OPTIONS,
 					getOptions());
 			getActivity().startService(service);
@@ -453,18 +455,18 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 
 	private void takePicture() {
 
-		// Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-		// intent.setType("image/*");
-		// startActivityForResult(intent, ACTIVITY_GET_FILE);
+		 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+		 intent.setType("image/*");
+		 startActivityForResult(intent, ACTIVITY_GET_FILE);
 
-		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		mFileUri = FilePicturesManager
-				.getOutputMediaFileUri(FilePicturesManager.MEDIA_TYPE_IMAGE);
-		if (mFileUri == null) {
-			return;
-		}
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, mFileUri);
-		startActivityForResult(intent, ACTIVITY_TAKE_PICTURE);
+//		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+//		mFileUri = FileManager
+//				.getOutputMediaFileUri(FileManager.MEDIA_TYPE_IMAGE);
+//		if (mFileUri == null) {
+//			return;
+//		}
+//		intent.putExtra(MediaStore.EXTRA_OUTPUT, mFileUri);
+//		startActivityForResult(intent, ACTIVITY_TAKE_PICTURE);
 	}
 
 	private void galleryAddPic() {

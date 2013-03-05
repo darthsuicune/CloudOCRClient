@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="image_export_formats">
-        <item>@string/export_format_pdf</item>
+        <item>@string/export_format_pdf_searchable</item>
         <item>@string/export_format_txt</item>
         <item>@string/export_format_rtf</item>
         <item>@string/export_format_docx</item>
         <item>@string/export_format_xslx</item>
         <item>@string/export_format_pptx</item>
-        <item>@string/export_format_pdf_searchable</item>
         <item>@string/export_format_pdf_text_and_images</item>
         <item>@string/export_format_pdfa</item>
         <item>@string/export_format_xml</item>
@@ -20,7 +19,6 @@
         <item>@string/export_format_xml</item>
     </string-array>
     
-    <string name="export_format_pdf">"pdf"</string>
     <string name="export_format_txt">"txt"</string>
     <string name="export_format_rtf">"rtf"</string>
     <string name="export_format_docx">"docx"</string>

@@ -96,7 +96,7 @@ public abstract class TasksFragment extends ListFragment implements
 		String[] selectionArgs = { getActivity().getString(
 				R.string.status_completed) };
 
-		String sortOrder = null;
+		String sortOrder = TasksContract.TasksTable.STATUS_CHANGE_TIME + " DESC";
 
 		switch (id) {
 		case LOADER_ACTIVE_TASKS:

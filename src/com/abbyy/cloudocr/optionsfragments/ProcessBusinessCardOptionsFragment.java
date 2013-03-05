@@ -43,7 +43,7 @@ import com.abbyy.cloudocr.SettingsActivity;
 import com.abbyy.cloudocr.TasksManagerService;
 import com.abbyy.cloudocr.database.TasksContract;
 import com.abbyy.cloudocr.utils.CloudClient;
-import com.abbyy.cloudocr.utils.FilePicturesManager;
+import com.abbyy.cloudocr.utils.FileManager;
 import com.abbyy.cloudocr.utils.LanguageHelper;
 
 public class ProcessBusinessCardOptionsFragment extends ProcessOptionsFragment
@@ -418,8 +418,8 @@ public class ProcessBusinessCardOptionsFragment extends ProcessOptionsFragment
 		intent.setType("image/*");
 		startActivityForResult(intent, ACTIVITY_GET_FILE);
 //		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//		mFileUri = FilePicturesManager
-//				.getOutputMediaFileUri(FilePicturesManager.MEDIA_TYPE_IMAGE);
+//		mFileUri = FileManager
+//				.getOutputMediaFileUri(FileManager.MEDIA_TYPE_IMAGE);
 //		if (mFileUri == null) {
 //			return;
 //		}

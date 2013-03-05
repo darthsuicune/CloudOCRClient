@@ -20,7 +20,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.abbyy.cloudocr.R;
@@ -31,6 +33,8 @@ import com.abbyy.cloudocr.database.TasksContract;
 public class TaskDetailsFragment extends Fragment {
 	private static final int LOADER_TASK_INFO = 0;
 	private String mTaskId;
+
+	Button mDownloadButton;
 
 	public TaskDetailsFragment() {
 	}
@@ -56,10 +60,15 @@ public class TaskDetailsFragment extends Fragment {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+		case android.R.id.home:
+			getActivity().finish();
+			break;
 		case R.id.menu_settings:
 			Intent intent = new Intent(getActivity(), SettingsActivity.class);
 			startActivity(intent);
 			break;
+		default:
+			return super.onOptionsItemSelected(item);
 		}
 		return true;
 	}
@@ -108,30 +117,53 @@ public class TaskDetailsFragment extends Fragment {
 	private void populateScreen(Cursor cursor) {
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
-				DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd'T'HH:mm:ss'Z'",
-						Locale.GERMANY);
-				
-				TextView taskIdView = (TextView) getActivity().findViewById(R.id.task_details_task_id);
-				TextView descriptionView = (TextView) getActivity().findViewById(R.id.task_details_description);
-				TextView statusView = (TextView) getActivity().findViewById(R.id.task_details_status);
-				TextView registrationTimeView = (TextView) getActivity().findViewById(R.id.task_details_registration_time);
-				TextView statusChangeTimeView = (TextView) getActivity().findViewById(R.id.task_details_status_change_time);
-				TextView filesCountView = (TextView) getActivity().findViewById(R.id.task_details_files_count);
-				TextView creditsView = (TextView) getActivity().findViewById(R.id.task_details_credits);
-				TextView estimatedProcessingTimeView = (TextView) getActivity().findViewById(R.id.task_details_estimated_processing_time);
-				TextView resultUrlView = (TextView) getActivity().findViewById(R.id.task_details_result_url);
-				TextView errorMessageView = (TextView) getActivity().findViewById(R.id.task_details_error);
-				
-				String description = cursor.getString(cursor.getColumnIndex(TasksContract.TasksTable.DESCRIPTION));
-				String status = cursor.getString(cursor.getColumnIndex(TasksContract.TasksTable.STATUS));
-				String registrationTime = cursor.getString(cursor.getColumnIndex(TasksContract.TasksTable.REGISTRATION_TIME));
-				String statusChangeTime = cursor.getString(cursor.getColumnIndex(TasksContract.TasksTable.STATUS_CHANGE_TIME));
-				String filesCount = cursor.getString(cursor.getColumnIndex(TasksContract.TasksTable.FILES_COUNT));
-				String credits = cursor.getString(cursor.getColumnIndex(TasksContract.TasksTable.CREDITS));
-				String estimatedProcessingTime = cursor.getString(cursor.getColumnIndex(TasksContract.TasksTable.ESTIMATED_PROCESSING_TIME));
-				String resultUrl = cursor.getString(cursor.getColumnIndex(TasksContract.TasksTable.RESULT_URL));
-				String errorMessage = cursor.getString(cursor.getColumnIndex(TasksContract.TasksTable.ERROR));
-				
+				DateFormat dateFormat = new SimpleDateFormat(
+						"yyyy-mm-dd'T'HH:mm:ss'Z'", Locale.GERMANY);
+
+				TextView taskIdView = (TextView) getActivity().findViewById(
+						R.id.task_details_task_id);
+				TextView descriptionView = (TextView) getActivity()
+						.findViewById(R.id.task_details_description);
+				TextView statusView = (TextView) getActivity().findViewById(
+						R.id.task_details_status);
+				TextView registrationTimeView = (TextView) getActivity()
+						.findViewById(R.id.task_details_registration_time);
+				TextView statusChangeTimeView = (TextView) getActivity()
+						.findViewById(R.id.task_details_status_change_time);
+				TextView filesCountView = (TextView) getActivity()
+						.findViewById(R.id.task_details_files_count);
+				TextView creditsView = (TextView) getActivity().findViewById(
+						R.id.task_details_credits);
+				TextView estimatedProcessingTimeView = (TextView) getActivity()
+						.findViewById(
+								R.id.task_details_estimated_processing_time);
+				TextView errorMessageView = (TextView) getActivity()
+						.findViewById(R.id.task_details_error);
+				mDownloadButton = (Button) getActivity().findViewById(
+						R.id.task_details_download);
+
+				String description = cursor.getString(cursor
+						.getColumnIndex(TasksContract.TasksTable.DESCRIPTION));
+				String status = cursor.getString(cursor
+						.getColumnIndex(TasksContract.TasksTable.STATUS));
+				String registrationTime = cursor
+						.getString(cursor
+								.getColumnIndex(TasksContract.TasksTable.REGISTRATION_TIME));
+				String statusChangeTime = cursor
+						.getString(cursor
+								.getColumnIndex(TasksContract.TasksTable.STATUS_CHANGE_TIME));
+				String filesCount = cursor.getString(cursor
+						.getColumnIndex(TasksContract.TasksTable.FILES_COUNT));
+				String credits = cursor.getString(cursor
+						.getColumnIndex(TasksContract.TasksTable.CREDITS));
+				String estimatedProcessingTime = cursor
+						.getString(cursor
+								.getColumnIndex(TasksContract.TasksTable.ESTIMATED_PROCESSING_TIME));
+				final String resultUrl = cursor.getString(cursor
+						.getColumnIndex(TasksContract.TasksTable.RESULT_URL));
+				String errorMessage = cursor.getString(cursor
+						.getColumnIndex(TasksContract.TasksTable.ERROR));
+
 				Date registrationDate = null;
 				Date statusChangeDate = null;
 				try {
@@ -140,24 +172,59 @@ public class TaskDetailsFragment extends Fragment {
 				} catch (ParseException e) {
 					e.printStackTrace();
 				}
-				
-				taskIdView.setText(getActivity().getString(R.string.details_task_id) + mTaskId);
-				descriptionView.setText(getActivity().getString(R.string.details_description) + description);
-				statusView.setText(getActivity().getString(R.string.details_status) + status);
-				registrationTimeView.setText(getActivity().getString(R.string.details_registration_time) + registrationDate);
-				filesCountView.setText(getActivity().getString(R.string.details_files_count) + filesCount);
-				creditsView.setText(getActivity().getString(R.string.details_credits) + credits);
-				estimatedProcessingTimeView.setText(getActivity().getString(R.string.details_estimated_processing_time) + estimatedProcessingTime);
-				statusChangeTimeView.setText(getActivity().getString(R.string.details_status_change_time) + statusChangeDate);
-				if(resultUrl != null && !TextUtils.isEmpty(resultUrl)){
-					resultUrlView.setText(getActivity().getString(R.string.details_result_url) + resultUrl);
+
+				taskIdView.setText(getActivity().getString(
+						R.string.details_task_id)
+						+ mTaskId);
+				descriptionView.setText(getActivity().getString(
+						R.string.details_description)
+						+ description);
+				statusView.setText(getActivity().getString(
+						R.string.details_status)
+						+ status);
+				registrationTimeView.setText(getActivity().getString(
+						R.string.details_registration_time)
+						+ registrationDate);
+				filesCountView.setText(getActivity().getString(
+						R.string.details_files_count)
+						+ filesCount);
+				creditsView.setText(getActivity().getString(
+						R.string.details_credits)
+						+ credits);
+				estimatedProcessingTimeView.setText(getActivity().getString(
+						R.string.details_estimated_processing_time)
+						+ estimatedProcessingTime);
+				statusChangeTimeView.setText(getActivity().getString(
+						R.string.details_status_change_time)
+						+ statusChangeDate);
+				if (errorMessage != null && !TextUtils.isEmpty(errorMessage)) {
+					errorMessageView.setText(getActivity().getString(
+							R.string.details_error)
+							+ errorMessage);
+				} else{
+					errorMessageView.setText(resultUrl);
+//					errorMessageView.setVisibility(View.GONE);
 				}
-				if(errorMessage != null && !TextUtils.isEmpty(errorMessage)){
-					errorMessageView.setText(getActivity().getString(R.string.details_error) + errorMessage);
+				if (resultUrl != null && !TextUtils.isEmpty(resultUrl)) {
+					
+					mDownloadButton.setVisibility(View.VISIBLE);
+					mDownloadButton.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							makeDownload(resultUrl);
+						}
+					});
+				} else {
+					mDownloadButton.setVisibility(View.GONE);
 				}
-				
-				
+
 			}
 		}
+	}
+
+	private void makeDownload(final String url) {
+		Uri uri = Uri.parse(url);
+		Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+		startActivity(intent);
 	}
 }
