@@ -24,15 +24,15 @@
 	        android:textAppearance="?android:attr/textAppearanceSmall"
 	        android:drawableTop="@drawable/ic_launcher"
 	        android:background="@android:color/transparent"	/>
-	    <Button 
-	        android:id="@+id/process_multiple"
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        android:contentDescription="@string/content_description_process_multiple"
-	        android:text="@string/content_description_process_multiple"
-	        android:textAppearance="?android:attr/textAppearanceSmall"
-	        android:drawableTop="@drawable/ic_launcher"
-	        android:background="@android:color/transparent" />
+<!-- 	    <Button  -->
+<!-- 	        android:id="@+id/process_multiple" -->
+<!-- 	        android:layout_width="match_parent" -->
+<!-- 	        android:layout_height="match_parent" -->
+<!-- 	        android:contentDescription="@string/content_description_process_multiple" -->
+<!-- 	        android:text="@string/content_description_process_multiple" -->
+<!-- 	        android:textAppearance="?android:attr/textAppearanceSmall" -->
+<!-- 	        android:drawableTop="@drawable/ic_launcher" -->
+<!-- 	        android:background="@android:color/transparent" /> -->
 	</TableRow>
     <TableRow
         android:layout_width="match_parent"
@@ -48,49 +48,49 @@
 	        android:drawableTop="@drawable/ic_launcher"
 	        android:background="@android:color/transparent" />
 	
-	    <Button 
-	        android:id="@+id/process_text_field"
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        android:contentDescription="@string/content_description_process_text_field"
-	        android:text="@string/content_description_process_text_field"
-	        android:textAppearance="?android:attr/textAppearanceSmall"
-	        android:drawableTop="@drawable/ic_launcher"
-	        android:background="@android:color/transparent" />
+<!-- 	    <Button  -->
+<!-- 	        android:id="@+id/process_text_field" -->
+<!-- 	        android:layout_width="match_parent" -->
+<!-- 	        android:layout_height="match_parent" -->
+<!-- 	        android:contentDescription="@string/content_description_process_text_field" -->
+<!-- 	        android:text="@string/content_description_process_text_field" -->
+<!-- 	        android:textAppearance="?android:attr/textAppearanceSmall" -->
+<!-- 	        android:drawableTop="@drawable/ic_launcher" -->
+<!-- 	        android:background="@android:color/transparent" /> -->
 	</TableRow>
-    <TableRow
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="6dp" >
+<!--     <TableRow -->
+<!--         android:layout_width="match_parent" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:padding="6dp" > -->
 
-	    <Button 
-	        android:id="@+id/process_barcode_field"
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        android:contentDescription="@string/content_description_process_barcode_field"
-	        android:text="@string/content_description_process_barcode_field"
-	        android:textAppearance="?android:attr/textAppearanceSmall"
-	        android:drawableTop="@drawable/ic_launcher"
-	        android:background="@android:color/transparent" />
+<!-- 	    <Button  -->
+<!-- 	        android:id="@+id/process_barcode_field" -->
+<!-- 	        android:layout_width="match_parent" -->
+<!-- 	        android:layout_height="match_parent" -->
+<!-- 	        android:contentDescription="@string/content_description_process_barcode_field" -->
+<!-- 	        android:text="@string/content_description_process_barcode_field" -->
+<!-- 	        android:textAppearance="?android:attr/textAppearanceSmall" -->
+<!-- 	        android:drawableTop="@drawable/ic_launcher" -->
+<!-- 	        android:background="@android:color/transparent" /> -->
 	
-	    <Button 
-	        android:id="@+id/process_checkmark_field"
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        android:contentDescription="@string/content_description_process_checkmark_field"
-	        android:text="@string/content_description_process_checkmark_field"
-	        android:textAppearance="?android:attr/textAppearanceSmall"
-	        android:drawableTop="@drawable/ic_launcher"
-	        android:background="@android:color/transparent" />
-	</TableRow>
-    <Button 
-        android:id="@+id/process_fields"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/content_description_process_fields"
-        android:text="@string/content_description_process_fields"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:drawableTop="@drawable/ic_launcher"
-        android:background="@android:color/transparent" />
+<!-- 	    <Button  -->
+<!-- 	        android:id="@+id/process_checkmark_field" -->
+<!-- 	        android:layout_width="match_parent" -->
+<!-- 	        android:layout_height="match_parent" -->
+<!-- 	        android:contentDescription="@string/content_description_process_checkmark_field" -->
+<!-- 	        android:text="@string/content_description_process_checkmark_field" -->
+<!-- 	        android:textAppearance="?android:attr/textAppearanceSmall" -->
+<!-- 	        android:drawableTop="@drawable/ic_launcher" -->
+<!-- 	        android:background="@android:color/transparent" /> -->
+<!-- 	</TableRow> -->
+<!--     <Button  -->
+<!--         android:id="@+id/process_fields" -->
+<!--         android:layout_width="match_parent" -->
+<!--         android:layout_height="wrap_content" -->
+<!--         android:contentDescription="@string/content_description_process_fields" -->
+<!--         android:text="@string/content_description_process_fields" -->
+<!--         android:textAppearance="?android:attr/textAppearanceSmall" -->
+<!--         android:drawableTop="@drawable/ic_launcher" -->
+<!--         android:background="@android:color/transparent" /> -->
 
 </TableLayout>

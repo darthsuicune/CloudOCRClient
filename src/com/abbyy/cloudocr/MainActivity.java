@@ -24,10 +24,15 @@ public class MainActivity extends TabCompatActivity{
 	private static final int TAB_COMPLETED = 1;
 	
 	private SharedPreferences prefs;
+	
+	private boolean mTwoPane;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		if(findViewById(R.id.main_activity_second_fragment) != null){
+			mTwoPane = true;
+		}
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		if(prefs.getBoolean(SettingsActivity.IS_FIRST_RUN, true)){
 			insertLanguages();
@@ -35,11 +40,6 @@ public class MainActivity extends TabCompatActivity{
 		}
 		setContentView(R.layout.main_activity);
 		setTabs();
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
 	}
 
 	@Override

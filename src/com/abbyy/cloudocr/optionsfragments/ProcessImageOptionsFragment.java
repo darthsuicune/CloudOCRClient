@@ -12,7 +12,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -43,7 +42,6 @@ import com.abbyy.cloudocr.SettingsActivity;
 import com.abbyy.cloudocr.TasksManagerService;
 import com.abbyy.cloudocr.database.TasksContract;
 import com.abbyy.cloudocr.utils.CloudClient;
-import com.abbyy.cloudocr.utils.FileManager;
 import com.abbyy.cloudocr.utils.LanguageHelper;
 
 public class ProcessImageOptionsFragment extends ProcessOptionsFragment
@@ -70,7 +68,7 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 	private TextView mFileViewHint;
 	private ImageView mFileView;
 
-	private Uri mFileUri;
+	public Uri mFileUri;
 
 	// Necessary for autocompletion
 	private AutoCompleteTextView mAddLanguagesView;
@@ -97,17 +95,18 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 		super.onActivityCreated(savedInstanceState);
 		if (savedInstanceState != null
 				&& savedInstanceState.containsKey(SAVED_FILE_PATH)) {
-			addFile(Uri.parse(savedInstanceState.getString(SAVED_FILE_PATH)));
-
+			// addFile(Uri.parse(savedInstanceState.getString(SAVED_FILE_PATH)));
+		} else if (mFileUri != null) {
+			addFile(mFileUri);
 		}
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
 		if (mFileUri != null) {
 			outState.putString(SAVED_FILE_PATH, mFileUri.toString());
 		}
+		super.onSaveInstanceState(outState);
 	}
 
 	@Override
@@ -152,54 +151,52 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 	@Override
 	public void addFile(Uri filePath) {
 		mFileUri = filePath;
-		if (mFileView != null) {
+		if (mFileView != null
+				&& getActivity().findViewById(R.id.option_file_path)
+						.getVisibility() == View.GONE) {
 			mFileViewHint.setVisibility(View.GONE);
 			mFileView.setVisibility(View.VISIBLE);
 			setPreview();
-
 		}
 	}
 
 	private void setPreview() {
-		Bitmap bm;
 		try {
-			bm = mFileUri.getScheme().equals("file") ? getSmallImage(false)
-					: getSmallImage(true);
-			mFileView.setImageBitmap(bm);
+			mFileView.setImageBitmap(getSmallImage());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private Bitmap getSmallImage(boolean isContent)
-			throws FileNotFoundException {
+	private Bitmap getSmallImage() throws FileNotFoundException {
 		// Create a BitmapFactory Options to scale the image down
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		// This parameter avoids the next call image from being loaded into
 		// memory
 		options.inJustDecodeBounds = true;
 		BitmapFactory.decodeStream(getActivity().getContentResolver()
-				.openInputStream(mFileUri));
+				.openInputStream(mFileUri), null, options);
 
 		// Obtain a sampling ratio
-		int outHeight = options.outHeight;
-		int outWidth = options.outWidth;
-		options.inSampleSize = getSampleSize(outHeight, outWidth);
+		int originalHeight = options.outHeight;
+		int originalWidth = options.outWidth;
+		options.inSampleSize = getSampleSize(originalHeight, originalWidth);
 		// Now we can decode the image and load the small sample size into
 		// memory
 		options.inJustDecodeBounds = false;
 		return BitmapFactory.decodeStream(getActivity().getContentResolver()
-				.openInputStream(mFileUri));
+				.openInputStream(mFileUri), null, options);
 	}
 
-	private int getSampleSize(int outHeight, int outWidth) {
-		int height = mFileView.getHeight();
-		int width = mFileView.getWidth();
+	private int getSampleSize(int originalHeight, int originalWidth) {
+		int requiredHeight = mFileView.getHeight();
+		int requiredWidth = mFileView.getWidth();
 		int sampleSize = 1;
-		if (height > outHeight || width > outWidth) {
-			final int heightRatio = Math.round((float) height
-					/ (float) outHeight);
-			final int widthRatio = Math.round((float) width / (float) outWidth);
+		if (requiredHeight < originalHeight || requiredWidth < originalWidth) {
+			final int heightRatio = Math.round((float) requiredHeight
+					/ (float) originalHeight);
+			final int widthRatio = Math.round((float) requiredWidth
+					/ (float) originalWidth);
 			sampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
 		}
 		return sampleSize;
@@ -455,18 +452,18 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 
 	private void takePicture() {
 
-		 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-		 intent.setType("image/*");
-		 startActivityForResult(intent, ACTIVITY_GET_FILE);
+		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+		intent.setType("image/*");
+		startActivityForResult(intent, ACTIVITY_GET_FILE);
 
-//		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//		mFileUri = FileManager
-//				.getOutputMediaFileUri(FileManager.MEDIA_TYPE_IMAGE);
-//		if (mFileUri == null) {
-//			return;
-//		}
-//		intent.putExtra(MediaStore.EXTRA_OUTPUT, mFileUri);
-//		startActivityForResult(intent, ACTIVITY_TAKE_PICTURE);
+		// Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		// mFileUri = FileManager
+		// .getOutputMediaFileUri(FileManager.MEDIA_TYPE_IMAGE);
+		// if (mFileUri == null) {
+		// return;
+		// }
+		// intent.putExtra(MediaStore.EXTRA_OUTPUT, mFileUri);
+		// startActivityForResult(intent, ACTIVITY_TAKE_PICTURE);
 	}
 
 	private void galleryAddPic() {

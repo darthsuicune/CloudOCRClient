@@ -3,11 +3,11 @@ package com.abbyy.cloudocr;
 import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,7 +29,6 @@ public class CreateTaskActivity extends ActionBarActivity {
 
 	private int mProcessingMode = -1;
 	private Uri mImageToProcess = null;
-	private boolean isLandscape;
 
 	private ProcessOptionsFragment mProcessOptionsFragment;
 	private Spinner mProcessSpinnerView;
@@ -37,7 +36,6 @@ public class CreateTaskActivity extends ActionBarActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		isLandscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 		handleIncomingIntent();
 		setViews();
 		setOptionsFragment();
@@ -45,15 +43,15 @@ public class CreateTaskActivity extends ActionBarActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch(item.getItemId()){
 		case android.R.id.home:
-			finish();
-			break;
+			NavUtils.navigateUpTo(this, new Intent(this, StartActivity.class));
+			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -64,7 +62,7 @@ public class CreateTaskActivity extends ActionBarActivity {
 			String action = getIntent().getAction();
 			if (action != null && action.equals(Intent.ACTION_SEND)) {
 				String type = getIntent().getType();
-				mProcessingMode = 1;
+				mProcessingMode = SettingsActivity.PROCESSING_MODE_IMAGE;
 				if (type != null && type.startsWith("image")) {
 					mImageToProcess = (Uri) getIntent().getParcelableExtra(
 							Intent.EXTRA_STREAM);
@@ -75,9 +73,6 @@ public class CreateTaskActivity extends ActionBarActivity {
 					}
 				}
 			} else {
-				if(isLandscape){
-					this.finish();
-				}
 				mProcessingMode = extras.getInt(EXTRA_PROCESS_MODE);
 				
 			}
