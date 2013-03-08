@@ -95,7 +95,7 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 		super.onActivityCreated(savedInstanceState);
 		if (savedInstanceState != null
 				&& savedInstanceState.containsKey(SAVED_FILE_PATH)) {
-			// addFile(Uri.parse(savedInstanceState.getString(SAVED_FILE_PATH)));
+			 addFile(Uri.parse(savedInstanceState.getString(SAVED_FILE_PATH)));
 		} else if (mFileUri != null) {
 			addFile(mFileUri);
 		}
@@ -180,7 +180,8 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 		// Obtain a sampling ratio
 		int originalHeight = options.outHeight;
 		int originalWidth = options.outWidth;
-		options.inSampleSize = getSampleSize(originalHeight, originalWidth);
+		options.inSampleSize = 5;
+//		options.inSampleSize = getSampleSize(originalHeight, originalWidth);
 		// Now we can decode the image and load the small sample size into
 		// memory
 		options.inJustDecodeBounds = false;
@@ -188,19 +189,19 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 				.openInputStream(mFileUri), null, options);
 	}
 
-	private int getSampleSize(int originalHeight, int originalWidth) {
-		int requiredHeight = mFileView.getHeight();
-		int requiredWidth = mFileView.getWidth();
-		int sampleSize = 1;
-		if (requiredHeight < originalHeight || requiredWidth < originalWidth) {
-			final int heightRatio = Math.round((float) requiredHeight
-					/ (float) originalHeight);
-			final int widthRatio = Math.round((float) requiredWidth
-					/ (float) originalWidth);
-			sampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
-		}
-		return sampleSize;
-	}
+//	private int getSampleSize(int originalHeight, int originalWidth) {
+//		int requiredHeight = mFileView.getHeight();
+//		int requiredWidth = mFileView.getWidth();
+//		int sampleSize = 1;
+//		if (requiredHeight < originalHeight || requiredWidth < originalWidth) {
+//			final int heightRatio = Math.round((float) requiredHeight
+//					/ (float) originalHeight);
+//			final int widthRatio = Math.round((float) requiredWidth
+//					/ (float) originalWidth);
+//			sampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
+//		}
+//		return sampleSize;
+//	}
 
 	@Override
 	public void launchTask() {
