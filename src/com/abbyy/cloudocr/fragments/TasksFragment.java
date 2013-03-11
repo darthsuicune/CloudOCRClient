@@ -19,7 +19,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.abbyy.cloudocr.R;
 import com.abbyy.cloudocr.SettingsActivity;
@@ -58,7 +57,9 @@ public abstract class TasksFragment extends ListFragment implements
 	// TODO landscape
 	private void showTaskDetails(String taskId) {
 		if (isLandscape) {
-			Toast.makeText(getActivity(), taskId, Toast.LENGTH_LONG).show();
+			Intent intent = new Intent(getActivity(), TaskDetailsActivity.class);
+			intent.putExtra(TaskDetailsActivity.EXTRA_TASK_ID, taskId);
+			startActivity(intent);
 		} else {
 			Intent intent = new Intent(getActivity(), TaskDetailsActivity.class);
 			intent.putExtra(TaskDetailsActivity.EXTRA_TASK_ID, taskId);
@@ -96,7 +97,8 @@ public abstract class TasksFragment extends ListFragment implements
 		String[] selectionArgs = { getActivity().getString(
 				R.string.status_completed) };
 
-		String sortOrder = TasksContract.TasksTable.STATUS_CHANGE_TIME + " DESC";
+		String sortOrder = TasksContract.TasksTable.STATUS_CHANGE_TIME
+				+ " DESC";
 
 		switch (id) {
 		case LOADER_ACTIVE_TASKS:
@@ -137,7 +139,7 @@ public abstract class TasksFragment extends ListFragment implements
 		NotificationManager nm = (NotificationManager) getActivity()
 				.getSystemService(Activity.NOTIFICATION_SERVICE);
 		nm.cancel(TasksManagerService.NOTIFICATION_TAG,
-				TasksManagerService.NOTIFICATION_ID);
+				TasksManagerService.TASKS_NOTIFICATION);
 	}
 
 	class TasksAdapter extends SimpleCursorAdapter {

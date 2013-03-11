@@ -24,6 +24,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -161,11 +163,19 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 	}
 
 	private void setPreview() {
-		try {
-			mFileView.setImageBitmap(getSmallImage());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		//The image is not drawn until the end of the layout drawing.
+		//So we wait for the layout to be drawn to set the image on top of it.
+		ViewTreeObserver vto = mFileView.getViewTreeObserver();
+		vto.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+			@Override
+			public void onGlobalLayout() {
+				try {
+					mFileView.setImageBitmap(getSmallImage());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 
 	private Bitmap getSmallImage() throws FileNotFoundException {
@@ -180,8 +190,7 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 		// Obtain a sampling ratio
 		int originalHeight = options.outHeight;
 		int originalWidth = options.outWidth;
-		options.inSampleSize = 5;
-//		options.inSampleSize = getSampleSize(originalHeight, originalWidth);
+		options.inSampleSize = getSampleSize(originalHeight, originalWidth);
 		// Now we can decode the image and load the small sample size into
 		// memory
 		options.inJustDecodeBounds = false;
@@ -189,19 +198,19 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 				.openInputStream(mFileUri), null, options);
 	}
 
-//	private int getSampleSize(int originalHeight, int originalWidth) {
-//		int requiredHeight = mFileView.getHeight();
-//		int requiredWidth = mFileView.getWidth();
-//		int sampleSize = 1;
-//		if (requiredHeight < originalHeight || requiredWidth < originalWidth) {
-//			final int heightRatio = Math.round((float) requiredHeight
-//					/ (float) originalHeight);
-//			final int widthRatio = Math.round((float) requiredWidth
-//					/ (float) originalWidth);
-//			sampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
-//		}
-//		return sampleSize;
-//	}
+	private int getSampleSize(int originalHeight, int originalWidth) {
+		int requiredHeight = mFileView.getHeight();
+		int requiredWidth = mFileView.getWidth();
+		int sampleSize = 1;
+		if (requiredHeight < originalHeight || requiredWidth < originalWidth) {
+			final int heightRatio = Math.round((float) requiredHeight
+					/ (float) originalHeight);
+			final int widthRatio = Math.round((float) requiredWidth
+					/ (float) originalWidth);
+			sampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
+		}
+		return sampleSize;
+	}
 
 	@Override
 	public void launchTask() {

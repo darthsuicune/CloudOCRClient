@@ -33,6 +33,7 @@ public class TasksDBOpenHelper extends SQLiteOpenHelper {
 				+ TasksContract.TasksTable.ESTIMATED_PROCESSING_TIME + text
 				+ TasksContract.TasksTable.FILES_COUNT + text
 				+ TasksContract.TasksTable.RESULT_URL + text
+				+ TasksContract.TasksTable.FILENAME + text
 				+ TasksContract.TasksTable.ERROR + " TEXT"
 				+ ")");
 

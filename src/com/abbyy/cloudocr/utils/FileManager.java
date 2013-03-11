@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import android.net.Uri;
 import android.os.Environment;
@@ -27,7 +28,7 @@ public class FileManager {
 		}
 
 		File mediaStorageDir = getDefaultMediaFolder();
-		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
+		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.GERMANY)
 				.format(new Date());
 		File mediaFile;
 		if (type == MEDIA_TYPE_IMAGE) {
@@ -72,9 +73,9 @@ public class FileManager {
 		return mediaStorageDir;
 	}
 	
-	private static void exportFile(InputStream inputStream, Uri targetUri){
+	public static void exportFile(InputStream inputStream, File targetFile){
 		try {
-			FileOutputStream outputStream = new FileOutputStream(new File(targetUri.getPath()));
+			FileOutputStream outputStream = new FileOutputStream(targetFile);
 			byte[] buffer = new byte[1024];
 			int bufferLength = 0;
 			while((bufferLength = inputStream.read(buffer)) > 0){

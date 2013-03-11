@@ -1,6 +1,8 @@
 package com.abbyy.cloudocr;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,31 +14,37 @@ import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.abbyy.cloudocr.database.TasksContract;
 import com.abbyy.cloudocr.utils.CloudClient;
+import com.abbyy.cloudocr.utils.FileManager;
 import com.abbyy.cloudocr.utils.XMLParser;
 
 public class TasksManagerService extends IntentService {
 	private static final String SERVICE_NAME = "ABBYY Tasks Manager Service";
 	public static final String NOTIFICATION_TAG = "cloudOCRnotification";
-	public static final int NOTIFICATION_ID = 1;
+	public static final int TASKS_NOTIFICATION = 1;
+	public static final int DOWNLOAD_NOTIFICATION = 1;
 	public static final int REQUEST_ACTIVE_TASKS = 1;
 
 	public static final String EXTRA_ACTION = "action";
 	public static final String EXTRA_CREATE = "create";
 	public static final String EXTRA_FILE_PATH = "filePath";
+	public static final String EXTRA_FILE_TYPE = "fileType";
 	public static final String EXTRA_TASK_ID = "taskId";
 	public static final String EXTRA_NEW_TASK_OPTIONS = "taskOptions";
+	public static final String EXTRA_URL = "url";
 
 	public static final int ACTION_DELETE_ACTIVE_TASK = 1;
 	public static final int ACTION_DELETE_COMPLETED_TASK = 2;
 	public static final int ACTION_UPDATE_ACTIVE_TASKS = 3;
 	public static final int ACTION_UPDATE_COMPLETED_TASKS = 4;
 	public static final int ACTION_CREATE_NEW_TASK = 5;
+	public static final int ACTION_DOWNLOAD_RESULT = 6;
 
 	public static final int CREATE_IMAGE = 1;
 	public static final int CREATE_BUSINESS_CARD = 2;
@@ -75,10 +83,12 @@ public class TasksManagerService extends IntentService {
 			case ACTION_UPDATE_COMPLETED_TASKS:
 				needsConnection = refreshTasks(false);
 				break;
+			case ACTION_DOWNLOAD_RESULT:
+				downloadResult();
+				return;
 			}
 			if (mArgs.containsKey(EXTRA_FILE_PATH)) {
 				mClient.setFilePath(mArgs.getString(EXTRA_FILE_PATH));
-				Log.d("Image", "Processing " + mClient.mFilePath);
 			}
 			if (needsConnection) {
 				try {
@@ -128,8 +138,24 @@ public class TasksManagerService extends IntentService {
 		return false;
 	}
 
-	private void parseResponse(String response) {
-		Log.d("Response", response);
+	private void downloadResult() {
+		try {
+			mClient.setDownloadUrl(mArgs.getString(EXTRA_URL));
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+			return;
+		}
+		File exportFile = FileManager.getOutputDownloadFile(
+				mArgs.getString(EXTRA_FILE_PATH),
+				mArgs.getString(EXTRA_FILE_TYPE));
+
+		showDownloadNotification(true, Uri.fromFile(exportFile));
+		InputStream inputStream = mClient.makePetition();
+		FileManager.exportFile(inputStream, exportFile);
+		showDownloadNotification(false, Uri.fromFile(exportFile));
+	}
+
+	private void parseResponse(InputStream response) {
 		if (response == null) {
 			return;
 		}
@@ -156,13 +182,35 @@ public class TasksManagerService extends IntentService {
 		}
 		if (result != null) {
 			for (int i = 0; i < result.size(); i++) {
-				new Task(getBaseContext(), result.get(i)).writeTaskToDb();
+				new Task(getBaseContext(), result.get(i)).writeTaskToDb((mArgs
+						.containsKey(EXTRA_FILE_PATH)) ? mArgs
+						.getString(EXTRA_FILE_PATH) : null);
 				updateNotificationStatus();
 			}
 		} else if (error != null) {
 			Log.d("ERROR", "Error upon download: " + error);
 			// Parse error message and do something.
 		}
+	}
+
+	private void showDownloadNotification(boolean show, Uri fileUri) {
+		NotificationManager nm = (NotificationManager) getSystemService(Activity.NOTIFICATION_SERVICE);
+		NotificationCompat.Builder builder = new NotificationCompat.Builder(
+				this);
+
+		builder.setSmallIcon(R.drawable.abbyy_logo)
+				.setContentTitle(getString(R.string.notification_title))
+				.setContentText(getString(R.string.notification_message))
+				.setAutoCancel(false).setOngoing(true);
+
+		if (!show) {
+			Intent intent = new Intent(Intent.ACTION_VIEW, fileUri);
+			PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+					intent, 0);
+			builder.setContentIntent(pendingIntent).setAutoCancel(true)
+					.setOngoing(false);
+		}
+		nm.notify(DOWNLOAD_NOTIFICATION, builder.build());
 	}
 
 	protected void updateNotificationStatus() {
@@ -181,6 +229,6 @@ public class TasksManagerService extends IntentService {
 				.setContentIntent(pendingIntent).setAutoCancel(false)
 				.setOngoing(true);
 
-		nm.notify(NOTIFICATION_TAG, NOTIFICATION_ID, builder.build());
+		nm.notify(NOTIFICATION_TAG, TASKS_NOTIFICATION, builder.build());
 	}
 }

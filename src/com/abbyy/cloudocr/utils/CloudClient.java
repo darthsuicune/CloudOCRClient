@@ -1,9 +1,8 @@
 package com.abbyy.cloudocr.utils;
 
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -25,7 +24,6 @@ import org.apache.http.params.HttpParams;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 
 public class CloudClient {
 	private static final String BASE_URL = "http://cloud.ocrsdk.com/";
@@ -42,6 +40,7 @@ public class CloudClient {
 	public static final String PROCESS_FIELDS = "processFields";
 	public static final String GET_TASK_STATUS = "getTaskStatus";
 	public static final String DELETE_TASK = "deleteTask";
+	public static final String DOWNLOAD_RESULT = "downloadResult";
 
 	public static final String ARGUMENT_LANGUAGE = "language";
 	public static final String ARGUMENT_PROFILE = "profile";
@@ -94,8 +93,13 @@ public class CloudClient {
 	public Uri getFilePath() {
 		return mFilePath;
 	}
+	
+	public void setDownloadUrl(String url) throws MalformedURLException{
+		mProcessType = DOWNLOAD_RESULT;
+		mUrl = new URL(url);
+	}
 
-	public String makePetition() {
+	public InputStream makePetition() {
 		// String test =
 		// "<response><task id=\"c3187247-7e81-4d12-8767-bc886c1ab878\""
 		// +
@@ -112,7 +116,6 @@ public class CloudClient {
 
 		try {
 			HttpUriRequest request;
-			Log.d("Connection URL", mUrl.toExternalForm());
 
 			if (isGet()) {
 				request = new HttpGet(mUrl.toExternalForm());
@@ -127,10 +130,8 @@ public class CloudClient {
 			}
 
 			HttpResponse response = httpClient.execute(request);
-			return new BufferedReader(new InputStreamReader(response
-					.getEntity().getContent())).readLine();
+			return response.getEntity().getContent();
 		} catch (ClientProtocolException e) {
-			logError(e.getLocalizedMessage());
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -172,16 +173,13 @@ public class CloudClient {
 		client.setCredentialsProvider(credentials);
 	}
 
-	private void logError(String message) {
-		Log.d("Connection error", message);
-	}
-
 	private boolean isGet() {
-		return mProcessType.equals("processDocument")
-				|| mProcessType.equals("getTaskStatus")
-				|| mProcessType.equals("deleteTask")
-				|| mProcessType.equals("listTasks")
-				|| mProcessType.equals("listFinishedTasks");
+		return mProcessType.equals(PROCESS_DOCUMENT)
+				|| mProcessType.equals(GET_TASK_STATUS)
+				|| mProcessType.equals(DELETE_TASK)
+				|| mProcessType.equals(GET_TASK_LIST)
+				|| mProcessType.equals(GET_FINISHED_TASK_LIST)
+				|| mProcessType.equals(DOWNLOAD_RESULT);
 	}
 
 	private String createArgs(Bundle args) {
