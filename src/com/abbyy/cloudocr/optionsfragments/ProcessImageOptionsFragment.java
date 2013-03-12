@@ -95,7 +95,8 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 		if (getArguments().containsKey(ARG_FILE_PATH)) {
 			addFile(Uri.parse(getArguments().getString(ARG_FILE_PATH)));
 		}
-		if (savedInstanceState != null && savedInstanceState.containsKey(ARG_FILE_PATH)){
+		if (savedInstanceState != null
+				&& savedInstanceState.containsKey(ARG_FILE_PATH)) {
 			mFileViewHint.setVisibility(View.GONE);
 			mFileView.setVisibility(View.VISIBLE);
 			mFileUri = Uri.parse(savedInstanceState.getString(ARG_FILE_PATH));
@@ -106,7 +107,7 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		if(mFileUri != null){
+		if (mFileUri != null) {
 			outState.putString(ARG_FILE_PATH, mFileUri.toString());
 		}
 	}
@@ -279,9 +280,11 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 	boolean setViews() {
 		mExportFormatView = (Spinner) getActivity().findViewById(
 				R.id.option_export_format);
+
 		if (mExportFormatView == null) {
 			return false;
 		}
+
 		mProfileView = (Spinner) getActivity()
 				.findViewById(R.id.option_profile);
 		mDescriptionView = (EditText) getActivity().findViewById(
@@ -294,7 +297,7 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 				R.id.option_file_path);
 		mFileViewHint = (TextView) getActivity().findViewById(
 				R.id.option_file_path_hint);
-		
+
 		mExportFormatView.setAdapter(getSpinnerAdapter(CODE_EXPORT_FORMAT));
 		mExportFormatView
 				.setOnItemSelectedListener(getOnItemSelectedListener(CODE_EXPORT_FORMAT));

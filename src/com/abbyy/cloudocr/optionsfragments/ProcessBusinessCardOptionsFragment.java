@@ -51,7 +51,6 @@ public class ProcessBusinessCardOptionsFragment extends ProcessOptionsFragment
 	private static final int ACTIVITY_GET_FILE = 1;
 	private static final int ACTIVITY_TAKE_PICTURE = 2;
 
-	private static final String SAVED_FILE_PATH = "savedFilePath";
 	private LanguageHelper mLanguageHelper;
 
 	private String mExportFormat;
@@ -88,10 +87,15 @@ public class ProcessBusinessCardOptionsFragment extends ProcessOptionsFragment
 		mLanguageHelper = new LanguageHelper(getActivity().getResources()
 				.getStringArray(R.array.languages));
 		super.onActivityCreated(savedInstanceState);
+		if (getArguments().containsKey(ARG_FILE_PATH)) {
+			addFile(Uri.parse(getArguments().getString(ARG_FILE_PATH)));
+		}
 		if (savedInstanceState != null
-				&& savedInstanceState.containsKey(SAVED_FILE_PATH)) {
-			addFile(Uri.parse(savedInstanceState.getString(SAVED_FILE_PATH)));
-
+				&& savedInstanceState.containsKey(ARG_FILE_PATH)) {
+			mFileViewHint.setVisibility(View.GONE);
+			mFileView.setVisibility(View.VISIBLE);
+			mFileUri = Uri.parse(savedInstanceState.getString(ARG_FILE_PATH));
+			setPreview();
 		}
 	}
 
@@ -99,7 +103,7 @@ public class ProcessBusinessCardOptionsFragment extends ProcessOptionsFragment
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		if (mFileUri != null) {
-			outState.putString(SAVED_FILE_PATH, mFileUri.toString());
+			outState.putString(ARG_FILE_PATH, mFileUri.toString());
 		}
 	}
 
@@ -178,14 +182,18 @@ public class ProcessBusinessCardOptionsFragment extends ProcessOptionsFragment
 				.openInputStream(mFileUri));
 	}
 
-	private int getSampleSize(int outHeight, int outWidth) {
-		int height = mFileView.getHeight();
-		int width = mFileView.getWidth();
+	private int getSampleSize(int originalHeight, int originalWidth) {
+		int requiredHeight = mFileView.getHeight();
+		int requiredWidth = mFileView.getWidth();
+		if (requiredHeight == 0) {
+			return 8;
+		}
 		int sampleSize = 1;
-		if (height > outHeight || width > outWidth) {
-			final int heightRatio = Math.round((float) height
-					/ (float) outHeight);
-			final int widthRatio = Math.round((float) width / (float) outWidth);
+		if (requiredHeight < originalHeight || requiredWidth < originalWidth) {
+			final int heightRatio = Math.round((float) requiredHeight
+					/ (float) originalHeight);
+			final int widthRatio = Math.round((float) requiredWidth
+					/ (float) originalWidth);
 			sampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
 		}
 		return sampleSize;
@@ -202,6 +210,8 @@ public class ProcessBusinessCardOptionsFragment extends ProcessOptionsFragment
 					TasksManagerService.class);
 			service.putExtra(TasksManagerService.EXTRA_FILE_PATH,
 					mFileUri.toString());
+			service.putExtra(TasksManagerService.EXTRA_EXPORT_FORMAT,
+					mExportFormat);
 			service.putExtra(TasksManagerService.EXTRA_ACTION,
 					TasksManagerService.ACTION_CREATE_NEW_TASK);
 			service.putExtra(TasksManagerService.EXTRA_CREATE,
@@ -249,6 +259,10 @@ public class ProcessBusinessCardOptionsFragment extends ProcessOptionsFragment
 	boolean setViews() {
 		mExportFormatView = (Spinner) getActivity().findViewById(
 				R.id.option_export_format);
+
+		if (mExportFormatView == null) {
+			return false;
+		}
 		mDescriptionView = (EditText) getActivity().findViewById(
 				R.id.option_description);
 		mAddLanguagesView = (AutoCompleteTextView) getActivity().findViewById(
@@ -259,10 +273,7 @@ public class ProcessBusinessCardOptionsFragment extends ProcessOptionsFragment
 				R.id.option_file_path);
 		mFileViewHint = (TextView) getActivity().findViewById(
 				R.id.option_file_path_hint);
-
-		if (mExportFormatView == null) {
-			return false;
-		}
+		
 		mExportFormatView.setAdapter(getExportFormatsAdapter());
 		mExportFormatView
 				.setOnItemSelectedListener(getOnItemSelectedListener());
@@ -415,14 +426,14 @@ public class ProcessBusinessCardOptionsFragment extends ProcessOptionsFragment
 		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 		intent.setType("image/*");
 		startActivityForResult(intent, ACTIVITY_GET_FILE);
-//		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//		mFileUri = FileManager
-//				.getOutputMediaFileUri(FileManager.MEDIA_TYPE_IMAGE);
-//		if (mFileUri == null) {
-//			return;
-//		}
-//		intent.putExtra(MediaStore.EXTRA_OUTPUT, mFileUri);
-//		startActivityForResult(intent, ACTIVITY_TAKE_PICTURE);
+		// Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		// mFileUri = FileManager
+		// .getOutputMediaFileUri(FileManager.MEDIA_TYPE_IMAGE);
+		// if (mFileUri == null) {
+		// return;
+		// }
+		// intent.putExtra(MediaStore.EXTRA_OUTPUT, mFileUri);
+		// startActivityForResult(intent, ACTIVITY_TAKE_PICTURE);
 	}
 
 	private void galleryAddPic() {
