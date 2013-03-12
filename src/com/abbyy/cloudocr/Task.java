@@ -32,6 +32,7 @@ public class Task {
 	public String mEstimatedProcessingTime;
 	public String mDescription;
 	public String mResultUrl;
+	public String mResultType;
 	public String mError;
 	public String mFileName;
 
@@ -39,7 +40,7 @@ public class Task {
 			String registrationTime, String statusChangeTime,
 			String filesCount, String credits, String estimatedProcessingTime,
 			String description, String resultUrl, String error, boolean isInDb,
-			String fileName) {
+			String fileName, String resultType) {
 		mContext = context;
 		this.isInDb = isInDb;
 		mTaskId = taskId;
@@ -53,9 +54,11 @@ public class Task {
 		mResultUrl = resultUrl;
 		mError = error;
 		mFileName = fileName;
+		mResultType = resultType;
 	}
 
-	public Task(Context context, HashMap<String, String> data) {
+	public Task(Context context, HashMap<String, String> data, String fileName,
+			String exportFormat) {
 		mContext = context;
 		mTaskId = data.get(context.getString(R.string.field_id));
 		mStatus = data.get(context.getString(R.string.field_status));
@@ -77,6 +80,8 @@ public class Task {
 		if (data.get(context.getString(R.string.field_error)) != null) {
 			mError = data.get(context.getString(R.string.field_error));
 		}
+		mFileName = fileName;
+		mResultType = exportFormat;
 	}
 
 	public Task(Cursor cursor) {
@@ -103,6 +108,10 @@ public class Task {
 						.getColumnIndex(TasksContract.TasksTable.RESULT_URL));
 				mError = cursor.getString(cursor
 						.getColumnIndex(TasksContract.TasksTable.ERROR));
+				mFileName = cursor.getString(cursor
+						.getColumnIndex(TasksContract.TasksTable.FILENAME));
+				mResultType = cursor.getString(cursor
+						.getColumnIndex(TasksContract.TasksTable.RESULT_TYPE));
 
 				try {
 					mRegistrationDate = dateFormat.parse(mRegistrationTime);
@@ -114,8 +123,7 @@ public class Task {
 		}
 	}
 
-	public boolean writeTaskToDb(String fileName) {
-		mFileName = fileName;
+	public boolean writeTaskToDb() {
 		isInDb = checkDb();
 
 		Uri uri = TasksContract.CONTENT_TASKS;
@@ -146,19 +154,43 @@ public class Task {
 
 	private ContentValues setValues() {
 		ContentValues values = new ContentValues();
-		values.put(TasksContract.TasksTable.CREDITS, mCredits);
-		values.put(TasksContract.TasksTable.DESCRIPTION, mDescription);
-		values.put(TasksContract.TasksTable.ERROR, mError);
-		values.put(TasksContract.TasksTable.ESTIMATED_PROCESSING_TIME,
-				mEstimatedProcessingTime);
-		values.put(TasksContract.TasksTable.FILES_COUNT, mFilesCount);
-		values.put(TasksContract.TasksTable.REGISTRATION_TIME,
-				mRegistrationTime);
-		values.put(TasksContract.TasksTable.RESULT_URL, mResultUrl);
-		values.put(TasksContract.TasksTable.STATUS, mStatus);
-		values.put(TasksContract.TasksTable.STATUS_CHANGE_TIME,
-				mStatusChangeTime);
 		values.put(TasksContract.TasksTable.TASK_ID, mTaskId);
+		if (mCredits != null) {
+			values.put(TasksContract.TasksTable.CREDITS, mCredits);
+		}
+		if (mDescription != null) {
+			values.put(TasksContract.TasksTable.DESCRIPTION, mDescription);
+		}
+		if (mError != null) {
+			values.put(TasksContract.TasksTable.ERROR, mError);
+		}
+		if (mEstimatedProcessingTime != null) {
+			values.put(TasksContract.TasksTable.ESTIMATED_PROCESSING_TIME,
+					mEstimatedProcessingTime);
+		}
+		if (mFilesCount != null) {
+			values.put(TasksContract.TasksTable.FILES_COUNT, mFilesCount);
+		}
+		if (mRegistrationTime != null) {
+			values.put(TasksContract.TasksTable.REGISTRATION_TIME,
+					mRegistrationTime);
+		}
+		if (mResultUrl != null) {
+			values.put(TasksContract.TasksTable.RESULT_URL, mResultUrl);
+		}
+		if (mStatus != null) {
+			values.put(TasksContract.TasksTable.STATUS, mStatus);
+		}
+		if (mStatusChangeTime != null) {
+			values.put(TasksContract.TasksTable.STATUS_CHANGE_TIME,
+					mStatusChangeTime);
+		}
+		if (mFileName != null) {
+			values.put(TasksContract.TasksTable.FILENAME, mFileName);
+		}
+		if (mResultType != null) {
+			values.put(TasksContract.TasksTable.RESULT_TYPE, mResultType);
+		}
 		return values;
 	}
 }

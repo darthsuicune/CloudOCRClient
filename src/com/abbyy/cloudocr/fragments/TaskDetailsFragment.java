@@ -1,10 +1,14 @@
 package com.abbyy.cloudocr.fragments;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -181,8 +185,8 @@ public class TaskDetailsFragment extends Fragment {
 	}
 
 	private void makeDownload() {
-		String filePath = "Test";
-		String fileType = "pdf";
+		String filePath = getFileName();
+		String fileType = getExtension();
 		Intent service = new Intent(getActivity(), TasksManagerService.class);
 		service.putExtra(TasksManagerService.EXTRA_ACTION,
 				TasksManagerService.ACTION_DOWNLOAD_RESULT);
@@ -192,6 +196,64 @@ public class TaskDetailsFragment extends Fragment {
 		getActivity().startService(service);
 	}
 
-	public static class FilenameChooserFragment extends DialogFragment {
+	private String getExtension() {
+		if(mTask.mResultType == null){
+			return ".pdf";
+		}
+		if (mTask.mResultType.equals(getString(R.string.export_format_alto))) {
+			return ".alto.xml";
+		} else if (mTask.mResultType
+				.equals(getString(R.string.export_format_csv))) {
+			return ".csv";
+		} else if (mTask.mResultType
+				.equals(getString(R.string.export_format_docx))) {
+			return ".docx";
+		} else if (mTask.mResultType
+				.equals(getString(R.string.export_format_pdf_searchable))) {
+			return ".pdf";
+		} else if (mTask.mResultType
+				.equals(getString(R.string.export_format_pdf_text_and_images))) {
+			return ".pdf";
+		} else if (mTask.mResultType
+				.equals(getString(R.string.export_format_pdfa))) {
+			return ".pdf";
+		} else if (mTask.mResultType
+				.equals(getString(R.string.export_format_pptx))) {
+			return ".pttx";
+		} else if (mTask.mResultType
+				.equals(getString(R.string.export_format_rtf))) {
+			return ".rtf";
+		} else if (mTask.mResultType
+				.equals(getString(R.string.export_format_txt))) {
+			return ".txt";
+		} else if (mTask.mResultType
+				.equals(getString(R.string.export_format_vcard))) {
+			return ".vcf";
+		} else if (mTask.mResultType
+				.equals(getString(R.string.export_format_xml))) {
+			return ".xml";
+		} else if (mTask.mResultType
+				.equals(getString(R.string.export_format_xslx))) {
+			return ".xslx";
+		} else {
+			return ".pdf";
+		}
+	}
+
+	private String getFileName() {
+		if (mTask.mFileName == null) {
+			return new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.GERMANY)
+					.format(new Date());
+		}
+		String[] proj = { MediaStore.Images.Media.DATA };
+		CursorLoader loader = new CursorLoader(getActivity(),
+				Uri.parse(mTask.mFileName), proj, null, null, null);
+		Cursor cursor = loader.loadInBackground();
+		int column_index = cursor
+				.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+		cursor.moveToFirst();
+		String fullPath = cursor.getString(column_index);
+		return fullPath.substring(fullPath.lastIndexOf("/") + 1,
+				fullPath.lastIndexOf("."));
 	}
 }

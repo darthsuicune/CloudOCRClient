@@ -38,6 +38,7 @@ public class TasksManagerService extends IntentService {
 	public static final String EXTRA_TASK_ID = "taskId";
 	public static final String EXTRA_NEW_TASK_OPTIONS = "taskOptions";
 	public static final String EXTRA_URL = "url";
+	public static final String EXTRA_EXPORT_FORMAT = "exportFormat";
 
 	public static final int ACTION_DELETE_ACTIVE_TASK = 1;
 	public static final int ACTION_DELETE_COMPLETED_TASK = 2;
@@ -182,9 +183,9 @@ public class TasksManagerService extends IntentService {
 		}
 		if (result != null) {
 			for (int i = 0; i < result.size(); i++) {
-				new Task(getBaseContext(), result.get(i)).writeTaskToDb((mArgs
-						.containsKey(EXTRA_FILE_PATH)) ? mArgs
-						.getString(EXTRA_FILE_PATH) : null);
+				new Task(getBaseContext(), result.get(i),
+						mArgs.getString(EXTRA_FILE_PATH),
+						mArgs.getString(EXTRA_EXPORT_FORMAT)).writeTaskToDb();
 				updateNotificationStatus();
 			}
 		} else if (error != null) {

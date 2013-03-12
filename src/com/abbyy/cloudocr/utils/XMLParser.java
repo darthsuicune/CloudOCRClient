@@ -10,7 +10,6 @@ import java.util.HashMap;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import android.util.Log;
 import android.util.Xml;
 
 public class XMLParser {
@@ -53,8 +52,6 @@ public class XMLParser {
 		parser.nextTag();
 		parser.require(XmlPullParser.START_TAG, null, mStartTag);
 		while (parser.next() != XmlPullParser.END_TAG) {
-			Log.d("XML Parser - Name", parser.getName());
-			Log.d("XML Parser - Pos", parser.getPositionDescription());
 			if (parser.getEventType() != XmlPullParser.START_TAG) {
 				continue;
 			}

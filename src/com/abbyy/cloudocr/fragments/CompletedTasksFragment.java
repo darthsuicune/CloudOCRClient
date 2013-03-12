@@ -8,6 +8,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.abbyy.cloudocr.R;
 import com.abbyy.cloudocr.TasksManagerService;
@@ -53,8 +54,8 @@ public class CompletedTasksFragment extends TasksFragment {
 
 	private void removeFullList() {
 		for (int i = 0; i < getListView().getCount(); i++) {
-			View v = (View) getListView().getItemAtPosition(i);
-			String taskId = v.findViewById(0).toString(); // TODO
+			View v = getListAdapter().getView(i, null, null);
+			String taskId = ((TextView) v.findViewById(R.id.task_list_item_task_id)).getText().toString();
 			removeTask(taskId);
 		}
 	}

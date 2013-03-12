@@ -28,6 +28,7 @@ public class TasksContract {
 		public static final String RESULT_URL = "resulturl";
 		public static final String ERROR = "error";
 		public static final String FILENAME = "filename";
+		public static final String RESULT_TYPE = "resulttype";
 
 		public static final String TABLE_NAME = "tasks";
 		public static final String DEFAULT_ORDER = _ID + " DESC";

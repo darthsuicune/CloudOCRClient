@@ -24,8 +24,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
@@ -56,7 +54,6 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 	private static final int CODE_EXPORT_FORMAT = 1;
 	private static final int CODE_PROFILE = 2;
 
-	private static final String SAVED_FILE_PATH = "savedFilePath";
 	private LanguageHelper mLanguageHelper;
 
 	private String mProfile;
@@ -95,20 +92,23 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 		mLanguageHelper = new LanguageHelper(getActivity().getResources()
 				.getStringArray(R.array.languages));
 		super.onActivityCreated(savedInstanceState);
-		if (savedInstanceState != null
-				&& savedInstanceState.containsKey(SAVED_FILE_PATH)) {
-			 addFile(Uri.parse(savedInstanceState.getString(SAVED_FILE_PATH)));
-		} else if (mFileUri != null) {
-			addFile(mFileUri);
+		if (getArguments().containsKey(ARG_FILE_PATH)) {
+			addFile(Uri.parse(getArguments().getString(ARG_FILE_PATH)));
+		}
+		if (savedInstanceState != null && savedInstanceState.containsKey(ARG_FILE_PATH)){
+			mFileViewHint.setVisibility(View.GONE);
+			mFileView.setVisibility(View.VISIBLE);
+			mFileUri = Uri.parse(savedInstanceState.getString(ARG_FILE_PATH));
+			setPreview();
 		}
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		if (mFileUri != null) {
-			outState.putString(SAVED_FILE_PATH, mFileUri.toString());
-		}
 		super.onSaveInstanceState(outState);
+		if(mFileUri != null){
+			outState.putString(ARG_FILE_PATH, mFileUri.toString());
+		}
 	}
 
 	@Override
@@ -128,24 +128,18 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 		super.onActivityResult(requestCode, resultCode, data);
 		switch (requestCode) {
 		case ACTIVITY_GET_FILE:
-			switch (resultCode) {
-			case Activity.RESULT_OK:
-				if (data != null) {
-					addFile(data.getData());
-				} else {
-					addFile(mFileUri);
-				}
-			}
+			// Do nothing
 			break;
 		case ACTIVITY_TAKE_PICTURE:
 			galleryAddPic();
-			switch (resultCode) {
-			case Activity.RESULT_OK:
-				if (data != null) {
-					addFile(data.getData());
-				} else {
-					addFile(mFileUri);
-				}
+			break;
+		}
+		switch (resultCode) {
+		case Activity.RESULT_OK:
+			if (data != null) {
+				addFile(data.getData());
+			} else {
+				addFile(mFileUri);
 			}
 		}
 	}
@@ -153,29 +147,34 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 	@Override
 	public void addFile(Uri filePath) {
 		mFileUri = filePath;
-		if (mFileView != null
-				&& getActivity().findViewById(R.id.option_file_path)
-						.getVisibility() == View.GONE) {
-			mFileViewHint.setVisibility(View.GONE);
-			mFileView.setVisibility(View.VISIBLE);
-			setPreview();
-		}
+		setPreview();
+		// if (mFileView.getHeight() == 0) {
+		// // The image is not drawn until the end of the layout drawing.
+		// // So we wait for the layout to be drawn to set the image on top of
+		// // it.
+		// ViewTreeObserver vto = mFileView.getViewTreeObserver();
+		// vto.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+		// @Override
+		// public void onGlobalLayout() {
+		// setPreview();
+		// }
+		// });
+		// } else {
+		// setPreview();
+		// }
 	}
 
 	private void setPreview() {
-		//The image is not drawn until the end of the layout drawing.
-		//So we wait for the layout to be drawn to set the image on top of it.
-		ViewTreeObserver vto = mFileView.getViewTreeObserver();
-		vto.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
-			@Override
-			public void onGlobalLayout() {
-				try {
-					mFileView.setImageBitmap(getSmallImage());
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+		if (mFileView == null) {
+			return;
+		}
+		try {
+			mFileViewHint.setVisibility(View.GONE);
+			mFileView.setVisibility(View.VISIBLE);
+			mFileView.setImageBitmap(getSmallImage());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private Bitmap getSmallImage() throws FileNotFoundException {
@@ -184,6 +183,7 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 		// This parameter avoids the next call image from being loaded into
 		// memory
 		options.inJustDecodeBounds = true;
+		options.inPurgeable = true;
 		BitmapFactory.decodeStream(getActivity().getContentResolver()
 				.openInputStream(mFileUri), null, options);
 
@@ -201,6 +201,9 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 	private int getSampleSize(int originalHeight, int originalWidth) {
 		int requiredHeight = mFileView.getHeight();
 		int requiredWidth = mFileView.getWidth();
+		if (requiredHeight == 0) {
+			return 8;
+		}
 		int sampleSize = 1;
 		if (requiredHeight < originalHeight || requiredWidth < originalWidth) {
 			final int heightRatio = Math.round((float) requiredHeight
@@ -223,6 +226,8 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 					TasksManagerService.class);
 			service.putExtra(TasksManagerService.EXTRA_FILE_PATH,
 					mFileUri.toString());
+			service.putExtra(TasksManagerService.EXTRA_EXPORT_FORMAT,
+					mExportFormat);
 			service.putExtra(TasksManagerService.EXTRA_ACTION,
 					TasksManagerService.ACTION_CREATE_NEW_TASK);
 			service.putExtra(TasksManagerService.EXTRA_CREATE,
@@ -274,6 +279,9 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 	boolean setViews() {
 		mExportFormatView = (Spinner) getActivity().findViewById(
 				R.id.option_export_format);
+		if (mExportFormatView == null) {
+			return false;
+		}
 		mProfileView = (Spinner) getActivity()
 				.findViewById(R.id.option_profile);
 		mDescriptionView = (EditText) getActivity().findViewById(
@@ -286,10 +294,7 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 				R.id.option_file_path);
 		mFileViewHint = (TextView) getActivity().findViewById(
 				R.id.option_file_path_hint);
-
-		if (mExportFormatView == null) {
-			return false;
-		}
+		
 		mExportFormatView.setAdapter(getSpinnerAdapter(CODE_EXPORT_FORMAT));
 		mExportFormatView
 				.setOnItemSelectedListener(getOnItemSelectedListener(CODE_EXPORT_FORMAT));
@@ -374,7 +379,6 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 	private void manageLanguages() {
 		Toast.makeText(getActivity(), mLanguageHelper.getLanguages(),
 				Toast.LENGTH_SHORT).show();
-
 	}
 
 	private OnItemSelectedListener getOnItemSelectedListener(final int code) {

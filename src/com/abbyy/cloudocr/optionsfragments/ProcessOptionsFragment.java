@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import com.abbyy.cloudocr.R;
 
 public abstract class ProcessOptionsFragment extends Fragment {
+	public static final String ARG_FILE_PATH = "filePath";
 
 	protected String mTaskId;
 	SharedPreferences prefs;

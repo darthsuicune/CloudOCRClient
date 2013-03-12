@@ -34,7 +34,7 @@ public abstract class TasksFragment extends ListFragment implements
 
 	abstract void setAdapter();
 
-	abstract void removeTask(String taskId);
+	abstract void removeTask(String id);
 
 	boolean isLandscape;
 

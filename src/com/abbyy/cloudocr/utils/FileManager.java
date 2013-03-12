@@ -56,7 +56,7 @@ public class FileManager {
 			return null;
 		}
 		File storageDir = getDefaultMediaFolder();
-		return new File(storageDir.getPath() + File.separator + filename + "."
+		return new File(storageDir.getPath() + File.separator + filename 
 				+ downloadFormat);
 	}
 
