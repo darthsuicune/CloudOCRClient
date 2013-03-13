@@ -121,6 +121,9 @@ public class TaskDetailsFragment extends Fragment {
 	private void populateScreen() {
 		TextView taskIdView = (TextView) getActivity().findViewById(
 				R.id.task_details_task_id);
+		if(taskIdView == null){
+			return;
+		}
 		TextView descriptionView = (TextView) getActivity().findViewById(
 				R.id.task_details_description);
 		TextView statusView = (TextView) getActivity().findViewById(
