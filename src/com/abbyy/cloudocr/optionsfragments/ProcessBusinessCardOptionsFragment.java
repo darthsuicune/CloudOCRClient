@@ -92,10 +92,13 @@ public class ProcessBusinessCardOptionsFragment extends ProcessOptionsFragment
 		}
 		if (savedInstanceState != null
 				&& savedInstanceState.containsKey(ARG_FILE_PATH)) {
-			mFileViewHint.setVisibility(View.GONE);
-			mFileView.setVisibility(View.VISIBLE);
 			mFileUri = Uri.parse(savedInstanceState.getString(ARG_FILE_PATH));
-			setPreview();
+
+			if (mFileView != null) {
+				mFileViewHint.setVisibility(View.GONE);
+				mFileView.setVisibility(View.VISIBLE);
+				setPreview();
+			}
 		}
 	}
 
