@@ -149,7 +149,9 @@ public class Task {
 
 		Cursor cursor = mContext.getContentResolver().query(uri, null,
 				selection, selectionArgs, null);
-		return cursor.getCount() == 1;
+		int count = cursor.getCount();
+		cursor.close();
+		return count >= 1;
 	}
 
 	private ContentValues setValues() {

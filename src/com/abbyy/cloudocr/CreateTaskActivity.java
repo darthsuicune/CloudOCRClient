@@ -52,7 +52,7 @@ public class CreateTaskActivity extends ActionBarActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		return super.onCreateOptionsMenu(menu);
+		return false;
 	}
 
 	@Override

@@ -87,7 +87,7 @@ public class ProcessBusinessCardOptionsFragment extends ProcessOptionsFragment
 		mLanguageHelper = new LanguageHelper(getActivity().getResources()
 				.getStringArray(R.array.languages));
 		super.onActivityCreated(savedInstanceState);
-		if (getArguments().containsKey(ARG_FILE_PATH)) {
+		if (getArguments() != null && getArguments().containsKey(ARG_FILE_PATH)) {
 			addFile(Uri.parse(getArguments().getString(ARG_FILE_PATH)));
 		}
 		if (savedInstanceState != null
