@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -57,9 +58,12 @@ public abstract class TasksFragment extends ListFragment implements
 	// TODO landscape
 	private void showTaskDetails(String taskId) {
 		if (isLandscape) {
-			Intent intent = new Intent(getActivity(), TaskDetailsActivity.class);
-			intent.putExtra(TaskDetailsActivity.EXTRA_TASK_ID, taskId);
-			startActivity(intent);
+			TaskDetailsFragment fragment = new TaskDetailsFragment();
+			Bundle args = new Bundle();
+			args.putString(TaskDetailsActivity.EXTRA_TASK_ID, taskId);
+			fragment.setArguments(args);
+			FragmentTransaction ft = getFragmentManager().beginTransaction();
+			ft.replace(R.id.main_activity_second_fragment, fragment).commit();
 		} else {
 			Intent intent = new Intent(getActivity(), TaskDetailsActivity.class);
 			intent.putExtra(TaskDetailsActivity.EXTRA_TASK_ID, taskId);

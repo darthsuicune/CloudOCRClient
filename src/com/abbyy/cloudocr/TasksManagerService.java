@@ -209,7 +209,9 @@ public class TasksManagerService extends IntentService {
 			PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
 					intent, 0);
 			builder.setContentIntent(pendingIntent).setAutoCancel(true)
-					.setOngoing(false);
+					.setOngoing(false)
+					.setContentTitle("Download finished!")
+					.setContentText("Click here to open the downloaded file");
 		}
 		nm.notify(DOWNLOAD_NOTIFICATION, builder.build());
 	}

@@ -1,18 +1,22 @@
 package com.abbyy.cloudocr.fragments;
 
-import com.abbyy.cloudocr.CreateTaskActivity;
-import com.abbyy.cloudocr.R;
-import com.abbyy.cloudocr.SettingsActivity;
-
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+
+import com.abbyy.cloudocr.CreateTaskActivity;
+import com.abbyy.cloudocr.R;
+import com.abbyy.cloudocr.SettingsActivity;
+import com.abbyy.cloudocr.optionsfragments.ProcessBusinessCardOptionsFragment;
+import com.abbyy.cloudocr.optionsfragments.ProcessImageOptionsFragment;
+import com.abbyy.cloudocr.optionsfragments.ProcessOptionsFragment;
 
 public class ChooseTaskFragment extends Fragment implements OnClickListener {
 	private boolean isLandscape;
@@ -36,67 +40,84 @@ public class ChooseTaskFragment extends Fragment implements OnClickListener {
 	private void prepareButtons() {
 		Button processImageButton = (Button) getActivity().findViewById(
 				R.id.process_image);
-//		Button processMultipleImagesButton = (Button) getActivity()
-//				.findViewById(R.id.process_multiple);
+		if(processImageButton == null){
+			return;
+		}
+		// Button processMultipleImagesButton = (Button) getActivity()
+		// .findViewById(R.id.process_multiple);
 		Button processBusinessCardButton = (Button) getActivity().findViewById(
 				R.id.process_business_card);
-//		Button processTextFieldButton = (Button) getActivity().findViewById(
-//				R.id.process_text_field);
-//		Button processBarcodeFieldButton = (Button) getActivity().findViewById(
-//				R.id.process_barcode_field);
-//		Button processCheckmarkFieldButton = (Button) getActivity()
-//				.findViewById(R.id.process_checkmark_field);
-//		Button processFieldsButton = (Button) getActivity().findViewById(
-//				R.id.process_fields);
+		// Button processTextFieldButton = (Button) getActivity().findViewById(
+		// R.id.process_text_field);
+		// Button processBarcodeFieldButton = (Button)
+		// getActivity().findViewById(
+		// R.id.process_barcode_field);
+		// Button processCheckmarkFieldButton = (Button) getActivity()
+		// .findViewById(R.id.process_checkmark_field);
+		// Button processFieldsButton = (Button) getActivity().findViewById(
+		// R.id.process_fields);
 
 		processImageButton.setOnClickListener(this);
-//		processMultipleImagesButton.setOnClickListener(this);
+		// processMultipleImagesButton.setOnClickListener(this);
 		processBusinessCardButton.setOnClickListener(this);
-//		processTextFieldButton.setOnClickListener(this);
-//		processBarcodeFieldButton.setOnClickListener(this);
-//		processCheckmarkFieldButton.setOnClickListener(this);
-//		processFieldsButton.setOnClickListener(this);
+		// processTextFieldButton.setOnClickListener(this);
+		// processBarcodeFieldButton.setOnClickListener(this);
+		// processCheckmarkFieldButton.setOnClickListener(this);
+		// processFieldsButton.setOnClickListener(this);
 	}
 
 	@Override
 	public void onClick(View v) {
-		if (isLandscape) {
-
+		if (isLandscape && isMainActivity()) {
+			ProcessOptionsFragment fragment;
+			switch (v.getId()) {
+			case R.id.process_business_card:
+				fragment = new ProcessBusinessCardOptionsFragment();
+				break;
+			case R.id.process_image:
+			default:
+				fragment = new ProcessImageOptionsFragment();
+				break;
+			}
+			FragmentTransaction ft = getFragmentManager().beginTransaction();
+			ft.replace(R.id.main_activity_second_fragment, fragment).commit();
 		} else {
-			
+			Intent intent = new Intent(getActivity(), CreateTaskActivity.class);
+			switch (v.getId()) {
+			case R.id.process_image:
+				intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
+						SettingsActivity.PROCESSING_MODE_IMAGE);
+				break;
+			// case R.id.process_multiple:
+			// intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
+			// SettingsActivity.PROCESSING_MODE_MULTIPLE);
+			// break;
+			case R.id.process_business_card:
+				intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
+						SettingsActivity.PROCESSING_MODE_BUSINESS_CARD);
+				break;
+			// case R.id.process_text_field:
+			// intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
+			// SettingsActivity.PROCESSING_MODE_TEXT_FIELD);
+			// break;
+			// case R.id.process_barcode_field:
+			// intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
+			// SettingsActivity.PROCESSING_MODE_BARCODE_FIELD);
+			// break;
+			// case R.id.process_checkmark_field:
+			// intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
+			// SettingsActivity.PROCESSING_MODE_CHECKMARK_FIELD);
+			// break;
+			// case R.id.process_fields:
+			// intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
+			// SettingsActivity.PROCESSING_MODE_FIELDS);
+			// break;
+			}
+			startActivity(intent);
 		}
-		
-		Intent intent = new Intent(getActivity(), CreateTaskActivity.class);
-		switch (v.getId()) {
-		case R.id.process_image:
-			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
-					SettingsActivity.PROCESSING_MODE_IMAGE);
-			break;
-//		case R.id.process_multiple:
-//			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
-//					SettingsActivity.PROCESSING_MODE_MULTIPLE);
-//			break;
-		case R.id.process_business_card:
-			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
-					SettingsActivity.PROCESSING_MODE_BUSINESS_CARD);
-			break;
-//		case R.id.process_text_field:
-//			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
-//					SettingsActivity.PROCESSING_MODE_TEXT_FIELD);
-//			break;
-//		case R.id.process_barcode_field:
-//			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
-//					SettingsActivity.PROCESSING_MODE_BARCODE_FIELD);
-//			break;
-//		case R.id.process_checkmark_field:
-//			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
-//					SettingsActivity.PROCESSING_MODE_CHECKMARK_FIELD);
-//			break;
-//		case R.id.process_fields:
-//			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
-//					SettingsActivity.PROCESSING_MODE_FIELDS);
-//			break;
-		}
-		startActivity(intent);
+	}
+	
+	private boolean isMainActivity(){
+		return getActivity().getClass().getName().contains("Main");
 	}
 }

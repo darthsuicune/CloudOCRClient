@@ -17,11 +17,8 @@ import com.abbyy.cloudocr.SettingsActivity;
 import com.abbyy.cloudocr.StartActivity;
 import com.abbyy.cloudocr.TasksManagerService;
 import com.abbyy.cloudocr.database.TasksContract;
-import com.abbyy.cloudocr.optionsfragments.ProcessImageOptionsFragment;
-import com.abbyy.cloudocr.optionsfragments.ProcessOptionsFragment;
 
 public class ActiveTasksFragment extends TasksFragment {
-	private ProcessOptionsFragment mProcessOptionsFragment;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -80,12 +77,12 @@ public class ActiveTasksFragment extends TasksFragment {
 
 	private void launchNewTask() {
 		if (isLandscape) {
-			mProcessOptionsFragment = new ProcessImageOptionsFragment();
+			ChooseTaskFragment fragment = new ChooseTaskFragment();
 			FragmentTransaction transaction = getActivity()
 					.getSupportFragmentManager().beginTransaction();
 			transaction.disallowAddToBackStack();
 			transaction.replace(R.id.main_activity_second_fragment,
-					mProcessOptionsFragment);
+					fragment);
 			transaction.commit();
 		} else {
 			Intent intent = new Intent(getActivity(), StartActivity.class);

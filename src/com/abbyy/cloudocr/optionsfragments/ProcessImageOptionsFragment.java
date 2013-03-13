@@ -92,15 +92,18 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 		mLanguageHelper = new LanguageHelper(getActivity().getResources()
 				.getStringArray(R.array.languages));
 		super.onActivityCreated(savedInstanceState);
-		if (getArguments().containsKey(ARG_FILE_PATH)) {
+		if (getArguments() != null && getArguments().containsKey(ARG_FILE_PATH)) {
 			addFile(Uri.parse(getArguments().getString(ARG_FILE_PATH)));
 		}
 		if (savedInstanceState != null
 				&& savedInstanceState.containsKey(ARG_FILE_PATH)) {
-			mFileViewHint.setVisibility(View.GONE);
-			mFileView.setVisibility(View.VISIBLE);
 			mFileUri = Uri.parse(savedInstanceState.getString(ARG_FILE_PATH));
-			setPreview();
+
+			if (mFileView != null) {
+				mFileViewHint.setVisibility(View.GONE);
+				mFileView.setVisibility(View.VISIBLE);
+				setPreview();
+			}
 		}
 	}
 
@@ -149,20 +152,6 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 	public void addFile(Uri filePath) {
 		mFileUri = filePath;
 		setPreview();
-		// if (mFileView.getHeight() == 0) {
-		// // The image is not drawn until the end of the layout drawing.
-		// // So we wait for the layout to be drawn to set the image on top of
-		// // it.
-		// ViewTreeObserver vto = mFileView.getViewTreeObserver();
-		// vto.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
-		// @Override
-		// public void onGlobalLayout() {
-		// setPreview();
-		// }
-		// });
-		// } else {
-		// setPreview();
-		// }
 	}
 
 	private void setPreview() {
@@ -203,7 +192,7 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 		int requiredHeight = mFileView.getHeight();
 		int requiredWidth = mFileView.getWidth();
 		if (requiredHeight == 0) {
-			return 8;
+			return 4;
 		}
 		int sampleSize = 1;
 		if (requiredHeight < originalHeight || requiredWidth < originalWidth) {

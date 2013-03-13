@@ -26,9 +26,9 @@ public class TaskDetailsActivity extends ActionBarActivity {
 		
 		setContentView(R.layout.task_details_activity);
 		
-		mFragment = new TaskDetailsFragment();
 		Bundle extras = getIntent().getExtras();
-		if(extras != null){
+		if(extras != null && savedInstanceState == null){
+			mFragment = new TaskDetailsFragment();
 			mFragment.setArguments(extras);
 			mFragment.setHasOptionsMenu(true);
 			if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){

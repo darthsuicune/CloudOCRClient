@@ -143,25 +143,23 @@ public class ProcessBusinessCardOptionsFragment extends ProcessOptionsFragment
 	@Override
 	public void addFile(Uri filePath) {
 		mFileUri = filePath;
-		if (mFileView != null) {
-			mFileViewHint.setVisibility(View.GONE);
-			mFileView.setVisibility(View.VISIBLE);
-			setPreview();
-		}
+		setPreview();
 	}
 
 	private void setPreview() {
-		Bitmap bm;
+		if (mFileView == null) {
+			return;
+		}
 		try {
-			bm = mFileUri.getScheme().equals("file") ? getSmallImage(false)
-					: getSmallImage(true);
-			mFileView.setImageBitmap(bm);
+			mFileViewHint.setVisibility(View.GONE);
+			mFileView.setVisibility(View.VISIBLE);
+			mFileView.setImageBitmap(getSmallImage());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private Bitmap getSmallImage(boolean isContent)
+	private Bitmap getSmallImage()
 			throws FileNotFoundException {
 		// Create a BitmapFactory Options to scale the image down
 		BitmapFactory.Options options = new BitmapFactory.Options();
@@ -186,7 +184,7 @@ public class ProcessBusinessCardOptionsFragment extends ProcessOptionsFragment
 		int requiredHeight = mFileView.getHeight();
 		int requiredWidth = mFileView.getWidth();
 		if (requiredHeight == 0) {
-			return 8;
+			return 4;
 		}
 		int sampleSize = 1;
 		if (requiredHeight < originalHeight || requiredWidth < originalWidth) {
