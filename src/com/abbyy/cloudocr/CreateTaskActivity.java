@@ -2,6 +2,7 @@ package com.abbyy.cloudocr;
 
 import android.annotation.TargetApi;
 import android.app.ActionBar;
+import android.app.ActionBar.OnNavigationListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -11,7 +12,9 @@ import android.support.v4.app.NavUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 import com.abbyy.cloudocr.compat.ActionBarActivity;
@@ -19,6 +22,18 @@ import com.abbyy.cloudocr.optionsfragments.ProcessBusinessCardOptionsFragment;
 import com.abbyy.cloudocr.optionsfragments.ProcessImageOptionsFragment;
 import com.abbyy.cloudocr.optionsfragments.ProcessOptionsFragment;
 
+/**
+ * This activity is called when the user is in LANDSCAPE MODE if the previous
+ * activity was the "StartActivity". It is always called from StartActivity in
+ * PORTRAIT MODE
+ * 
+ * It is in charge of 3 different actions: -Entry point from image-sharing.
+ * -Showing the right fragment to the user when processing a task. -Managing the
+ * fragment lifecycle.
+ * 
+ * @author Denis Lapuente
+ * 
+ */
 public class CreateTaskActivity extends ActionBarActivity {
 	public static final String EXTRA_PROCESS_MODE = "Process mode";
 
@@ -73,6 +88,7 @@ public class CreateTaskActivity extends ActionBarActivity {
 				String type = getIntent().getType();
 				mProcessingMode = SettingsActivity.PROCESSING_MODE_IMAGE;
 				if (type != null && type.startsWith("image")) {
+
 					mImageToProcess = (Uri) getIntent().getParcelableExtra(
 							Intent.EXTRA_STREAM);
 					if (mImageToProcess == null) {
@@ -80,6 +96,7 @@ public class CreateTaskActivity extends ActionBarActivity {
 								Toast.LENGTH_LONG).show();
 						this.finish();
 					}
+					setActionBar();
 				}
 			} else {
 				mProcessingMode = extras.getInt(EXTRA_PROCESS_MODE);
@@ -101,9 +118,6 @@ public class CreateTaskActivity extends ActionBarActivity {
 	}
 
 	private void setOptionsFragment() {
-		if (mProcessOptionsFragment != null) {
-			return;
-		}
 		if (mProcessingMode != -1) {
 			switch (mProcessingMode) {
 			// case SettingsActivity.PROCESSING_MODE_BARCODE_FIELD:
@@ -129,6 +143,9 @@ public class CreateTaskActivity extends ActionBarActivity {
 			// case SettingsActivity.PROCESSING_MODE_TEXT_FIELD:
 			// mProcessOptionsFragment = new ProcessTextFieldOptionsFragment();
 			// break;
+			
+			default:
+				return;
 			}
 		}
 
@@ -154,17 +171,18 @@ public class CreateTaskActivity extends ActionBarActivity {
 		ActionBar actionBar = getActionBar();
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setDisplayShowTitleEnabled(false);
-		// actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-		// actionBar.setListNavigationCallbacks(getSpinnerAdapter(),
-		// new OnNavigationListener() {
-		// @Override
-		// public boolean onNavigationItemSelected(int itemPosition,
-		// long itemId) {
-		// mProcessingMode = itemPosition;
-		// setOptionsFragment();
-		// return true;
-		// }
-		// });
+
+		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+		actionBar.setListNavigationCallbacks(getSpinnerAdapter(),
+				new OnNavigationListener() {
+					@Override
+					public boolean onNavigationItemSelected(int itemPosition,
+							long itemId) {
+						mProcessingMode = itemPosition;
+						setOptionsFragment();
+						return true;
+					}
+				});
 	}
 
 	// private void setSpinner() {
@@ -186,12 +204,12 @@ public class CreateTaskActivity extends ActionBarActivity {
 	// });
 	// }
 	//
-	// private SpinnerAdapter getSpinnerAdapter() {
-	// String[] strings = getResources().getStringArray(R.array.process_type);
-	//
-	// ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-	// android.R.layout.simple_spinner_item, strings);
-	// adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-	// return adapter;
-	// }
+	private SpinnerAdapter getSpinnerAdapter() {
+		String[] strings = getResources().getStringArray(R.array.process_type);
+
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+				android.R.layout.simple_spinner_item, strings);
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		return adapter;
+	}
 }
