@@ -4,12 +4,12 @@
     <!-- Arrays for the spinner -->
     <string-array name="process_type">
         <item>@string/content_description_process_image</item>
-        <item>@string/content_description_process_multiple</item>
+<!--         <item>@string/content_description_process_multiple</item> -->
         <item>@string/content_description_process_business_card</item>
-        <item>@string/content_description_process_text_field</item>
-        <item>@string/content_description_process_barcode_field</item>
-        <item>@string/content_description_process_checkmark_field</item>
-        <item>@string/content_description_process_fields</item>
+<!--         <item>@string/content_description_process_text_field</item> -->
+<!--         <item>@string/content_description_process_barcode_field</item> -->
+<!--         <item>@string/content_description_process_checkmark_field</item> -->
+<!--         <item>@string/content_description_process_fields</item> -->
     </string-array>
     <string-array name="process_type_values">
         <item>@string/process_image</item>

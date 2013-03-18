@@ -16,9 +16,10 @@ public abstract class ProcessOptionsFragment extends Fragment {
 	protected String mTaskId;
 	SharedPreferences prefs;
 
-	public void addFile(Uri uri){
-		//Stub for those who need to use it
+	public void addFile(Uri uri) {
+		// Stub for those who need to use it
 	}
+
 	public abstract boolean saveDefaultOptions();
 
 	public abstract boolean loadDefaultOptions();
@@ -30,7 +31,7 @@ public abstract class ProcessOptionsFragment extends Fragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		if(setViews()){
+		if (setViews()) {
 			setHasOptionsMenu(true);
 			loadDefaultOptions();
 		} else {

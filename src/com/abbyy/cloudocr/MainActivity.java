@@ -19,50 +19,84 @@ import com.abbyy.cloudocr.database.TasksContract;
 import com.abbyy.cloudocr.fragments.ActiveTasksFragment;
 import com.abbyy.cloudocr.fragments.CompletedTasksFragment;
 
-public class MainActivity extends TabCompatActivity{
+/**
+ * Main entry point for the application. It has two tabs, showing the list of
+ * tasks active and already completed. By default it remembers the last tab
+ * used.
+ * 
+ * It uses a compattab activity in order to provide tabs for both pre and
+ * post-honeycomb implementations.
+ * 
+ * TODO: Add setting to change the behaviour and show always one of the tabs.
+ * 
+ * @author Denis Lapuente
+ * 
+ */
+public class MainActivity extends TabCompatActivity {
+	// Tabs used in the application
 	private static final int TAB_ACTIVE = 0;
 	private static final int TAB_COMPLETED = 1;
-	
+
 	private SharedPreferences prefs;
 
+	/**
+	 * On the first run we launch a task for inserting the languages into the
+	 * database. Then we just set the layout and prepare the tabs for use.
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
-		if(prefs.getBoolean(SettingsActivity.IS_FIRST_RUN, true)){
+		if (prefs.getBoolean(SettingsActivity.IS_FIRST_RUN, true)) {
 			insertLanguages();
-			prefs.edit().putBoolean(SettingsActivity.IS_FIRST_RUN, false).commit();
+			prefs.edit().putBoolean(SettingsActivity.IS_FIRST_RUN, false)
+					.commit();
 		}
 		setContentView(R.layout.main_activity);
 		setTabs();
 	}
 
+	/**
+	 * Returning false tells the activity that we aren't managing the menu, it
+	 * is managed by the fragments
+	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		return true;
+		return false;
 	}
 
+	/**
+	 * Convenience method for adding the tabs.
+	 */
 	private void setTabs() {
 		TabHelper tabHelper = getTabHelper();
-		
-		int defaultTab = prefs.getInt(SettingsActivity.DEFAULT_TAB,
-				TAB_ACTIVE);
 
-		createTab(tabHelper, getString(R.string.tab_active_tasks),
-				R.string.tab_active_tasks, new TabListener(this,
-						ActiveTasksFragment.class));
+		int defaultTab = prefs.getInt(SettingsActivity.DEFAULT_TAB, TAB_ACTIVE);
 
-		createTab(tabHelper, getString(R.string.tab_completed_tasks),
-				R.string.tab_completed_tasks, new TabListener(this,
-						CompletedTasksFragment.class));
+		createTab(tabHelper, R.string.tab_active_tasks, new TabListener(this,
+				ActiveTasksFragment.class));
+
+		createTab(tabHelper, R.string.tab_completed_tasks, new TabListener(
+				this, CompletedTasksFragment.class));
 
 		tabHelper.setActiveTab(defaultTab);
 	}
 
-	private void createTab(TabHelper tabHelper, String tag, int textResourceId,
+	/**
+	 * Convenience method for creating each tab
+	 * 
+	 * @param tabHelper
+	 *            The tab helper that will manage the tabs independent of the
+	 *            implementation
+	 * @param textResourceId
+	 *            Text Resource Id to be used on the tab and tag
+	 * @param listener
+	 *            Listener of the tab, that will act when we change tabs.
+	 */
+	private void createTab(TabHelper tabHelper, int textResourceId,
 			TabListener listener) {
 
-		CompatTab tab = tabHelper.newTab(tag);
+		CompatTab tab = tabHelper.newTab(getString(textResourceId));
 
 		tab.setText(textResourceId);
 		tab.setTabListener(listener);
@@ -70,16 +104,39 @@ public class MainActivity extends TabCompatActivity{
 		tabHelper.addTab(tab);
 	}
 
+	/**
+	 * Implementation of the tab listener. It allows for creation of tabs that
+	 * switch fragments dynamically.
+	 * 
+	 * @author Denis Lapuente
+	 * 
+	 */
 	class TabListener implements CompatTabListener {
 		private TabCompatActivity mActivity;
-		private Class<? extends Fragment> mClass;
+		private Class<? extends Fragment> mFragment;
 
+		/**
+		 * The creation of the listener requires the activity we are creating
+		 * the tabs for and the fragment it will implement
+		 * 
+		 * @param activity
+		 *            The activity host for the tabs
+		 * @param fragment
+		 *            The fragment we are associating to the tab
+		 */
 		protected TabListener(TabCompatActivity activity,
-				Class<? extends Fragment> cls) {
+				Class<? extends Fragment> fragment) {
 			mActivity = activity;
-			mClass = cls;
+			mFragment = fragment;
 		}
 
+		/**
+		 * When the tab is unselected, we detach the fragment from the activity.
+		 * We also remove the options menu from the fragment.
+		 * 
+		 * WARNING! The commit is done after this is called, so there is no need
+		 * to do it here
+		 */
 		@Override
 		public void onTabUnselected(CompatTab tab, FragmentTransaction ft) {
 			Fragment fragment = tab.getFragment();
@@ -89,11 +146,19 @@ public class MainActivity extends TabCompatActivity{
 			fragment.setHasOptionsMenu(false);
 		}
 
+		/**
+		 * When the tab is selected, if it had previously a fragment, we just
+		 * add the fragment. If it did not have a fragment, we create a new one
+		 * and add it. We also set the options menu for the fragment.
+		 * 
+		 * In case the option is active (active by default), we set the new tab
+		 * as the default one
+		 */
 		@Override
 		public void onTabSelected(CompatTab tab, FragmentTransaction ft) {
 			Fragment fragment = tab.getFragment();
 			if (fragment == null) {
-				fragment = Fragment.instantiate(mActivity, mClass.getName());
+				fragment = Fragment.instantiate(mActivity, mFragment.getName());
 				tab.setFragment(fragment);
 				ft.add(android.R.id.tabcontent, fragment, tab.getTag());
 			} else {
@@ -109,10 +174,16 @@ public class MainActivity extends TabCompatActivity{
 
 		@Override
 		public void onTabReselected(CompatTab tab, FragmentTransaction ft) {
+			// Nothing to do here.
 		}
 
 	}
 
+	/**
+	 * Self-explanatory. Saves the current tab as the default tab in the options
+	 * 
+	 * @param tab
+	 */
 	private void saveCurrentTabAsDefault(CompatTab tab) {
 		int currentTab;
 		if (tab.getTag().equals(getString(R.string.tab_active_tasks))) {
@@ -124,25 +195,38 @@ public class MainActivity extends TabCompatActivity{
 		prefs.edit().putInt(SettingsActivity.DEFAULT_TAB, currentTab).commit();
 	}
 
+	/**
+	 * Convenience method for just displaying a message and launching the first
+	 * run task
+	 */
 	private void insertLanguages() {
-		Toast.makeText(this, R.string.first_run_message, Toast.LENGTH_SHORT).show();
-		FirstRunTask task = new FirstRunTask();
-		task.execute(null, null);
+		Toast.makeText(this, R.string.first_run_message, Toast.LENGTH_SHORT)
+				.show();
+		new FirstRunTask().execute(null, null);
 	}
-	
-	public class FirstRunTask extends AsyncTask<Void, Void, Void>{
+
+	/**
+	 * 
+	 * Task in charge of making the loading of the languages into the database
+	 * 
+	 * @author Denis Lapuente
+	 * 
+	 */
+	public class FirstRunTask extends AsyncTask<Void, Void, Void> {
 
 		@Override
 		protected Void doInBackground(Void... params) {
 			ContentResolver cr = getContentResolver();
-			String[] languagesList = getResources().getStringArray(R.array.languages);
-			for(int i = 0; i < languagesList.length; i++){
+			String[] languagesList = getResources().getStringArray(
+					R.array.languages);
+			for (int i = 0; i < languagesList.length; i++) {
 				ContentValues values = new ContentValues();
-				values.put(TasksContract.LanguagesTable.LANGUAGE, languagesList[i]);
+				values.put(TasksContract.LanguagesTable.LANGUAGE,
+						languagesList[i]);
 				cr.insert(TasksContract.CONTENT_LANGUAGES, values);
 			}
 			return null;
 		}
-		
+
 	}
 }
