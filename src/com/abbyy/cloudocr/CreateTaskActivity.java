@@ -248,7 +248,7 @@ public class CreateTaskActivity extends ActionBarActivity {
 				// doesn't select it previously (such as an external call)
 				Spinner processSpinnerView;
 				processSpinnerView = (Spinner) findViewById(R.id.create_task_process_spinner);
-				
+
 				processSpinnerView.setAdapter(getSpinnerAdapter());
 				processSpinnerView
 						.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -268,8 +268,8 @@ public class CreateTaskActivity extends ActionBarActivity {
 							}
 						});
 			} else {
-				findViewById(R.id.create_task_process_spinner)
-						.setVisibility(View.GONE);
+				findViewById(R.id.create_task_process_spinner).setVisibility(
+						View.GONE);
 			}
 
 			// In post HoneyComb, we do it on the action bar.
@@ -304,10 +304,10 @@ public class CreateTaskActivity extends ActionBarActivity {
 	 * @return The spinner adapter (Currently an ArrayAdapter)
 	 */
 	private SpinnerAdapter getSpinnerAdapter() {
-		String[] strings = getResources().getStringArray(R.array.process_type);
 
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-				android.R.layout.simple_spinner_item, strings);
+				android.R.layout.simple_spinner_item, getResources()
+						.getStringArray(R.array.process_type));
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		return adapter;
 	}
