@@ -52,8 +52,6 @@ import com.abbyy.cloudocr.optionsfragments.ProcessOptionsFragment;
 public class CreateTaskActivity extends ActionBarActivity {
 	public static final String EXTRA_PROCESS_MODE = "Process mode";
 
-	private static final String ARGUMENTS = "arguments";
-
 	private int mProcessingMode = -1;
 	private Uri mImageToProcess = null;
 
@@ -63,15 +61,12 @@ public class CreateTaskActivity extends ActionBarActivity {
 	// possible to instantiate, but serves as the stub for all possible options,
 	// that will extend this fragment.
 	private ProcessOptionsFragment mProcessOptionsFragment;
-	// Spinner for changing type of processing in case the user doesn't select
-	// it previously
-	private Spinner mProcessSpinnerView;
 
 	/**
 	 * Entry point to the activity. We preparate the view, and do nothing else
 	 * in case the activity is being restarted. If it's a new instance, it
 	 * handles the intent and prepares the fragment (if this is being restarted,
-	 * everything should be already set.
+	 * everything should be already set).
 	 * 
 	 * On the first run we launch a task in case the first run is done through
 	 * this entry point.
@@ -85,11 +80,14 @@ public class CreateTaskActivity extends ActionBarActivity {
 			prefs.edit().putBoolean(SettingsActivity.IS_FIRST_RUN, false)
 					.commit();
 		}
-		setViews();
+		setContentView(R.layout.create_task);
+		handleIncomingIntent();
 		if (savedInstanceState != null) {
+			if (savedInstanceState.containsKey(EXTRA_PROCESS_MODE)) {
+				mProcessingMode = savedInstanceState.getInt(EXTRA_PROCESS_MODE);
+			}
 			return;
 		}
-		handleIncomingIntent();
 		setOptionsFragment();
 	}
 
@@ -99,9 +97,8 @@ public class CreateTaskActivity extends ActionBarActivity {
 	 */
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
-		if (mImageToProcess != null) {
-			outState.putBundle(ARGUMENTS,
-					mProcessOptionsFragment.getArguments());
+		if (mProcessingMode != -1) {
+			outState.putInt(EXTRA_PROCESS_MODE, mProcessingMode);
 		}
 		super.onSaveInstanceState(outState);
 	}
@@ -134,15 +131,6 @@ public class CreateTaskActivity extends ActionBarActivity {
 	}
 
 	/**
-	 * Prepares the views we are going to use. Sets the main content view and
-	 * prepares the spinner.
-	 */
-	private void setViews() {
-		setContentView(R.layout.create_task);
-		mProcessSpinnerView = (Spinner) findViewById(R.id.create_task_process_spinner);
-	}
-
-	/**
 	 * This method handles the intent the activity receives, if any.
 	 * 
 	 * It processes the extra parameters, and checks if it is coming from an
@@ -170,19 +158,18 @@ public class CreateTaskActivity extends ActionBarActivity {
 					}
 					// If it is a valid image, prepare the action bar for
 					// processing and end
-					setActionBar(true);
+					setSpinnerMode(true);
 					return;
 				}
 				// If it is not an external intent, the processing mode will be
 				// in the extras
 			} else {
 				mProcessingMode = extras.getInt(EXTRA_PROCESS_MODE);
-
 			}
 		}
 		// In case we don't receive a valid image through the intent, prepare
 		// the action bar for normal processing
-		setActionBar(false);
+		setSpinnerMode(false);
 	}
 
 	/**
@@ -252,13 +239,18 @@ public class CreateTaskActivity extends ActionBarActivity {
 	 *            Parameter to be set if we want to show the spinner or not
 	 */
 	@SuppressLint("NewApi")
-	private void setActionBar(boolean withSpinner) {
-		// In previous to Honeycomb, we prepare the spinner view
+	private void setSpinnerMode(boolean withSpinner) {
+		// In previous to Honeycomb, we prepare the spinner view as a separate
+		// spinner.
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
 			if (withSpinner) {
-				mProcessSpinnerView.setVisibility(View.VISIBLE);
-				mProcessSpinnerView.setAdapter(getSpinnerAdapter());
-				mProcessSpinnerView
+				// Spinner for changing type of processing in case the user
+				// doesn't select it previously (such as an external call)
+				Spinner processSpinnerView;
+				processSpinnerView = (Spinner) findViewById(R.id.create_task_process_spinner);
+				
+				processSpinnerView.setAdapter(getSpinnerAdapter());
+				processSpinnerView
 						.setOnItemSelectedListener(new OnItemSelectedListener() {
 							@Override
 							public void onItemSelected(
@@ -276,7 +268,8 @@ public class CreateTaskActivity extends ActionBarActivity {
 							}
 						});
 			} else {
-				mProcessSpinnerView.setVisibility(View.GONE);
+				findViewById(R.id.create_task_process_spinner)
+						.setVisibility(View.GONE);
 			}
 
 			// In post HoneyComb, we do it on the action bar.
@@ -284,7 +277,7 @@ public class CreateTaskActivity extends ActionBarActivity {
 			ActionBar actionBar = getActionBar();
 
 			if (withSpinner) {
-				actionBar.setDisplayHomeAsUpEnabled(true);
+				actionBar.setDisplayHomeAsUpEnabled(false);
 				actionBar.setDisplayShowTitleEnabled(false);
 				actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 
@@ -299,7 +292,7 @@ public class CreateTaskActivity extends ActionBarActivity {
 							}
 						});
 			} else {
-				actionBar.setDisplayHomeAsUpEnabled(false);
+				actionBar.setDisplayHomeAsUpEnabled(true);
 				actionBar.setDisplayShowTitleEnabled(true);
 			}
 		}
@@ -332,8 +325,9 @@ public class CreateTaskActivity extends ActionBarActivity {
 
 	/**
 	 * The async task only loads the languages and finishes gracefully.
+	 * 
 	 * @author lapuente
-	 *
+	 * 
 	 */
 	public class FirstRunTask extends AsyncTask<Void, Void, Void> {
 

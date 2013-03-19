@@ -7,6 +7,13 @@ import android.preference.PreferenceManager;
 
 import com.abbyy.cloudocr.compat.ActionBarActivity;
 
+/**
+ * Temporal stub for the settings activity. It also contains the constants used
+ * wide on the application
+ * 
+ * @author Denis Lapuente
+ * 
+ */
 public class SettingsActivity extends ActionBarActivity {
 	public static final int PROCESSING_MODE_IMAGE = 0;
 	public static final int PROCESSING_MODE_BUSINESS_CARD = 1;
@@ -23,6 +30,14 @@ public class SettingsActivity extends ActionBarActivity {
 	public static final String IS_FIRST_RUN = "isFirstRun";
 	public static final String SHOW_NOTIFICATION = "showNotification";
 
+	/**
+	 * 
+	 * 
+	 * 
+	 * @param context
+	 * @param processingMode
+	 * @return Bundle with the default options for the given processing mode
+	 */
 	public static Bundle getDefaultOptions(Context context, int processingMode) {
 		Bundle options = new Bundle();
 		switch (processingMode) {
@@ -44,7 +59,13 @@ public class SettingsActivity extends ActionBarActivity {
 		return options;
 	}
 
-	public static void saveDefaultOptions(Context context, int processingMode) {
+	/**
+	 * 
+	 * @param context
+	 * @param processingMode
+	 * @param options
+	 */
+	public static void saveDefaultOptions(Context context, int processingMode, Bundle options) {
 		SharedPreferences.Editor editor = PreferenceManager
 				.getDefaultSharedPreferences(context).edit();
 		switch (processingMode) {
