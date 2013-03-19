@@ -195,7 +195,7 @@ public class TaskDetailsFragment extends Fragment {
 				TasksManagerService.ACTION_DOWNLOAD_RESULT);
 		service.putExtra(TasksManagerService.EXTRA_URL, mTask.mResultUrl);
 		service.putExtra(TasksManagerService.EXTRA_FILE_PATH, filePath);
-		service.putExtra(TasksManagerService.EXTRA_FILE_TYPE, fileType);
+		service.putExtra(TasksManagerService.EXTRA_EXPORT_FORMAT, fileType);
 		getActivity().startService(service);
 	}
 

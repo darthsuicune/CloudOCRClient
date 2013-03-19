@@ -14,6 +14,14 @@ import android.net.Uri;
 
 import com.abbyy.cloudocr.database.TasksContract;
 
+/**
+ * Holder class with helper methods to retain the information of every single
+ * task. It includes different methods of creation. It also includes helper
+ * methods.
+ * 
+ * @author Denis Lapuente
+ * 
+ */
 public class Task {
 	DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd'T'HH:mm:ss'Z'",
 			Locale.GERMANY);
@@ -36,6 +44,25 @@ public class Task {
 	public String mError;
 	public String mFileName;
 
+	/**
+	 * Parameter constructor. Requires the context and a single parameter for
+	 * each property
+	 * 
+	 * @param context
+	 * @param taskId
+	 * @param status
+	 * @param registrationTime
+	 * @param statusChangeTime
+	 * @param filesCount
+	 * @param credits
+	 * @param estimatedProcessingTime
+	 * @param description
+	 * @param resultUrl
+	 * @param error
+	 * @param isInDb
+	 * @param fileName
+	 * @param resultType
+	 */
 	public Task(Context context, String taskId, String status,
 			String registrationTime, String statusChangeTime,
 			String filesCount, String credits, String estimatedProcessingTime,
@@ -57,6 +84,14 @@ public class Task {
 		mResultType = resultType;
 	}
 
+	/**
+	 * HashMap constructor. Receives a hashmap with all the parameters.
+	 * 
+	 * @param context
+	 * @param data
+	 * @param fileName
+	 * @param exportFormat
+	 */
 	public Task(Context context, HashMap<String, String> data, String fileName,
 			String exportFormat) {
 		mContext = context;
@@ -84,6 +119,12 @@ public class Task {
 		mResultType = exportFormat;
 	}
 
+	/**
+	 * Cursor constructor. Creates the object receiving the data from the
+	 * database.
+	 * 
+	 * @param cursor
+	 */
 	public Task(Cursor cursor) {
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
@@ -123,6 +164,11 @@ public class Task {
 		}
 	}
 
+	/**
+	 * Convenience method for inserting the data into the database.
+	 * 
+	 * @return
+	 */
 	public boolean writeTaskToDb() {
 		isInDb = checkDb();
 
@@ -142,6 +188,11 @@ public class Task {
 		return isInDb;
 	}
 
+	/**
+	 * Convenience method for checking if a specific task is in the database.
+	 * 
+	 * @return true if the taskId is already on the database.
+	 */
 	private boolean checkDb() {
 		Uri uri = TasksContract.CONTENT_TASKS;
 		String selection = TasksContract.TasksTable.TASK_ID + "=?";
@@ -154,6 +205,12 @@ public class Task {
 		return count >= 1;
 	}
 
+	/**
+	 * Convenience method for preparing the values to insert. Avoids inserting
+	 * null values.
+	 * 
+	 * @return
+	 */
 	private ContentValues setValues() {
 		ContentValues values = new ContentValues();
 		values.put(TasksContract.TasksTable.TASK_ID, mTaskId);

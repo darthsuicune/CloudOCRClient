@@ -24,22 +24,54 @@ import com.abbyy.cloudocr.utils.CloudClient;
 import com.abbyy.cloudocr.utils.FileManager;
 import com.abbyy.cloudocr.utils.XMLParser;
 
+/**
+ * This service is in charge of binding every part of the application.
+ * 
+ * It manages the orders from the activities to the server. It parses the server
+ * responses and inserts the new data into the database. It manages the
+ * downloads of the results. It manages the notifications shown to the user.
+ * 
+ * EXTRA_ACTION: String with the kind of action we are performing. Available
+ * actions start with ACTION_
+ * 
+ * EXTRA_CREATE: Int with the R.string.process* relative process type
+ * 
+ * EXTRA_FILE_PATH: String containing the file path to the origin when uploading
+ * a file, as well as the file path for downloading.
+ * 
+ * EXTRA_TASK_ID: String containing the task id when needed.
+ * 
+ * EXTRA_NEW_TASK_OPTIONS: Bundle with the options to create a new task.
+ * 
+ * EXTRA_URL: String with the URL where the file should be downloaded
+ * 
+ * EXTRA_EXPORT_FORMAT: String with the export format.
+ * 
+ * @author lapuente
+ * 
+ */
 public class TasksManagerService extends IntentService {
-	private static final String SERVICE_NAME = "ABBYY Tasks Manager Service";
+	// Service name.
+	public static final String SERVICE_NAME = "ABBYY Tasks Manager Service";
+	// Notification constants
 	public static final String NOTIFICATION_TAG = "cloudOCRnotification";
 	public static final int TASKS_NOTIFICATION = 1;
 	public static final int DOWNLOAD_NOTIFICATION = 1;
-	public static final int REQUEST_ACTIVE_TASKS = 1;
 
+	// Constant for the notification intent.
+	public static final int REQUEST_ACTIVE_TASKS = 1;
+	public static final int REQUEST_SHOW_RESULT = 2;
+
+	// EXTRA constants.
 	public static final String EXTRA_ACTION = "action";
 	public static final String EXTRA_CREATE = "create";
 	public static final String EXTRA_FILE_PATH = "filePath";
-	public static final String EXTRA_FILE_TYPE = "fileType";
 	public static final String EXTRA_TASK_ID = "taskId";
 	public static final String EXTRA_NEW_TASK_OPTIONS = "taskOptions";
 	public static final String EXTRA_URL = "url";
 	public static final String EXTRA_EXPORT_FORMAT = "exportFormat";
 
+	// Values for the EXTRA_ACTION extra.
 	public static final int ACTION_DELETE_ACTIVE_TASK = 1;
 	public static final int ACTION_DELETE_COMPLETED_TASK = 2;
 	public static final int ACTION_UPDATE_ACTIVE_TASKS = 3;
@@ -47,21 +79,31 @@ public class TasksManagerService extends IntentService {
 	public static final int ACTION_CREATE_NEW_TASK = 5;
 	public static final int ACTION_DOWNLOAD_RESULT = 6;
 
-	public static final int CREATE_IMAGE = 1;
-	public static final int CREATE_BUSINESS_CARD = 2;
-
 	private CloudClient mClient;
 	private String mURL;
 	private Bundle mArgs;
 
+	/**
+	 * Required constructor with service name.
+	 */
 	public TasksManagerService() {
 		super(SERVICE_NAME);
 		mClient = new CloudClient(this);
 	}
 
+	/**
+	 * Required override. Handles each new call to the service. If the service
+	 * is already running, it just queues the new intent. If it is not running,
+	 * starts it up.
+	 * 
+	 * It is in charge of handling the type of action the intent is supposed to
+	 * perform.
+	 */
 	@Override
 	protected void onHandleIntent(Intent intent) {
 		Bundle extras = intent.getExtras();
+		// Parse the action and create the corresponding parameters in each
+		// corresponding method
 		if (extras != null) {
 			mArgs = intent.getExtras();
 			boolean needsConnection = false;
@@ -88,9 +130,12 @@ public class TasksManagerService extends IntentService {
 				downloadResult();
 				return;
 			}
+
+			// Add the file when needed
 			if (mArgs.containsKey(EXTRA_FILE_PATH)) {
 				mClient.setFilePath(mArgs.getString(EXTRA_FILE_PATH));
 			}
+			// Connect (and parse the response) when needed
 			if (needsConnection) {
 				try {
 					mClient.setUrl(mURL, mArgs);
@@ -99,22 +144,36 @@ public class TasksManagerService extends IntentService {
 					e.printStackTrace();
 				}
 			}
-		} else {
 		}
 	}
 
+	/**
+	 * Convenience method for creating a new task. It sets the URL to the
+	 * related URL
+	 * 
+	 * @param create
+	 * @return
+	 */
 	private boolean createNewTask(int create) {
 		switch (create) {
 		case R.string.process_business_card:
 			mURL = CloudClient.PROCESS_BUSINESS_CARD;
-			break;
+			return true;
 		case R.string.process_image:
 			mURL = CloudClient.PROCESS_IMAGE;
-			break;
+			return true;
+		default:
+			return false;
 		}
-		return true;
 	}
 
+	/**
+	 * Convenience method for refreshing the tasks lists. It sets the URL to the
+	 * correct URL
+	 * 
+	 * @param isActive
+	 * @return
+	 */
 	private boolean refreshTasks(boolean isActive) {
 		if (isActive) {
 			mURL = CloudClient.GET_TASK_LIST;
@@ -124,6 +183,15 @@ public class TasksManagerService extends IntentService {
 		return true;
 	}
 
+	/**
+	 * Convenience method for deleting tasks.
+	 * 
+	 * TODO: Not working properly. Needs rethinking and redoing.
+	 * 
+	 * @param taskId
+	 * @param isActive
+	 * @return
+	 */
 	private boolean deleteTask(String taskId, boolean isActive) {
 		if (isActive) {
 			mArgs.putString(CloudClient.ARGUMENT_TASK_ID, taskId);
@@ -134,11 +202,17 @@ public class TasksManagerService extends IntentService {
 			String[] selectionArgs = { taskId };
 			getContentResolver().delete(TasksContract.CONTENT_TASKS, where,
 					selectionArgs);
-
+			return false;
 		}
-		return false;
 	}
 
+	/**
+	 * Convenience method for downloading the results. Shows a notification that
+	 * sticks and does nothing and then changes it to an actual working
+	 * notification that opens the file.
+	 * 
+	 * TODO: Change messages that appear on the notification.
+	 */
 	private void downloadResult() {
 		try {
 			mClient.setDownloadUrl(mArgs.getString(EXTRA_URL));
@@ -148,7 +222,7 @@ public class TasksManagerService extends IntentService {
 		}
 		File exportFile = FileManager.getOutputDownloadFile(
 				mArgs.getString(EXTRA_FILE_PATH),
-				mArgs.getString(EXTRA_FILE_TYPE));
+				mArgs.getString(EXTRA_EXPORT_FORMAT));
 
 		showDownloadNotification(true, Uri.fromFile(exportFile));
 		InputStream inputStream = mClient.makePetition();
@@ -194,7 +268,7 @@ public class TasksManagerService extends IntentService {
 		}
 	}
 
-	private void showDownloadNotification(boolean show, Uri fileUri) {
+	private void showDownloadNotification(boolean inProgress, Uri fileUri) {
 		NotificationManager nm = (NotificationManager) getSystemService(Activity.NOTIFICATION_SERVICE);
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(
 				this);
@@ -204,13 +278,12 @@ public class TasksManagerService extends IntentService {
 				.setContentText(getString(R.string.notification_message))
 				.setAutoCancel(false).setOngoing(true);
 
-		if (!show) {
+		if (!inProgress) {
 			Intent intent = new Intent(Intent.ACTION_VIEW, fileUri);
-			PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
-					intent, 0);
+			PendingIntent pendingIntent = PendingIntent.getActivity(this,
+					REQUEST_SHOW_RESULT, intent, 0);
 			builder.setContentIntent(pendingIntent).setAutoCancel(true)
-					.setOngoing(false)
-					.setContentTitle("Download finished!")
+					.setOngoing(false).setContentTitle("Download finished!")
 					.setContentText("Click here to open the downloaded file");
 		}
 		nm.notify(DOWNLOAD_NOTIFICATION, builder.build());
