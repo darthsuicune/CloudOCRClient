@@ -11,8 +11,10 @@ import android.support.v4.app.FragmentTransaction;
 /**
  * Implementation of the Compatibility Tab for Honeycomb (3.*) and later
  * versions. It holds an actual Action Bar tab, its assigned fragment and a
- * compatibility listener. It needs to implement also the Action bar tab
- * listener in order to make it work with the action bar.
+ * compatibility listener.
+ * 
+ * It needs to implement also the Action bar tab listener in order to make it
+ * work with the action bar. This is implemented in a per-tab level on HC
  */
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class CompatTabHoneycomb extends CompatTab implements
