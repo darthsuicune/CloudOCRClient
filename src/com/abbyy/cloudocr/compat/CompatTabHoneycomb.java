@@ -8,6 +8,12 @@ import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 
+/**
+ * Implementation of the Compatibility Tab for Honeycomb (3.*) and later
+ * versions. It holds an actual Action Bar tab, its assigned fragment and a
+ * compatibility listener. It needs to implement also the Action bar tab
+ * listener in order to make it work with the action bar.
+ */
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class CompatTabHoneycomb extends CompatTab implements
 		ActionBar.TabListener {
@@ -17,6 +23,10 @@ public class CompatTabHoneycomb extends CompatTab implements
 
 	protected CompatTabHoneycomb(TabCompatActivity activity, String tag) {
 		super(activity, tag);
+
+		// This constructor needs to set the Action bar tab as a true action bar
+		// tab. In this way, we ensure compatibility with the best option for
+		// post-HC devices.
 		mTab = activity.getActionBar().newTab();
 	}
 
@@ -82,7 +92,7 @@ public class CompatTabHoneycomb extends CompatTab implements
 
 	@Override
 	public void onTabUnselected(Tab tab, android.app.FragmentTransaction ft) {
-		
+
 		FragmentTransaction transaction = mActivity.getSupportFragmentManager()
 				.beginTransaction();
 
@@ -93,7 +103,7 @@ public class CompatTabHoneycomb extends CompatTab implements
 
 	@Override
 	public void onTabReselected(Tab tab, android.app.FragmentTransaction ft) {
-		
+
 		FragmentTransaction transaction = mActivity.getSupportFragmentManager()
 				.beginTransaction();
 		transaction.disallowAddToBackStack();

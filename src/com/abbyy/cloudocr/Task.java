@@ -252,4 +252,16 @@ public class Task {
 		}
 		return values;
 	}
+
+	/**
+	 * Convenience method that returns if the task is active or not.
+	 * 
+	 * @return true if the task is in any active status. false if not.
+	 */
+	public boolean isActive() {
+		return mStatus.equals(mContext.getString(R.string.status_in_progress))
+				|| mStatus.equals(mContext.getString(R.string.status_queued))
+				|| mStatus
+						.equals(mContext.getString(R.string.status_submitted));
+	}
 }

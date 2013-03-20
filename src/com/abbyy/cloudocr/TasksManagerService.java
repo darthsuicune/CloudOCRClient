@@ -210,8 +210,6 @@ public class TasksManagerService extends IntentService {
 	 * Convenience method for downloading the results. Shows a notification that
 	 * sticks and does nothing and then changes it to an actual working
 	 * notification that opens the file.
-	 * 
-	 * TODO: Change messages that appear on the notification.
 	 */
 	private void downloadResult() {
 		try {
@@ -230,6 +228,18 @@ public class TasksManagerService extends IntentService {
 		showDownloadNotification(false, Uri.fromFile(exportFile));
 	}
 
+	/**
+	 * Convenience method for parsing a response from the server. On a correct
+	 * download, it will create the tasks sent in the response and add them to
+	 * the database, or update them when they were already created.
+	 * 
+	 * On an error, it will parse again the error to show some information
+	 * 
+	 * TODO: Manage error
+	 * 
+	 * @param response
+	 *            The inputStream from the connection for parsing.
+	 */
 	private void parseResponse(InputStream response) {
 		if (response == null) {
 			return;
@@ -257,17 +267,37 @@ public class TasksManagerService extends IntentService {
 		}
 		if (result != null) {
 			for (int i = 0; i < result.size(); i++) {
-				new Task(getBaseContext(), result.get(i),
+				Task task = new Task(getBaseContext(), result.get(i),
 						mArgs.getString(EXTRA_FILE_PATH),
-						mArgs.getString(EXTRA_EXPORT_FORMAT)).writeTaskToDb();
-				updateNotificationStatus();
+						mArgs.getString(EXTRA_EXPORT_FORMAT));
+				if (task.isActive()) {
+					updateNotificationStatus();
+				}
+				task.writeTaskToDb();
 			}
 		} else if (error != null) {
 			Log.d("ERROR", "Error upon download: " + error);
-			// Parse error message and do something.
+			// Do something.
 		}
 	}
 
+	/**
+	 * Convenience method for showing the notification for the download.
+	 * 
+	 * It shows a notification while the download is in progress. Then changes
+	 * text to show something different when the download is complete.
+	 * 
+	 * When the download is complete, we add an action to the notification to
+	 * show the file
+	 * 
+	 * TODO: Change messages.
+	 * 
+	 * @param inProgress
+	 *            boolean showing if the download is in progress or already
+	 *            finished
+	 * @param fileUri
+	 *            the Uri containing the downloaded file
+	 */
 	private void showDownloadNotification(boolean inProgress, Uri fileUri) {
 		NotificationManager nm = (NotificationManager) getSystemService(Activity.NOTIFICATION_SERVICE);
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(
@@ -289,8 +319,10 @@ public class TasksManagerService extends IntentService {
 		nm.notify(DOWNLOAD_NOTIFICATION, builder.build());
 	}
 
+	/**
+	 * Set the notification status for the work in progress.
+	 */
 	protected void updateNotificationStatus() {
-
 		NotificationManager nm = (NotificationManager) getSystemService(Activity.NOTIFICATION_SERVICE);
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(
 				this);

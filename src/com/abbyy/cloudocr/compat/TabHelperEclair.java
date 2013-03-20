@@ -11,6 +11,10 @@ import android.widget.TabHost;
 import android.widget.TabHost.TabContentFactory;
 import android.widget.TabHost.TabSpec;
 
+/**
+ * Implementation of the Tab Helper for Eclair - Gingerbread (2.1 - 2.3.*). Implements the OnTabChangeListener of the tab host.
+ *
+ */
 public class TabHelperEclair extends TabHelper implements
 		TabHost.OnTabChangeListener {
 	private HashMap<String, CompatTab> mTabList = new HashMap<String, CompatTab>();

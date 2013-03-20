@@ -3,17 +3,22 @@ package com.abbyy.cloudocr.compat;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.Fragment;
 
+/**
+ * Concrete implementation of the abstraction layer for the tabs. It implements
+ * a tab for Eclair (2.1) until Gingerbread (2.3.*).
+ * 
+ * It is a very basic implementation which holds all the important things used
+ * by the tabs. Contains the setters and getters.
+ * 
+ */
 public class CompatTabEclair extends CompatTab {
-	private TabCompatActivity mActivity;
-	
 	private CharSequence mText;
 	private Drawable mIcon;
 	private Fragment mFragment;
 	private CompatTabListener mCallback;
 
-	protected CompatTabEclair(TabCompatActivity activity, String tag){
+	protected CompatTabEclair(TabCompatActivity activity, String tag) {
 		super(activity, tag);
-		mActivity = activity;
 	}
 
 	@Override
