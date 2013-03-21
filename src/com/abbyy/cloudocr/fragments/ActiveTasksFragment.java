@@ -18,8 +18,22 @@ import com.abbyy.cloudocr.StartActivity;
 import com.abbyy.cloudocr.TasksManagerService;
 import com.abbyy.cloudocr.database.TasksContract;
 
+/**
+ * Child of the abstract tasks fragment to display the active tasks. It will
+ * load the active tasks from the database and show an option to create a new
+ * task.
+ * 
+ * @author Denis Lapuente
+ * 
+ */
 public class ActiveTasksFragment extends TasksFragment {
 
+	/**
+	 * Called upon creation of the fragment instance.
+	 * 
+	 * Aside from inflating the whole view, we add the onClickListener to launch
+	 * a new task on it.
+	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -35,6 +49,10 @@ public class ActiveTasksFragment extends TasksFragment {
 		return v;
 	}
 
+	/**
+	 * After the view is created, the fragment is loaded into the activity and
+	 * this method is called. When called we just load the tasks.
+	 */
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -42,25 +60,35 @@ public class ActiveTasksFragment extends TasksFragment {
 				LOADER_ACTIVE_TASKS, null, this);
 	}
 
+	/**
+	 * We load the actions for the action bar / menu.
+	 * 
+	 * The menu for the fragment only contains a refresh option.
+	 */
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.active_tasks, menu);
 	}
 
+	/**
+	 * Manage the possible action clicks. Currently it is only a refresh option
+	 * which launchs a task to download the status of the tasks
+	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_refresh:
 			downloadTasks(true);
 			return true;
-		case R.id.menu_settings:
-			openSettings();
-			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
 
+	/**
+	 * We set the adapter parameters for the list. The information which is to
+	 * be shown, where is it to be shown.
+	 */
 	@Override
 	void setAdapter() {
 		String[] from = { TasksContract.TasksTable.TASK_ID,
@@ -75,14 +103,18 @@ public class ActiveTasksFragment extends TasksFragment {
 
 	}
 
+	/**
+	 * Convenience method for launching a new task. When in portrait, it will
+	 * launch a new activity. When in landscape, it will replace the secondary
+	 * fragment with the choose task fragment.
+	 */
 	private void launchNewTask() {
 		if (isLandscape) {
 			ChooseTaskFragment fragment = new ChooseTaskFragment();
 			FragmentTransaction transaction = getActivity()
 					.getSupportFragmentManager().beginTransaction();
 			transaction.disallowAddToBackStack();
-			transaction.replace(R.id.main_activity_second_fragment,
-					fragment);
+			transaction.replace(R.id.main_activity_second_fragment, fragment);
 			transaction.commit();
 		} else {
 			Intent intent = new Intent(getActivity(), StartActivity.class);
@@ -92,6 +124,10 @@ public class ActiveTasksFragment extends TasksFragment {
 		}
 	}
 
+	/**
+	 * Convenience method for removing a task from the list. It calls the
+	 * service to try to cancel the task if possible.
+	 */
 	@Override
 	void removeTask(String taskId) {
 		Intent service = new Intent(getActivity(), TasksManagerService.class);

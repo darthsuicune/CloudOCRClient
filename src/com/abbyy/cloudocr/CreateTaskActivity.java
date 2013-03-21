@@ -3,12 +3,9 @@ package com.abbyy.cloudocr;
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.ActionBar.OnNavigationListener;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -25,7 +22,6 @@ import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 import com.abbyy.cloudocr.compat.ActionBarActivity;
-import com.abbyy.cloudocr.database.TasksContract;
 import com.abbyy.cloudocr.optionsfragments.ProcessBusinessCardOptionsFragment;
 import com.abbyy.cloudocr.optionsfragments.ProcessImageOptionsFragment;
 import com.abbyy.cloudocr.optionsfragments.ProcessOptionsFragment;
@@ -76,9 +72,10 @@ public class CreateTaskActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		if (prefs.getBoolean(SettingsActivity.IS_FIRST_RUN, true)) {
-			insertLanguages();
-			prefs.edit().putBoolean(SettingsActivity.IS_FIRST_RUN, false)
-					.commit();
+			if (makeFirstRun()) {
+				prefs.edit().putBoolean(SettingsActivity.IS_FIRST_RUN, false)
+						.commit();
+			}
 		}
 		setContentView(R.layout.create_task);
 		handleIncomingIntent();
@@ -104,12 +101,12 @@ public class CreateTaskActivity extends ActionBarActivity {
 	}
 
 	/**
-	 * The options menu will be handled by the fragments, not the activity.
-	 * Returning false means we haven't handled the menu.
+	 * We inflate the general activity menu, then pass it to the next receiver
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		return false;
+		getMenuInflater().inflate(R.menu.create_task_activity, menu);
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	/**
@@ -126,8 +123,13 @@ public class CreateTaskActivity extends ActionBarActivity {
 		case android.R.id.home:
 			NavUtils.navigateUpTo(this, new Intent(this, StartActivity.class));
 			return true;
+		case R.id.menu_settings:
+			Intent intent = new Intent(this, SettingsActivity.class);
+			startActivity(intent);
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
 		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	/**
@@ -313,37 +315,13 @@ public class CreateTaskActivity extends ActionBarActivity {
 	}
 
 	/**
-	 * This method launchs an async task that inserts all the required languages
-	 * into the database. It makes it out of the main thread so doesn't hinder
-	 * performance
+	 * Display a short message. Any first run action should be performed here.
+	 * 
+	 * @return true if the actions were performed correctly. false otherwise
 	 */
-	private void insertLanguages() {
+	private boolean makeFirstRun() {
 		Toast.makeText(this, R.string.first_run_message, Toast.LENGTH_SHORT)
 				.show();
-		new FirstRunTask().execute(null, null);
-	}
-
-	/**
-	 * The async task only loads the languages and finishes gracefully.
-	 * 
-	 * @author lapuente
-	 * 
-	 */
-	public class FirstRunTask extends AsyncTask<Void, Void, Void> {
-
-		@Override
-		protected Void doInBackground(Void... params) {
-			ContentResolver cr = getContentResolver();
-			String[] languagesList = getResources().getStringArray(
-					R.array.languages);
-			for (int i = 0; i < languagesList.length; i++) {
-				ContentValues values = new ContentValues();
-				values.put(TasksContract.LanguagesTable.LANGUAGE,
-						languagesList[i]);
-				cr.insert(TasksContract.CONTENT_LANGUAGES, values);
-			}
-			return null;
-		}
-
+		return true;
 	}
 }

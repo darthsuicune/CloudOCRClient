@@ -1,9 +1,12 @@
 package com.abbyy.cloudocr;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.abbyy.cloudocr.compat.ActionBarActivity;
 import com.abbyy.cloudocr.fragments.TaskDetailsFragment;
@@ -44,6 +47,32 @@ public class TaskDetailsActivity extends ActionBarActivity {
 					.beginTransaction();
 			ft.replace(R.id.task_details_container, fragment);
 			ft.commit();
+		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.task_details, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	/**
+	 * Manage the options selected on the action bar / menu
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		// Represents the logo icon. Upon press, would return to previous
+		// activity/view. Only used on portrait.
+		case android.R.id.home:
+			finish();
+			return true;
+		case R.id.menu_settings:
+			Intent intent = new Intent(this, SettingsActivity.class);
+			startActivity(intent);
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
 		}
 	}
 }

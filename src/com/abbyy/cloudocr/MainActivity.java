@@ -1,21 +1,19 @@
 package com.abbyy.cloudocr;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
+import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.abbyy.cloudocr.compat.CompatTab;
 import com.abbyy.cloudocr.compat.CompatTabListener;
 import com.abbyy.cloudocr.compat.TabCompatActivity;
 import com.abbyy.cloudocr.compat.TabHelper;
-import com.abbyy.cloudocr.database.TasksContract;
 import com.abbyy.cloudocr.fragments.ActiveTasksFragment;
 import com.abbyy.cloudocr.fragments.CompletedTasksFragment;
 
@@ -48,21 +46,38 @@ public class MainActivity extends TabCompatActivity {
 		super.onCreate(savedInstanceState);
 		prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		if (prefs.getBoolean(SettingsActivity.IS_FIRST_RUN, true)) {
-			insertLanguages();
-			prefs.edit().putBoolean(SettingsActivity.IS_FIRST_RUN, false)
-					.commit();
+			if (makeFirstRun()) {
+				prefs.edit().putBoolean(SettingsActivity.IS_FIRST_RUN, false)
+						.commit();
+			}
 		}
 		setContentView(R.layout.main_activity);
 		setTabs();
 	}
 
 	/**
-	 * Returning false tells the activity that we aren't managing the menu, it
-	 * is managed by the fragments
+	 * We create the options menu and pass the call to the next receivers
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		return false;
+		getMenuInflater().inflate(R.menu.activity_main, menu);
+	
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	/**
+	 * We manage the related activity options
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_settings:
+			Intent intent = new Intent(this, SettingsActivity.class);
+			startActivity(intent);
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	/**
@@ -142,8 +157,8 @@ public class MainActivity extends TabCompatActivity {
 			Fragment fragment = tab.getFragment();
 			if (fragment != null) {
 				ft.detach(fragment);
+				fragment.setHasOptionsMenu(false);
 			}
-			fragment.setHasOptionsMenu(false);
 		}
 
 		/**
@@ -196,37 +211,14 @@ public class MainActivity extends TabCompatActivity {
 	}
 
 	/**
-	 * Convenience method for just displaying a message and launching the first
-	 * run task
+	 * Convenience method for just displaying a message. Any other action to do
+	 * on the first run should be performed here.
+	 * 
+	 * @return true if the actions were performed correctly. false otherwise
 	 */
-	private void insertLanguages() {
+	private boolean makeFirstRun() {
 		Toast.makeText(this, R.string.first_run_message, Toast.LENGTH_SHORT)
 				.show();
-		new FirstRunTask().execute(null, null);
-	}
-
-	/**
-	 * 
-	 * Task in charge of making the loading of the languages into the database
-	 * 
-	 * @author Denis Lapuente
-	 * 
-	 */
-	public class FirstRunTask extends AsyncTask<Void, Void, Void> {
-
-		@Override
-		protected Void doInBackground(Void... params) {
-			ContentResolver cr = getContentResolver();
-			String[] languagesList = getResources().getStringArray(
-					R.array.languages);
-			for (int i = 0; i < languagesList.length; i++) {
-				ContentValues values = new ContentValues();
-				values.put(TasksContract.LanguagesTable.LANGUAGE,
-						languagesList[i]);
-				cr.insert(TasksContract.CONTENT_LANGUAGES, values);
-			}
-			return null;
-		}
-
+		return true;
 	}
 }

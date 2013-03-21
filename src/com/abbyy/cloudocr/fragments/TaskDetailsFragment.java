@@ -1,9 +1,5 @@
 package com.abbyy.cloudocr.fragments;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -15,9 +11,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -25,105 +18,128 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.abbyy.cloudocr.R;
-import com.abbyy.cloudocr.SettingsActivity;
 import com.abbyy.cloudocr.Task;
 import com.abbyy.cloudocr.TaskDetailsActivity;
 import com.abbyy.cloudocr.TasksManagerService;
 import com.abbyy.cloudocr.database.TasksContract;
 
-public class TaskDetailsFragment extends Fragment {
+/**
+ * This fragment shows the information with the download to the user. When the
+ * information about the file is present and the task is finished, it allows for
+ * download of the result.
+ * 
+ * @author Denis Lapuente
+ * 
+ */
+public class TaskDetailsFragment extends Fragment implements
+		LoaderCallbacks<Cursor> {
+	// Loader code for the task information. Useful if the service automatically
+	// updates the information
 	private static final int LOADER_TASK_INFO = 0;
-	private String mTaskId;
 
+	private String mTaskId;
 	private Task mTask;
 
-	Button mDownloadButton;
+	private Button mDownloadButton;
 
+	/**
+	 * Public constructor required for creation of a fragment through the
+	 * fragment manager
+	 */
 	public TaskDetailsFragment() {
 	}
 
+	/**
+	 * Called when the view for the fragment is first created. If the container
+	 * is null, it is being created outside the available views to the user so
+	 * we don't need to do anything else.
+	 * 
+	 * Returns the view of the fragment.
+	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+		if (container == null) {
+			return null;
+		}
 		return inflater.inflate(R.layout.task_details_fragment, container,
 				false);
 	}
 
+	/**
+	 * Called after onCreateView. Performs the initialization of the fragment.
+	 */
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		loadTaskData();
 	}
 
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.task_details, menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case android.R.id.home:
-			getActivity().finish();
-			break;
-		case R.id.menu_settings:
-			Intent intent = new Intent(getActivity(), SettingsActivity.class);
-			startActivity(intent);
-			break;
-		default:
-			return super.onOptionsItemSelected(item);
-		}
-		return true;
-	}
-
+	/**
+	 * Convenience method for loading the data of the task. If the ID is not we
+	 * first set it. Then get the information from the database.
+	 */
 	private void loadTaskData() {
 		if (mTaskId == null) {
 			mTaskId = getArguments().getString(
 					TaskDetailsActivity.EXTRA_TASK_ID);
-
-			getActivity().getSupportLoaderManager().initLoader(
-					LOADER_TASK_INFO, null, new TaskInfoHelper());
-		} else {
-			getActivity().getSupportLoaderManager().restartLoader(
-					LOADER_TASK_INFO, null, new TaskInfoHelper());
 		}
+		getActivity().getSupportLoaderManager().restartLoader(LOADER_TASK_INFO,
+				null, this);
 	}
 
-	private class TaskInfoHelper implements LoaderCallbacks<Cursor> {
+	// Implementation of the cursor callbacks for the loader call
 
-		@Override
-		public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-			Loader<Cursor> loader = null;
-			Uri uri = TasksContract.CONTENT_TASKS;
-			String selection = TasksContract.TasksTable.TASK_ID + "=?";
-			String[] selectionArgs = { mTaskId };
-			switch (id) {
-			case LOADER_TASK_INFO:
-				loader = new CursorLoader(getActivity(), uri, null, selection,
-						selectionArgs, null);
-				break;
-			}
-			return loader;
+	/**
+	 * Initialization of the cursor that will provide the information to the
+	 * user.
+	 */
+	@Override
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		Loader<Cursor> loader = null;
+		Uri uri = TasksContract.CONTENT_TASKS;
+		String selection = TasksContract.TasksTable.TASK_ID + "=?";
+		String[] selectionArgs = { mTaskId };
+		switch (id) {
+		case LOADER_TASK_INFO:
+			loader = new CursorLoader(getActivity(), uri, null, selection,
+					selectionArgs, null);
+			break;
 		}
-
-		@Override
-		public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-			mTask = new Task(cursor);
-			populateScreen();
-		}
-
-		@Override
-		public void onLoaderReset(Loader<Cursor> loader) {
-		}
-
+		return loader;
 	}
 
+	/**
+	 * When the loading is over, we populate a task with the cursor and then
+	 * show the information on screen.
+	 */
+	@Override
+	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+		mTask = new Task(cursor);
+		populateScreen();
+	}
+
+	/**
+	 * Called when the cursor is disposed. As nothing here is actively using the
+	 * cursor we can just omit this.
+	 */
+	@Override
+	public void onLoaderReset(Loader<Cursor> loader) {
+	}
+
+	/**
+	 * Convenience method for populating the screen.
+	 */
 	private void populateScreen() {
-		TextView taskIdView = (TextView) getActivity().findViewById(
-				R.id.task_details_task_id);
-		if(taskIdView == null){
+		mDownloadButton = (Button) getActivity().findViewById(
+				R.id.task_details_download);
+		// When this is null, the view is not being shown and thus we don't need
+		// any further processing.
+		if (mDownloadButton == null) {
 			return;
 		}
+		TextView taskIdView = (TextView) getActivity().findViewById(
+				R.id.task_details_task_id);
 		TextView descriptionView = (TextView) getActivity().findViewById(
 				R.id.task_details_description);
 		TextView statusView = (TextView) getActivity().findViewById(
@@ -140,8 +156,6 @@ public class TaskDetailsFragment extends Fragment {
 				.findViewById(R.id.task_details_estimated_processing_time);
 		TextView errorMessageView = (TextView) getActivity().findViewById(
 				R.id.task_details_error);
-		mDownloadButton = (Button) getActivity().findViewById(
-				R.id.task_details_download);
 
 		taskIdView.setText(getActivity().getString(R.string.details_task_id)
 				+ mTaskId);
@@ -164,15 +178,22 @@ public class TaskDetailsFragment extends Fragment {
 		statusChangeTimeView.setText(getActivity().getString(
 				R.string.details_status_change_time)
 				+ mTask.mStatusChangeDate);
+
+		// If the error message is not empty we show it. If it is empty we make
+		// it disappear
 		if (!TextUtils.isEmpty(mTask.mError)) {
+			errorMessageView.setVisibility(View.VISIBLE);
 			errorMessageView.setText(getActivity().getString(
 					R.string.details_error)
 					+ mTask.mError);
 		} else {
-			errorMessageView.setText(mTask.mResultUrl);
 			errorMessageView.setVisibility(View.GONE);
 		}
-		if (!TextUtils.isEmpty(mTask.mResultUrl)) {
+
+		// If we do have a result URL and it was uploaded from the device, it
+		// allows for download. If not, we hide the button.
+		if (!TextUtils.isEmpty(mTask.mResultUrl) && getExtension() != null
+				&& getFileName() != null) {
 
 			mDownloadButton.setVisibility(View.VISIBLE);
 			mDownloadButton.setOnClickListener(new OnClickListener() {
@@ -187,21 +208,31 @@ public class TaskDetailsFragment extends Fragment {
 
 	}
 
+	/**
+	 * Convenience method for downloading the file. It just calls the service
+	 * with the correct parameters
+	 */
 	private void makeDownload() {
-		String filePath = getFileName();
-		String fileType = getExtension();
 		Intent service = new Intent(getActivity(), TasksManagerService.class);
 		service.putExtra(TasksManagerService.EXTRA_ACTION,
 				TasksManagerService.ACTION_DOWNLOAD_RESULT);
 		service.putExtra(TasksManagerService.EXTRA_URL, mTask.mResultUrl);
-		service.putExtra(TasksManagerService.EXTRA_FILE_PATH, filePath);
-		service.putExtra(TasksManagerService.EXTRA_EXPORT_FORMAT, fileType);
+		service.putExtra(TasksManagerService.EXTRA_FILE_PATH, getFileName());
+		service.putExtra(TasksManagerService.EXTRA_EXPORT_FORMAT,
+				getExtension());
 		getActivity().startService(service);
 	}
 
+	/**
+	 * Convenience method for getting the result type of the task when
+	 * available.
+	 * 
+	 * @return a String containing the formatted extension (.<ext>) needed for
+	 *         saving the file
+	 */
 	private String getExtension() {
-		if(mTask.mResultType == null){
-			return ".pdf";
+		if (mTask.mResultType == null) {
+			return null;
 		}
 		if (mTask.mResultType.equals(getString(R.string.export_format_alto))) {
 			return ".alto.xml";
@@ -222,7 +253,7 @@ public class TaskDetailsFragment extends Fragment {
 			return ".pdf";
 		} else if (mTask.mResultType
 				.equals(getString(R.string.export_format_pptx))) {
-			return ".pttx";
+			return ".pptx";
 		} else if (mTask.mResultType
 				.equals(getString(R.string.export_format_rtf))) {
 			return ".rtf";
@@ -238,15 +269,20 @@ public class TaskDetailsFragment extends Fragment {
 		} else if (mTask.mResultType
 				.equals(getString(R.string.export_format_xslx))) {
 			return ".xslx";
-		} else {
-			return ".pdf";
 		}
+		return null;
 	}
 
+	/**
+	 * Convenience method for getting the filename when available. Used for
+	 * downloading of the result.
+	 * 
+	 * @return a String containing the original name of the file uploaded,
+	 *         without the original extension
+	 */
 	private String getFileName() {
 		if (mTask.mFileName == null) {
-			return new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.GERMANY)
-					.format(new Date());
+			return null;
 		}
 		String[] proj = { MediaStore.Images.Media.DATA };
 		CursorLoader loader = new CursorLoader(getActivity(),

@@ -3,6 +3,12 @@ package com.abbyy.cloudocr.database;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+/**
+ * The contract class implements constants useful for the communication with the database.
+ * 
+ * @author Denis Lapuente
+ *
+ */
 public class TasksContract {
 	public static final String DB_NAME = "tasks";
 	public static final int DB_VERSION = 1;

@@ -22,25 +22,39 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.abbyy.cloudocr.R;
-import com.abbyy.cloudocr.SettingsActivity;
 import com.abbyy.cloudocr.TaskDetailsActivity;
 import com.abbyy.cloudocr.TasksManagerService;
 import com.abbyy.cloudocr.database.TasksContract;
 
+/**
+ * Abstract class for the fragments that include a list of tasks. Includes the
+ * implementation of most methods, which are common to all of them.
+ * 
+ * @author Denis Lapuente
+ * 
+ */
 public abstract class TasksFragment extends ListFragment implements
 		LoaderCallbacks<Cursor> {
-
+	// The loaders we are using to load the tasks from the database
 	protected static final int LOADER_ACTIVE_TASKS = 1;
 	protected static final int LOADER_COMPLETED_TASKS = 2;
 
+	// Abstract methods to be implemented by the child objects
 	abstract void setAdapter();
 
 	abstract void removeTask(String id);
 
 	boolean isLandscape;
 
-	protected SimpleCursorAdapter mAdapter;
+	// Adapter for the list. Adapts the content of a cursor to the list format
+	// as defined in the setAdapter() method
+	TasksAdapter mAdapter;
 
+	/**
+	 * This is called when the activity is created or the fragment is added to
+	 * the activity for the first time. We just create the landscape boolean and
+	 * set the adapter for the list.
+	 */
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -48,6 +62,9 @@ public abstract class TasksFragment extends ListFragment implements
 		setAdapter();
 	}
 
+	/**
+	 * When we click on an item of the list, we show its details.
+	 */
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		String taskId = ((TextView) v.findViewById(R.id.task_list_item_task_id))
@@ -55,13 +72,21 @@ public abstract class TasksFragment extends ListFragment implements
 		showTaskDetails(taskId);
 	}
 
-	// TODO landscape
+	/**
+	 * Convenience method for showing the details of a task, specified its ID.
+	 * In portrait mode we will call a new activity. In landscape we will show
+	 * it on a different fragment.
+	 * 
+	 * @param taskId
+	 *            The id of the task to show.
+	 */
 	private void showTaskDetails(String taskId) {
 		if (isLandscape) {
 			TaskDetailsFragment fragment = new TaskDetailsFragment();
 			Bundle args = new Bundle();
 			args.putString(TaskDetailsActivity.EXTRA_TASK_ID, taskId);
 			fragment.setArguments(args);
+			fragment.setHasOptionsMenu(true);
 			FragmentTransaction ft = getFragmentManager().beginTransaction();
 			ft.replace(R.id.main_activity_second_fragment, fragment).commit();
 		} else {
@@ -71,6 +96,14 @@ public abstract class TasksFragment extends ListFragment implements
 		}
 	}
 
+	/**
+	 * Convenience method that launchs the update of the tasks. It calls the
+	 * service, which should update the database. The loader updates the cursor
+	 * automatically when the information in the database changes. The cursor
+	 * updates the adapter which updates the list automatically.
+	 * 
+	 * @param active
+	 */
 	void downloadTasks(boolean active) {
 		Intent service = new Intent(getActivity(), TasksManagerService.class);
 		if (active) {
@@ -83,11 +116,15 @@ public abstract class TasksFragment extends ListFragment implements
 		getActivity().startService(service);
 	}
 
-	void openSettings() {
-		Intent intent = new Intent(getActivity(), SettingsActivity.class);
-		startActivity(intent);
-	}
-
+	// Mandatory override methods for the loader callbacks.
+	/**
+	 * This method creates the loader to use by the loader manager. We ask to
+	 * the database for the information we want to show on the projection, set
+	 * the selection to the task ID passed as an argument in the args bundle and
+	 * create the corresponding loader.
+	 * 
+	 * It orders the list by the last status change time.
+	 */
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		Loader<Cursor> loader = null;
@@ -123,6 +160,12 @@ public abstract class TasksFragment extends ListFragment implements
 		return loader;
 	}
 
+	/**
+	 * When the load is finished, both the first time and every single time the
+	 * referenced data changes, this method is called. It will change the cursor
+	 * in the adapter to reflect the changes. If we don't have any active task,
+	 * we cancel automatically the notification being shown.
+	 */
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		mAdapter.swapCursor(cursor);
@@ -134,11 +177,18 @@ public abstract class TasksFragment extends ListFragment implements
 		}
 	}
 
+	/**
+	 * When the cursor is no longer required, we set the adapter cursor to null
+	 * to free system resources.
+	 */
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 		mAdapter.swapCursor(null);
 	}
 
+	/**
+	 * Convenience method for cancelling the working notification
+	 */
 	protected void cancelNotification() {
 		NotificationManager nm = (NotificationManager) getActivity()
 				.getSystemService(Activity.NOTIFICATION_SERVICE);
@@ -146,15 +196,43 @@ public abstract class TasksFragment extends ListFragment implements
 				TasksManagerService.TASKS_NOTIFICATION);
 	}
 
+	/**
+	 * 
+	 * Specific adapter to use on our lists. As we have a button that requires
+	 * an action (currently only an image), we need to at least override the
+	 * getView method to reflect this.
+	 * 
+	 * @author Denis Lapuente
+	 * 
+	 */
 	class TasksAdapter extends SimpleCursorAdapter {
 		boolean isActive;
 
+		/**
+		 * On the constructor we create a normal SimpleCursorAdapter and set a
+		 * variable to see if this is the active tasks list or the completed
+		 * tasks lists.
+		 * 
+		 * @param context
+		 * @param layout
+		 * @param c
+		 * @param from
+		 * @param to
+		 * @param flags
+		 * @param isActive
+		 *            true if this is the Active tasks fragment. false if it is
+		 *            the Completed tasks.
+		 */
 		public TasksAdapter(Context context, int layout, Cursor c,
 				String[] from, int[] to, int flags, boolean isActive) {
 			super(context, layout, c, from, to, flags);
 			this.isActive = isActive;
 		}
 
+		/**
+		 * This method is in charge of modifying each view from the list to add
+		 * an action to the image.
+		 */
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			View row = convertView;
