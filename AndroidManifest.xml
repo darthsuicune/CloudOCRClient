@@ -73,7 +73,7 @@
         <service android:name="com.abbyy.cloudocr.TasksManagerService" >
         </service>
 
-        <receiver android:name="com.abbyy.cloudocr.BootCompletedReceiver" >
+        <receiver android:name="com.abbyy.cloudocr.utils.BootCompletedReceiver" >
             <intent-filter >
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>

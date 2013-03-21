@@ -1,4 +1,6 @@
-package com.abbyy.cloudocr;
+package com.abbyy.cloudocr.utils;
+
+import com.abbyy.cloudocr.TasksManagerService;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

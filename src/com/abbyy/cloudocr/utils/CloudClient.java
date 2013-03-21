@@ -21,6 +21,8 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
+import com.abbyy.cloudocr.R;
+
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -93,21 +95,13 @@ public class CloudClient {
 	public Uri getFilePath() {
 		return mFilePath;
 	}
-	
-	public void setDownloadUrl(String url) throws MalformedURLException{
+
+	public void setDownloadUrl(String url) throws MalformedURLException {
 		mProcessType = DOWNLOAD_RESULT;
 		mUrl = new URL(url);
 	}
 
 	public InputStream makePetition() {
-		// String test =
-		// "<response><task id=\"c3187247-7e81-4d12-8767-bc886c1ab878\""
-		// +
-		// " registrationTime=\"2012-02-16T06:42:09Z\" statusChangeTime=\"2012-02-16T06:42:09Z\""
-		// +
-		// " status=\"Queued\" filesCount=\"1\"  credits=\"0\" estimatedProcessingTime=\"1\""
-		// + " description=\"Image.JPG to .pdf\" />    </response>";
-		// return test;
 		if (mUrl == null) {
 			return null;
 		}
@@ -164,8 +158,8 @@ public class CloudClient {
 	}
 
 	private void setupCredentials(DefaultHttpClient client) {
-		String appId = "BasicAndroidCloudOCRClient";
-		String password = "5QQQ0U/Wx+mnkIT51ZLiHREF";
+		String appId = mContext.getString(R.string.credentials_app_id);
+		String password = mContext.getString(R.string.credentials_app_password);
 
 		CredentialsProvider credentials = client.getCredentialsProvider();
 		credentials.setCredentials(AuthScope.ANY,
