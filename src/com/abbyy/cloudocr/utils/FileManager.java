@@ -18,7 +18,7 @@ import android.util.Log;
  * is dependant on the implementation, so unless using Gingerbread and no SD
  * card is available, it should work.
  * 
- * @author lapuente
+ * @author Denis Lapuente
  * 
  */
 public class FileManager {

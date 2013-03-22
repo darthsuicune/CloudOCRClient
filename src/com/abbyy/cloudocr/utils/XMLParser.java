@@ -17,6 +17,17 @@ import android.util.Xml;
  * entry of the hashmap is an attribute of the item, related to its value. The
  * Arraylist adds one item for each item on the XML
  * 
+ * WARNING: This is not a generic XML parser. This parser is only thought to
+ * parse XML streams in the form
+ * 
+ * <starttag> 
+ * <tag attr1="value1" attr2="value2"></tag> (also <tag />) 
+ * <tag... /> 
+ * </starttag>
+ * 
+ * This parser will not retrieve values inside the tags or explore tags
+ * recursively.
+ * 
  * @author Denis Lapuente
  * 
  */
@@ -34,14 +45,19 @@ public class XMLParser {
 	}
 
 	/**
-	 * This method will load the parser
+	 * This method will load the parser and initialize its values. Then start
+	 * the parsing to finally close the input stream.
 	 * 
-	 * @param parser
-	 *            XmlPullParser
+	 * @param startTag
+	 *            The tag which marks the start of the file
+	 * @param tag
+	 *            The inner tag of each element
+	 * @return ArrayList with the resulting parsed elements
 	 * @throws XmlPullParserException
+	 *             Exception thrown when an XML requirement is not met
 	 * @throws IOException
+	 *             Exception with issues with the Input Stream
 	 */
-
 	public ArrayList<HashMap<String, String>> parseData(String startTag,
 			String tag) throws XmlPullParserException, IOException {
 		mStartTag = startTag;
@@ -54,6 +70,17 @@ public class XMLParser {
 		return result;
 	}
 
+	/**
+	 * This method will parse the XML result and return it as an ArrayList of
+	 * different HashMaps containing the attributes and its related values.
+	 * 
+	 * @param parser the initialized XmlPullParser
+	 * @return ArrayList with the resulting parsed elements
+	 * @throws XmlPullParserException
+	 *             Exception thrown when an XML requirement is not met
+	 * @throws IOException
+	 *             Exception with issues with the Input Stream
+	 */
 	private ArrayList<HashMap<String, String>> parse(XmlPullParser parser)
 			throws XmlPullParserException, IOException {
 		ArrayList<HashMap<String, String>> result = new ArrayList<HashMap<String, String>>();

@@ -48,7 +48,7 @@ import com.abbyy.cloudocr.utils.XMLParser;
  * 
  * EXTRA_EXPORT_FORMAT: String with the export format.
  * 
- * @author lapuente
+ * @author Denis Lapuente
  * 
  */
 public class TasksManagerService extends IntentService {
@@ -158,10 +158,10 @@ public class TasksManagerService extends IntentService {
 	private boolean createNewTask(int create) {
 		switch (create) {
 		case R.string.process_business_card:
-			mURL = CloudClient.PROCESS_BUSINESS_CARD;
+			mURL = CloudClient.ACTION_PROCESS_BUSINESS_CARD;
 			return true;
 		case R.string.process_image:
-			mURL = CloudClient.PROCESS_IMAGE;
+			mURL = CloudClient.ACTION_PROCESS_IMAGE;
 			return true;
 		default:
 			return false;
@@ -177,9 +177,9 @@ public class TasksManagerService extends IntentService {
 	 */
 	private boolean refreshTasks(boolean isActive) {
 		if (isActive) {
-			mURL = CloudClient.GET_TASK_LIST;
+			mURL = CloudClient.ACTION_GET_TASK_LIST;
 		} else {
-			mURL = CloudClient.GET_FINISHED_TASK_LIST;
+			mURL = CloudClient.ACTION_GET_FINISHED_TASK_LIST;
 		}
 		return true;
 	}
@@ -196,7 +196,7 @@ public class TasksManagerService extends IntentService {
 	private boolean deleteTask(String taskId, boolean isActive) {
 		if (isActive) {
 			mArgs.putString(CloudClient.ARGUMENT_TASK_ID, taskId);
-			mURL = CloudClient.DELETE_TASK;
+			mURL = CloudClient.ACTION_DELETE_TASK;
 			return true;
 		} else {
 			String where = TasksContract.TasksTable.TASK_ID + "=?";

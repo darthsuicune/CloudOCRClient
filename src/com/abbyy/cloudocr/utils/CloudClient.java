@@ -1,6 +1,5 @@
 package com.abbyy.cloudocr.utils;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -21,29 +20,38 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
-import com.abbyy.cloudocr.R;
-
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 
+import com.abbyy.cloudocr.R;
+
+/**
+ * Client implementation. Handles the connection to the web service.
+ * 
+ * @author Denis Lapuente
+ * 
+ */
 public class CloudClient {
 	private static final String BASE_URL = "http://cloud.ocrsdk.com/";
 
-	public static final String GET_TASK_LIST = "listTasks";
-	public static final String GET_FINISHED_TASK_LIST = "listFinishedTasks";
-	public static final String PROCESS_IMAGE = "processImage";
-	public static final String PROCESS_SUBMIT_IMAGE = "submitImage";
-	public static final String PROCESS_DOCUMENT = "processDocument";
-	public static final String PROCESS_BUSINESS_CARD = "processBusinessCard";
-	public static final String PROCESS_TEXT_FIELD = "processTextField";
-	public static final String PROCESS_BARCODE_FIELD = "processBarcodeField";
-	public static final String PROCESS_CHECKMARK_FIELD = "processCheckmarkField";
-	public static final String PROCESS_FIELDS = "processFields";
-	public static final String GET_TASK_STATUS = "getTaskStatus";
-	public static final String DELETE_TASK = "deleteTask";
-	public static final String DOWNLOAD_RESULT = "downloadResult";
+	// This are all the available options for the web service.
+	public static final String ACTION_GET_TASK_LIST = "listTasks";
+	public static final String ACTION_GET_FINISHED_TASK_LIST = "listFinishedTasks";
+	public static final String ACTION_PROCESS_IMAGE = "processImage";
+	public static final String ACTION_PROCESS_SUBMIT_IMAGE = "submitImage";
+	public static final String ACTION_PROCESS_DOCUMENT = "processDocument";
+	public static final String ACTION_PROCESS_BUSINESS_CARD = "processBusinessCard";
+	public static final String ACTION_PROCESS_TEXT_FIELD = "processTextField";
+	public static final String ACTION_PROCESS_BARCODE_FIELD = "processBarcodeField";
+	public static final String ACTION_PROCESS_CHECKMARK_FIELD = "processCheckmarkField";
+	public static final String ACTION_PROCESS_FIELDS = "processFields";
+	public static final String ACTION_GET_TASK_STATUS = "getTaskStatus";
+	public static final String ACTION_DELETE_TASK = "deleteTask";
+	public static final String ACTION_DOWNLOAD_RESULT = "downloadResult";
 
+	// This are all the options available for the different actions. Not all are
+	// available for all!!!
 	public static final String ARGUMENT_LANGUAGE = "language";
 	public static final String ARGUMENT_PROFILE = "profile";
 	public static final String ARGUMENT_TEXT_TYPE = "textType";
@@ -74,33 +82,77 @@ public class CloudClient {
 
 	private Context mContext;
 
+	/**
+	 * Constructor for the client.
+	 * 
+	 * @param context
+	 *            Required context to make the connection and access the
+	 *            different resources
+	 */
 	public CloudClient(Context context) {
 		mContext = context;
 	}
 
+	/**
+	 * Method that will set the correct URL in its place for the required
+	 * processing type. If arguments are passed they are parsed so the final URL
+	 * has also the arguments
+	 * 
+	 * WARNING!: This method is MANDATORY before the petition is done. If it is
+	 * not called, the method will return null and make no petition
+	 * 
+	 * @param processType
+	 *            one of the public ACTION_* elements. Tells the cloud SDK what
+	 *            action to perform
+	 * @param args
+	 *            arguments for the method call.
+	 * @throws MalformedURLException
+	 *             if the URL passed is not correct MalformedURLException will
+	 *             be thrown
+	 */
 	public void setUrl(String processType, Bundle args)
 			throws MalformedURLException {
 		mProcessType = processType;
 		String url = BASE_URL + processType;
 		if (args != null) {
-			url = url + "?" + createArgs(args);
+			url = url + createArgs(args);
 		}
 		mUrl = new URL(url);
 	}
 
+	/**
+	 * When trying to process a file, the Filepath should be specified here. It
+	 * can be processed both as a file:// or a content://
+	 * 
+	 * @param filePath
+	 *            the path to the file.
+	 */
 	public void setFilePath(String filePath) {
 		mFilePath = Uri.parse(filePath);
 	}
 
-	public Uri getFilePath() {
-		return mFilePath;
-	}
-
+	/**
+	 * Convenience method for downloading results. It is included here as it
+	 * should still be part of the cloud client, but it is not any of the cloud
+	 * available actions.
+	 * 
+	 * @param url
+	 *            The url provided by the cloud sdk with the result file.
+	 * @throws MalformedURLException
+	 *             if the URL passed is not correct MalformedURLException will
+	 *             be thrown
+	 */
 	public void setDownloadUrl(String url) throws MalformedURLException {
-		mProcessType = DOWNLOAD_RESULT;
+		mProcessType = ACTION_DOWNLOAD_RESULT;
 		mUrl = new URL(url);
 	}
 
+	/**
+	 * Main method for the class. Will make the request to the cloud and return
+	 * the response, whatever it is.
+	 * 
+	 * @return InputStream with the response from the server.
+	 */
 	public InputStream makePetition() {
 		if (mUrl == null) {
 			return null;
@@ -109,11 +161,15 @@ public class CloudClient {
 		DefaultHttpClient httpClient = createHttpClient();
 
 		try {
+			// The cloud server uses both GET and POST requests based on the
+			// type of action performed
 			HttpUriRequest request;
 
 			if (isGet()) {
 				request = new HttpGet(mUrl.toExternalForm());
 			} else {
+				// For posts requests, a file must be added to be sent and
+				// processed. If the file is not present, we just exit
 				HttpPost postRequest = new HttpPost(mUrl.toExternalForm());
 				if (mFilePath != null) {
 					addFile(postRequest);
@@ -123,8 +179,13 @@ public class CloudClient {
 				request = postRequest;
 			}
 
+			// When everything is set, execute the response and return the
+			// content.
 			HttpResponse response = httpClient.execute(request);
 			return response.getEntity().getContent();
+
+			// If any exception happens, we won't do anything and just return a
+			// null response, as it will be a server error.
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -133,8 +194,16 @@ public class CloudClient {
 		return null;
 	}
 
-	private void addFile(HttpPost request) throws FileNotFoundException,
-			IOException {
+	/**
+	 * 
+	 * Adds a file to process to a request.
+	 * 
+	 * @param request
+	 *            the HttpPost request object where we should add the file
+	 * @throws IOException
+	 *             when there are problems when trying to open the file.
+	 */
+	private void addFile(HttpPost request) throws IOException {
 		InputStreamEntity entity = null;
 		entity = new InputStreamEntity(mContext.getContentResolver()
 				.openInputStream(mFilePath), -1);
@@ -144,12 +213,22 @@ public class CloudClient {
 		request.setEntity(bufferedEntity);
 	}
 
+	/**
+	 * Creates and sets up the web client that will connect to the server
+	 * 
+	 * @return DefaultHttpClient with the credentials and parameters ready
+	 */
 	private DefaultHttpClient createHttpClient() {
 		DefaultHttpClient client = new DefaultHttpClient(setHttpParams());
 		setupCredentials(client);
 		return client;
 	}
 
+	/**
+	 * Sets the HttpParams object for the HttpClient
+	 * 
+	 * @return HttpParams containing the wanted parameters
+	 */
 	private HttpParams setHttpParams() {
 		HttpParams httpParams = new BasicHttpParams();
 		HttpConnectionParams.setConnectionTimeout(httpParams, 10000);
@@ -157,6 +236,13 @@ public class CloudClient {
 		return httpParams;
 	}
 
+	/**
+	 * Convenience method that sets up the credentials for the connection. The
+	 * credentials are stored in the credentials.xml file under res/values
+	 * 
+	 * @param client
+	 *            the HttpClient where the credentials should be added
+	 */
 	private void setupCredentials(DefaultHttpClient client) {
 		String appId = mContext.getString(R.string.credentials_app_id);
 		String password = mContext.getString(R.string.credentials_app_password);
@@ -167,17 +253,30 @@ public class CloudClient {
 		client.setCredentialsProvider(credentials);
 	}
 
+	/**
+	 * Convenience method to check if the request is of the GET Type or the POST
+	 * type
+	 * 
+	 * @return true if is a GET petition. false if is a POST petition
+	 */
 	private boolean isGet() {
-		return mProcessType.equals(PROCESS_DOCUMENT)
-				|| mProcessType.equals(GET_TASK_STATUS)
-				|| mProcessType.equals(DELETE_TASK)
-				|| mProcessType.equals(GET_TASK_LIST)
-				|| mProcessType.equals(GET_FINISHED_TASK_LIST)
-				|| mProcessType.equals(DOWNLOAD_RESULT);
+		return mProcessType.equals(ACTION_PROCESS_DOCUMENT)
+				|| mProcessType.equals(ACTION_GET_TASK_STATUS)
+				|| mProcessType.equals(ACTION_DELETE_TASK)
+				|| mProcessType.equals(ACTION_GET_TASK_LIST)
+				|| mProcessType.equals(ACTION_GET_FINISHED_TASK_LIST)
+				|| mProcessType.equals(ACTION_DOWNLOAD_RESULT);
 	}
 
+	/**
+	 * This method parses the options that have been provided and adds them as
+	 * an argument to the client petition
+	 * 
+	 * @param args Bundle with the options.
+	 * @return The whole string with all the options
+	 */
 	private String createArgs(Bundle args) {
-		String result = "";
+		String result = "?";
 		if (args.containsKey(ARGUMENT_DESCRIPTION)) {
 			result = result.concat(ARGUMENT_DESCRIPTION + "="
 					+ args.getString(ARGUMENT_DESCRIPTION) + "&");
