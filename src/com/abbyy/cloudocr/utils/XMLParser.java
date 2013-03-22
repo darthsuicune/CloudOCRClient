@@ -12,6 +12,14 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import android.util.Xml;
 
+/**
+ * Basic XML Parser that returns an ArrayList of HashMap<String,String>. Each
+ * entry of the hashmap is an attribute of the item, related to its value. The
+ * Arraylist adds one item for each item on the XML
+ * 
+ * @author Denis Lapuente
+ * 
+ */
 public class XMLParser {
 	private InputStream mInput;
 	private String mStartTag;
@@ -64,7 +72,7 @@ public class XMLParser {
 					item.put(parser.getAttributeName(i), value);
 				}
 				result.add(item);
-				if(parser.next() != XmlPullParser.END_TAG){
+				if (parser.next() != XmlPullParser.END_TAG) {
 					break;
 				}
 			}

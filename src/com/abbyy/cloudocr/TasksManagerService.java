@@ -15,6 +15,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -218,14 +219,16 @@ public class TasksManagerService extends IntentService {
 			e.printStackTrace();
 			return;
 		}
+
 		File exportFile = FileManager.getOutputDownloadFile(
 				mArgs.getString(EXTRA_FILE_PATH),
 				mArgs.getString(EXTRA_EXPORT_FORMAT));
-
-		showDownloadNotification(true, Uri.fromFile(exportFile));
-		InputStream inputStream = mClient.makePetition();
-		FileManager.exportFile(inputStream, exportFile);
-		showDownloadNotification(false, Uri.fromFile(exportFile));
+		if (exportFile != null) {
+			showDownloadNotification(true, Uri.fromFile(exportFile));
+			InputStream inputStream = mClient.makePetition();
+			FileManager.exportFile(inputStream, exportFile);
+			showDownloadNotification(false, Uri.fromFile(exportFile));
+		}
 	}
 
 	/**
@@ -315,6 +318,14 @@ public class TasksManagerService extends IntentService {
 			builder.setContentIntent(pendingIntent).setAutoCancel(true)
 					.setOngoing(false).setContentTitle("Download finished!")
 					.setContentText("Click here to open the downloaded file");
+		} else {
+			// On versions prior to honeycomb, the pending intent is required
+			// in order to create a notification
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+				PendingIntent pendingIntent = PendingIntent.getActivity(this,
+						REQUEST_SHOW_RESULT, new Intent(), 0);
+				builder.setContentIntent(pendingIntent);
+			}
 		}
 		nm.notify(DOWNLOAD_NOTIFICATION, builder.build());
 	}
