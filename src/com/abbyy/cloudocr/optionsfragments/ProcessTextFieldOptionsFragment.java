@@ -1,5 +1,11 @@
 package com.abbyy.cloudocr.optionsfragments;
 
+/**
+ * PLACEHOLDER
+ * 
+ * @author Denis Lapuente
+ * 
+ */
 public class ProcessTextFieldOptionsFragment extends ProcessOptionsFragment {
 
 	@Override
@@ -23,6 +29,6 @@ public class ProcessTextFieldOptionsFragment extends ProcessOptionsFragment {
 	@Override
 	void launchTask() {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

@@ -1,32 +1,16 @@
 package com.abbyy.cloudocr.optionsfragments;
 
-import com.abbyy.cloudocr.R;
-
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
+/**
+ * PLACEHOLDER
+ * @author Denis Lapuente
+ *
+ */
 public class ProcessMultipleOptionsFragment extends ProcessOptionsFragment {
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.process_image_fragment, container,
-				false);
-	}
-
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-	}
-
-	@Override
 	public boolean saveDefaultOptions() {
-		SharedPreferences.Editor editor = prefs.edit();
 		// TODO Auto-generated method stub
-		return editor.commit();
+		return true;
 	}
 
 	@Override
@@ -43,6 +27,6 @@ public class ProcessMultipleOptionsFragment extends ProcessOptionsFragment {
 
 	@Override
 	void launchTask() {
-		
+		// TODO Auto-generated method stub
 	}
 }

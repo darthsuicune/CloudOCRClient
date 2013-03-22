@@ -1,5 +1,10 @@
 package com.abbyy.cloudocr.optionsfragments;
 
+/**
+ * PLACEHOLDER
+ * @author Denis Lapuente
+ *
+ */
 public class ProcessCheckmarkFieldOptionsFragment extends
 		ProcessOptionsFragment {
 
