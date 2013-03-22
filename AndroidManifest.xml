@@ -34,7 +34,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.abbyy.cloudocr.StartActivity"
+            android:name="com.abbyy.cloudocr.ChooseTaskActivity"
             android:label="@string/app_name" >
         </activity>
         <activity

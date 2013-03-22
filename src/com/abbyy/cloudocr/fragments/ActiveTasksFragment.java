@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 import com.abbyy.cloudocr.CreateTaskActivity;
 import com.abbyy.cloudocr.R;
 import com.abbyy.cloudocr.SettingsActivity;
-import com.abbyy.cloudocr.StartActivity;
+import com.abbyy.cloudocr.ChooseTaskActivity;
 import com.abbyy.cloudocr.TasksManagerService;
 import com.abbyy.cloudocr.database.TasksContract;
 
@@ -117,7 +117,7 @@ public class ActiveTasksFragment extends TasksFragment {
 			transaction.replace(R.id.main_activity_second_fragment, fragment);
 			transaction.commit();
 		} else {
-			Intent intent = new Intent(getActivity(), StartActivity.class);
+			Intent intent = new Intent(getActivity(), ChooseTaskActivity.class);
 			intent.putExtra(CreateTaskActivity.EXTRA_PROCESS_MODE,
 					SettingsActivity.PROCESSING_MODE_IMAGE);
 			startActivity(intent);

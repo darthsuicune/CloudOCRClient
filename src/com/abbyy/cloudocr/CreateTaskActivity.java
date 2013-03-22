@@ -28,7 +28,7 @@ import com.abbyy.cloudocr.optionsfragments.ProcessOptionsFragment;
 
 /**
  * This activity is called when the user is in LANDSCAPE MODE if the previous
- * activity was the "StartActivity". It is always called from StartActivity in
+ * activity was the "ChooseTaskActivity". It is always called from ChooseTaskActivity in
  * PORTRAIT MODE
  * 
  * It is in charge of 3 different actions: Entry point from image-sharing.
@@ -121,7 +121,7 @@ public class CreateTaskActivity extends ActionBarActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case android.R.id.home:
-			NavUtils.navigateUpTo(this, new Intent(this, StartActivity.class));
+			NavUtils.navigateUpTo(this, new Intent(this, ChooseTaskActivity.class));
 			return true;
 		case R.id.menu_settings:
 			Intent intent = new Intent(this, SettingsActivity.class);

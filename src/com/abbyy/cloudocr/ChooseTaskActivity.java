@@ -20,7 +20,7 @@ import com.abbyy.cloudocr.fragments.ChooseTaskFragment;
  * @author Denis Lapuente
  * 
  */
-public class StartActivity extends ActionBarActivity {
+public class ChooseTaskActivity extends ActionBarActivity {
 
 	@SuppressLint("NewApi")
 	@Override
@@ -63,7 +63,7 @@ public class StartActivity extends ActionBarActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case android.R.id.home:
-			NavUtils.navigateUpTo(this, new Intent(this, StartActivity.class));
+			NavUtils.navigateUpTo(this, new Intent(this, ChooseTaskActivity.class));
 			return true;
 		case R.id.menu_settings:
 			Intent intent = new Intent(this, SettingsActivity.class);

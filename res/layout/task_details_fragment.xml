@@ -58,16 +58,11 @@
         android:layout_height="wrap_content"
         android:textIsSelectable="true" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/details_result_url"
-        android:textIsSelectable="true" />
-    
-    <Button 
+    <Button
         android:id="@+id/task_details_download"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/download"/>
+        android:text="@string/download"
+        android:visibility="gone" />
 
 </LinearLayout>
