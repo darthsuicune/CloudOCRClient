@@ -21,3 +21,8 @@ local.properties
 
 # Old source
 oldsrc/
+
+# Temporal text files
+*~
+*kate-swp
+

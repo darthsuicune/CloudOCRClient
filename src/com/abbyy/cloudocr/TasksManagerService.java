@@ -307,17 +307,23 @@ public class TasksManagerService extends IntentService {
 				this);
 
 		builder.setSmallIcon(R.drawable.abbyy_logo)
-				.setContentTitle(getString(R.string.notification_title))
-				.setContentText(getString(R.string.notification_message))
+				.setContentTitle(
+						getString(R.string.downloading_notification_title))
+				.setContentText(
+						getString(R.string.downloading_notification_message))
 				.setAutoCancel(false).setOngoing(true);
 
 		if (!inProgress) {
 			Intent intent = new Intent(Intent.ACTION_VIEW, fileUri);
 			PendingIntent pendingIntent = PendingIntent.getActivity(this,
 					REQUEST_SHOW_RESULT, intent, 0);
-			builder.setContentIntent(pendingIntent).setAutoCancel(true)
-					.setOngoing(false).setContentTitle("Download finished!")
-					.setContentText("Click here to open the downloaded file");
+			builder.setContentIntent(pendingIntent)
+					.setAutoCancel(true)
+					.setOngoing(false)
+					.setContentTitle(
+							getString(R.string.downloaded_notification_title))
+					.setContentText(
+							getString(R.string.downloaded_notification_message));
 		} else {
 			// On versions prior to honeycomb, the pending intent is required
 			// in order to create a notification
@@ -343,8 +349,8 @@ public class TasksManagerService extends IntentService {
 				REQUEST_ACTIVE_TASKS, intent, Intent.FLAG_ACTIVITY_NEW_TASK);
 
 		builder.setSmallIcon(R.drawable.abbyy_logo)
-				.setContentTitle(getString(R.string.notification_title))
-				.setContentText(getString(R.string.notification_message))
+				.setContentTitle(getString(R.string.processing_notification_title))
+				.setContentText(getString(R.string.processing_notification_message))
 				.setContentIntent(pendingIntent).setAutoCancel(false)
 				.setOngoing(true);
 

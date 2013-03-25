@@ -99,3 +99,4 @@ Credits:
 TODO:
   -Create multi-image process.
   -Add settings
+  -See TODO tags in files.

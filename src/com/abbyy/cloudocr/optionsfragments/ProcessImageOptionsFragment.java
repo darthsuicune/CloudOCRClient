@@ -397,7 +397,7 @@ public class ProcessImageOptionsFragment extends ProcessOptionsFragment
 						.toString())) {
 					Toast.makeText(
 							getActivity(),
-							languageView.getText().toString() + " "
+							languageView.getText().toString()
 									+ getString(R.string.added),
 							Toast.LENGTH_SHORT).show();
 					mAddLanguagesView.setText("");

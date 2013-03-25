@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="notification_message">" task running."</string>
-    <string name="notification_finished">"All tasks finished!"</string>
-    <string name="notification_title">"Processing…"</string>
+
+    <string name="processing_notification_message">" task running."</string>
+    <string name="processing_notification_title">"Processing…"</string>
+    <string name="downloading_notification_message">"Downloading the result into the downloads folder"</string>
+    <string name="downloading_notification_title">"Downloading result"</string>
+    <string name="downloaded_notification_message">"Result downloaded. Click here to open the file"</string>
+    <string name="downloaded_notification_title">"Download finished."</string>
+
 </resources>
