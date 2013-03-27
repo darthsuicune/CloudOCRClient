@@ -1,7 +1,6 @@
 package com.abbyy.cloudocr.utils;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -153,7 +152,7 @@ public class CloudClient {
 	 * 
 	 * @return InputStream with the response from the server.
 	 */
-	public InputStream makePetition() {
+	public HttpResponse makePetition() {
 		if (mUrl == null) {
 			return null;
 		}
@@ -181,8 +180,7 @@ public class CloudClient {
 
 			// When everything is set, execute the response and return the
 			// content.
-			HttpResponse response = httpClient.execute(request);
-			return response.getEntity().getContent();
+			return httpClient.execute(request);
 
 			// If any exception happens, we won't do anything and just return a
 			// null response, as it will be a server error.

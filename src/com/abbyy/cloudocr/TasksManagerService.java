@@ -1,12 +1,15 @@
 package com.abbyy.cloudocr;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.apache.http.HttpResponse;
 import org.xmlpull.v1.XmlPullParserException;
 
 import android.app.Activity;
@@ -19,6 +22,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 
 import com.abbyy.cloudocr.database.TasksContract;
 import com.abbyy.cloudocr.utils.CloudClient;
@@ -70,7 +74,6 @@ public class TasksManagerService extends IntentService {
 	public static final String EXTRA_TASK_ID = "taskId";
 	public static final String EXTRA_NEW_TASK_OPTIONS = "taskOptions";
 	public static final String EXTRA_URL = "url";
-	public static final String EXTRA_EXPORT_FORMAT = "exportFormat";
 
 	// Values for the EXTRA_ACTION extra.
 	public static final int ACTION_DELETE_ACTIVE_TASK = 1;
@@ -140,8 +143,13 @@ public class TasksManagerService extends IntentService {
 			if (needsConnection) {
 				try {
 					mClient.setUrl(mURL, mArgs);
-					parseResponse(mClient.makePetition());
+					parseResponse(mClient.makePetition().getEntity()
+							.getContent());
 				} catch (MalformedURLException e) {
+					e.printStackTrace();
+				} catch (IllegalStateException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
@@ -220,15 +228,46 @@ public class TasksManagerService extends IntentService {
 			return;
 		}
 
-		File exportFile = FileManager.getOutputDownloadFile(
-				mArgs.getString(EXTRA_FILE_PATH),
-				mArgs.getString(EXTRA_EXPORT_FORMAT));
-		if (exportFile != null) {
-			showDownloadNotification(true, Uri.fromFile(exportFile));
-			InputStream inputStream = mClient.makePetition();
-			FileManager.exportFile(inputStream, exportFile);
-			showDownloadNotification(false, Uri.fromFile(exportFile));
+		HttpResponse response = mClient.makePetition();
+		if (response.getStatusLine().getStatusCode() == 200) {
+			File exportFile = FileManager
+					.getOutputDownloadFile(parseFormat(response.getEntity()
+							.getContentType().getValue()));
+			if (exportFile != null) {
+				showDownloadNotification(true, Uri.fromFile(exportFile));
+
+				try {
+					FileManager.exportFile(response.getEntity().getContent(),
+							exportFile);
+				} catch (IllegalStateException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				showDownloadNotification(false, Uri.fromFile(exportFile));
+			}
+		} else { //More than probably, the link is dead.
+			
+			String result;
+			String line;
+			try {
+				BufferedReader br = new BufferedReader(new InputStreamReader(
+						response.getEntity().getContent()));
+				result = br.readLine();
+				while((line = br.readLine()) != null){
+					result = result.concat(line);
+				}
+				br.close();
+				Log.d("ERROR DOWNLOADING RESULT", result);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
 		}
+	}
+
+	private String parseFormat(String value) {
+		return "." + MimeTypeMap.getSingleton().getExtensionFromMimeType(value);
 	}
 
 	/**
@@ -270,9 +309,7 @@ public class TasksManagerService extends IntentService {
 		}
 		if (result != null) {
 			for (int i = 0; i < result.size(); i++) {
-				Task task = new Task(getBaseContext(), result.get(i),
-						mArgs.getString(EXTRA_FILE_PATH),
-						mArgs.getString(EXTRA_EXPORT_FORMAT));
+				Task task = new Task(getBaseContext(), result.get(i));
 				if (task.isActive()) {
 					updateNotificationStatus();
 				}
@@ -349,8 +386,10 @@ public class TasksManagerService extends IntentService {
 				REQUEST_ACTIVE_TASKS, intent, Intent.FLAG_ACTIVITY_NEW_TASK);
 
 		builder.setSmallIcon(R.drawable.abbyy_logo)
-				.setContentTitle(getString(R.string.processing_notification_title))
-				.setContentText(getString(R.string.processing_notification_message))
+				.setContentTitle(
+						getString(R.string.processing_notification_title))
+				.setContentText(
+						getString(R.string.processing_notification_message))
 				.setContentIntent(pendingIntent).setAutoCancel(false)
 				.setOngoing(true);
 

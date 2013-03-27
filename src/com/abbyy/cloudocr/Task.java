@@ -40,9 +40,7 @@ public class Task {
 	public String mEstimatedProcessingTime;
 	public String mDescription;
 	public String mResultUrl;
-	public String mResultType;
 	public String mError;
-	public String mFileName;
 
 	/**
 	 * Parameter constructor. Requires the context and a single parameter for
@@ -66,8 +64,7 @@ public class Task {
 	public Task(Context context, String taskId, String status,
 			String registrationTime, String statusChangeTime,
 			String filesCount, String credits, String estimatedProcessingTime,
-			String description, String resultUrl, String error, boolean isInDb,
-			String fileName, String resultType) {
+			String description, String resultUrl, String error, boolean isInDb) {
 		mContext = context;
 		this.isInDb = isInDb;
 		mTaskId = taskId;
@@ -80,8 +77,6 @@ public class Task {
 		mDescription = description;
 		mResultUrl = resultUrl;
 		mError = error;
-		mFileName = fileName;
-		mResultType = resultType;
 	}
 
 	/**
@@ -92,8 +87,7 @@ public class Task {
 	 * @param fileName
 	 * @param exportFormat
 	 */
-	public Task(Context context, HashMap<String, String> data, String fileName,
-			String exportFormat) {
+	public Task(Context context, HashMap<String, String> data) {
 		mContext = context;
 		mTaskId = data.get(context.getString(R.string.field_id));
 		mStatus = data.get(context.getString(R.string.field_status));
@@ -115,8 +109,6 @@ public class Task {
 		if (data.get(context.getString(R.string.field_error)) != null) {
 			mError = data.get(context.getString(R.string.field_error));
 		}
-		mFileName = fileName;
-		mResultType = exportFormat;
 	}
 
 	/**
@@ -149,10 +141,6 @@ public class Task {
 						.getColumnIndex(TasksContract.TasksTable.RESULT_URL));
 				mError = cursor.getString(cursor
 						.getColumnIndex(TasksContract.TasksTable.ERROR));
-				mFileName = cursor.getString(cursor
-						.getColumnIndex(TasksContract.TasksTable.FILENAME));
-				mResultType = cursor.getString(cursor
-						.getColumnIndex(TasksContract.TasksTable.RESULT_TYPE));
 
 				try {
 					mRegistrationDate = dateFormat.parse(mRegistrationTime);
@@ -243,12 +231,6 @@ public class Task {
 		if (mStatusChangeTime != null) {
 			values.put(TasksContract.TasksTable.STATUS_CHANGE_TIME,
 					mStatusChangeTime);
-		}
-		if (mFileName != null) {
-			values.put(TasksContract.TasksTable.FILENAME, mFileName);
-		}
-		if (mResultType != null) {
-			values.put(TasksContract.TasksTable.RESULT_TYPE, mResultType);
 		}
 		return values;
 	}

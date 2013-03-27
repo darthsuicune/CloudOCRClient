@@ -271,7 +271,6 @@ public class ProcessBusinessCardOptionsFragment extends ProcessOptionsFragment
 		Intent service = new Intent(getActivity(), TasksManagerService.class);
 		service.putExtra(TasksManagerService.EXTRA_FILE_PATH,
 				mFileUri.toString());
-		service.putExtra(TasksManagerService.EXTRA_EXPORT_FORMAT, mExportFormat);
 		service.putExtra(TasksManagerService.EXTRA_ACTION,
 				TasksManagerService.ACTION_CREATE_NEW_TASK);
 		service.putExtra(TasksManagerService.EXTRA_CREATE,

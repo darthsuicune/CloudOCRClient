@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -192,8 +191,7 @@ public class TaskDetailsFragment extends Fragment implements
 
 		// If we do have a result URL and it was uploaded from the device, it
 		// allows for download. If not, we hide the button.
-		if (!TextUtils.isEmpty(mTask.mResultUrl) && getExtension() != null
-				&& getFileName() != null) {
+		if (!TextUtils.isEmpty(mTask.mResultUrl)) {
 
 			mDownloadButton.setVisibility(View.VISIBLE);
 			mDownloadButton.setOnClickListener(new OnClickListener() {
@@ -217,82 +215,6 @@ public class TaskDetailsFragment extends Fragment implements
 		service.putExtra(TasksManagerService.EXTRA_ACTION,
 				TasksManagerService.ACTION_DOWNLOAD_RESULT);
 		service.putExtra(TasksManagerService.EXTRA_URL, mTask.mResultUrl);
-		service.putExtra(TasksManagerService.EXTRA_FILE_PATH, getFileName());
-		service.putExtra(TasksManagerService.EXTRA_EXPORT_FORMAT,
-				getExtension());
 		getActivity().startService(service);
-	}
-
-	/**
-	 * Convenience method for getting the result type of the task when
-	 * available.
-	 * 
-	 * @return a String containing the formatted extension (.<ext>) needed for
-	 *         saving the file
-	 */
-	private String getExtension() {
-		if (mTask.mResultType == null) {
-			return null;
-		}
-		if (mTask.mResultType.equals(getString(R.string.export_format_alto))) {
-			return ".alto.xml";
-		} else if (mTask.mResultType
-				.equals(getString(R.string.export_format_csv))) {
-			return ".csv";
-		} else if (mTask.mResultType
-				.equals(getString(R.string.export_format_docx))) {
-			return ".docx";
-		} else if (mTask.mResultType
-				.equals(getString(R.string.export_format_pdf_searchable))) {
-			return ".pdf";
-		} else if (mTask.mResultType
-				.equals(getString(R.string.export_format_pdf_text_and_images))) {
-			return ".pdf";
-		} else if (mTask.mResultType
-				.equals(getString(R.string.export_format_pdfa))) {
-			return ".pdf";
-		} else if (mTask.mResultType
-				.equals(getString(R.string.export_format_pptx))) {
-			return ".pptx";
-		} else if (mTask.mResultType
-				.equals(getString(R.string.export_format_rtf))) {
-			return ".rtf";
-		} else if (mTask.mResultType
-				.equals(getString(R.string.export_format_txt))) {
-			return ".txt";
-		} else if (mTask.mResultType
-				.equals(getString(R.string.export_format_vcard))) {
-			return ".vcf";
-		} else if (mTask.mResultType
-				.equals(getString(R.string.export_format_xml))) {
-			return ".xml";
-		} else if (mTask.mResultType
-				.equals(getString(R.string.export_format_xslx))) {
-			return ".xslx";
-		}
-		return null;
-	}
-
-	/**
-	 * Convenience method for getting the filename when available. Used for
-	 * downloading of the result.
-	 * 
-	 * @return a String containing the original name of the file uploaded,
-	 *         without the original extension
-	 */
-	private String getFileName() {
-		if (mTask.mFileName == null) {
-			return null;
-		}
-		String[] proj = { MediaStore.Images.Media.DATA };
-		CursorLoader loader = new CursorLoader(getActivity(),
-				Uri.parse(mTask.mFileName), proj, null, null, null);
-		Cursor cursor = loader.loadInBackground();
-		int column_index = cursor
-				.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-		cursor.moveToFirst();
-		String fullPath = cursor.getString(column_index);
-		return fullPath.substring(fullPath.lastIndexOf("/") + 1,
-				fullPath.lastIndexOf("."));
 	}
 }

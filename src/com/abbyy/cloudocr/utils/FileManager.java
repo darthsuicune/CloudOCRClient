@@ -90,9 +90,9 @@ public class FileManager {
 	 *            format for the filename. Obtained through the Service.
 	 * @return Uri pointing to the file where the download will be saved
 	 */
-	public static Uri getOutputDownloadFileUri(String filename,
-			String downloadFormat) {
-		return Uri.fromFile(getOutputDownloadFile(filename, downloadFormat));
+	public static Uri getOutputDownloadFileUri(String format) {
+
+		return Uri.fromFile(getOutputDownloadFile(format));
 	}
 
 	/**
@@ -105,19 +105,22 @@ public class FileManager {
 	 *            format for the filename. Obtained through the Service.
 	 * @return File object where the download will be saved
 	 */
-	public static File getOutputDownloadFile(String filename,
-			String downloadFormat) {
+	public static File getOutputDownloadFile(String format) {
 		if (!Environment.getExternalStorageState().equals(
 				Environment.MEDIA_MOUNTED)) {
 			return null;
 		}
-		File storageDir = getDefaultMediaFolder();
+		File storageDir = getDefaultDownloadFolder();
 
 		if (storageDir == null) {
 			return null;
 		}
-		return new File(storageDir.getPath() + File.separator + filename
-				+ downloadFormat);
+
+		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
+				Locale.GERMANY).format(new Date());
+		String fileName = "RESULT_" + timeStamp;
+		return new File(storageDir.getPath() + File.separator + fileName
+				+ format);
 	}
 
 	/**
@@ -131,6 +134,27 @@ public class FileManager {
 		File mediaStorageDir = new File(
 				Environment
 						.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+				FOLDER_NAME);
+		if (!mediaStorageDir.exists()) {
+			if (!mediaStorageDir.mkdirs()) {
+				Log.d("ABBYY Cloud OCR Client", "Failed to create folder");
+				return null;
+			}
+		}
+		return mediaStorageDir;
+	}
+
+	/**
+	 * Convenience method to retrieve the default media folder for the
+	 * application. It retrieves the default downloads folder and creates an
+	 * internal subfolder
+	 * 
+	 * @return File object pointing to the application media folder.
+	 */
+	private static File getDefaultDownloadFolder() {
+		File mediaStorageDir = new File(
+				Environment
+						.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
 				FOLDER_NAME);
 		if (!mediaStorageDir.exists()) {
 			if (!mediaStorageDir.mkdirs()) {

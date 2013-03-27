@@ -79,7 +79,10 @@ Workflows
       Per standard Android action, rotation of an activity will remain on the same activity, even if further fragments were shown. That is, if CreateTaskActivity is rotated, it will remain on that activity and not go back to MainActivity, which is the only activity shown on landscape mode.
       
     -Landscape
-      MainActivity is always shown. It is composed of two panes. Left pane shows the tabbed main activity. Click on a task will show its details in right pane. Click on create task will show the ChooseTaskFragment in right pane. Click on an option on the ChooseTaskFragment will replace it with the CreateTaskFragment
+      MainActivity is always shown. It is composed of two panes. Left pane shows the tabbed main activity. 
+	Click on a task will show its details in right pane. 
+	Click on create task will show the ChooseTaskFragment in right pane. 
+	Click on an option on the ChooseTaskFragment will replace it with the CreateTaskFragment
       
       Per standard Android action, rotation of an activity will remain on the same activity, even if further fragments were shown. That is, rotation from MainActivity will always lead to MainActivity.
       
