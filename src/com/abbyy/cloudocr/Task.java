@@ -120,6 +120,8 @@ public class Task {
 	public Task(Cursor cursor) {
 		if (cursor != null) {
 			if (cursor.moveToFirst()) {
+				mTaskId = cursor.getString(cursor
+						.getColumnIndex(TasksContract.TasksTable.TASK_ID));
 				mDescription = cursor.getString(cursor
 						.getColumnIndex(TasksContract.TasksTable.DESCRIPTION));
 				mStatus = cursor.getString(cursor

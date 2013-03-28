@@ -20,6 +20,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -153,6 +154,9 @@ public class CloudClient {
 	 * @return InputStream with the response from the server.
 	 */
 	public HttpResponse makePetition() {
+		if (!isConnected()) {
+			return null;
+		}
 		if (mUrl == null) {
 			return null;
 		}
@@ -190,6 +194,13 @@ public class CloudClient {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	private boolean isConnected() {
+		ConnectivityManager cm = (ConnectivityManager) mContext
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+		return cm.getActiveNetworkInfo().isConnected();
 	}
 
 	/**
@@ -270,7 +281,8 @@ public class CloudClient {
 	 * This method parses the options that have been provided and adds them as
 	 * an argument to the client petition
 	 * 
-	 * @param args Bundle with the options.
+	 * @param args
+	 *            Bundle with the options.
 	 * @return The whole string with all the options
 	 */
 	private String createArgs(Bundle args) {

@@ -214,6 +214,7 @@ public class TaskDetailsFragment extends Fragment implements
 		Intent service = new Intent(getActivity(), TasksManagerService.class);
 		service.putExtra(TasksManagerService.EXTRA_ACTION,
 				TasksManagerService.ACTION_DOWNLOAD_RESULT);
+		service.putExtra(TasksManagerService.EXTRA_TASK_ID, mTask.mTaskId);
 		service.putExtra(TasksManagerService.EXTRA_URL, mTask.mResultUrl);
 		getActivity().startService(service);
 	}

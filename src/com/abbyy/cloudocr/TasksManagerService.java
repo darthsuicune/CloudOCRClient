@@ -1,10 +1,8 @@
 package com.abbyy.cloudocr;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -131,7 +129,7 @@ public class TasksManagerService extends IntentService {
 				needsConnection = refreshTasks(false);
 				break;
 			case ACTION_DOWNLOAD_RESULT:
-				downloadResult();
+				downloadResult(mArgs.getString(EXTRA_URL));
 				return;
 			}
 
@@ -219,23 +217,25 @@ public class TasksManagerService extends IntentService {
 	 * Convenience method for downloading the results. Shows a notification that
 	 * sticks and does nothing and then changes it to an actual working
 	 * notification that opens the file.
+	 * 
+	 * If the link has expired, tries once to renew the link and redownload it.
 	 */
-	private void downloadResult() {
+	private void downloadResult(String downloadLink) {
 		try {
-			mClient.setDownloadUrl(mArgs.getString(EXTRA_URL));
+			mClient.setDownloadUrl(downloadLink);
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 			return;
 		}
 
 		HttpResponse response = mClient.makePetition();
-		if (response.getStatusLine().getStatusCode() == 200) {
+		if (response != null && response.getStatusLine().getStatusCode() == 200) {
+			String mimeType = response.getEntity().getContentType().getValue();
 			File exportFile = FileManager
-					.getOutputDownloadFile(parseFormat(response.getEntity()
-							.getContentType().getValue()));
+					.getOutputDownloadFile(getExtension(mimeType));
 			if (exportFile != null) {
-				showDownloadNotification(true, Uri.fromFile(exportFile));
-
+				showDownloadNotification(true, Uri.fromFile(exportFile),
+						mimeType);
 				try {
 					FileManager.exportFile(response.getEntity().getContent(),
 							exportFile);
@@ -244,30 +244,25 @@ public class TasksManagerService extends IntentService {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				showDownloadNotification(false, Uri.fromFile(exportFile));
-			}
-		} else { //More than probably, the link is dead.
-			
-			String result;
-			String line;
-			try {
-				BufferedReader br = new BufferedReader(new InputStreamReader(
-						response.getEntity().getContent()));
-				result = br.readLine();
-				while((line = br.readLine()) != null){
-					result = result.concat(line);
-				}
-				br.close();
-				Log.d("ERROR DOWNLOADING RESULT", result);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+				showDownloadNotification(false, Uri.fromFile(exportFile),
+						mimeType);
 
+			}
 		}
 	}
 
-	private String parseFormat(String value) {
-		return "." + MimeTypeMap.getSingleton().getExtensionFromMimeType(value);
+	private String getExtension(String mimeType) {
+		String result = MimeTypeMap.getSingleton().getExtensionFromMimeType(
+				mimeType);
+
+		if (result != null) {
+			return result;
+		} else {
+			if (mimeType.contains("rtf")) {
+				return "rtf";
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -330,7 +325,6 @@ public class TasksManagerService extends IntentService {
 	 * When the download is complete, we add an action to the notification to
 	 * show the file
 	 * 
-	 * TODO: Change messages.
 	 * 
 	 * @param inProgress
 	 *            boolean showing if the download is in progress or already
@@ -338,7 +332,8 @@ public class TasksManagerService extends IntentService {
 	 * @param fileUri
 	 *            the Uri containing the downloaded file
 	 */
-	private void showDownloadNotification(boolean inProgress, Uri fileUri) {
+	private void showDownloadNotification(boolean inProgress, Uri fileUri,
+			String mimeType) {
 		NotificationManager nm = (NotificationManager) getSystemService(Activity.NOTIFICATION_SERVICE);
 		NotificationCompat.Builder builder = new NotificationCompat.Builder(
 				this);
@@ -351,9 +346,16 @@ public class TasksManagerService extends IntentService {
 				.setAutoCancel(false).setOngoing(true);
 
 		if (!inProgress) {
-			Intent intent = new Intent(Intent.ACTION_VIEW, fileUri);
+
+			Intent intent = new Intent(Intent.ACTION_VIEW);
+			intent.setData(fileUri);
+			if (mimeType != null) {
+				intent.setType(mimeType);
+			}
+			Intent chooser = Intent.createChooser(intent,
+					fileUri.getLastPathSegment());
 			PendingIntent pendingIntent = PendingIntent.getActivity(this,
-					REQUEST_SHOW_RESULT, intent, 0);
+					REQUEST_SHOW_RESULT, chooser, PendingIntent.FLAG_UPDATE_CURRENT);
 			builder.setContentIntent(pendingIntent)
 					.setAutoCancel(true)
 					.setOngoing(false)

@@ -98,10 +98,7 @@ public class FileManager {
 	/**
 	 * Retrieves the file object where the downloaded file will be placed.
 	 * 
-	 * @param filename
-	 *            The filename where the file should be saved (no path, only
-	 *            filename)
-	 * @param downloadFormat
+	 * @param format
 	 *            format for the filename. Obtained through the Service.
 	 * @return File object where the download will be saved
 	 */
@@ -119,7 +116,7 @@ public class FileManager {
 		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
 				Locale.GERMANY).format(new Date());
 		String fileName = "RESULT_" + timeStamp;
-		return new File(storageDir.getPath() + File.separator + fileName
+		return new File(storageDir.getPath() + File.separator + fileName + "."
 				+ format);
 	}
 

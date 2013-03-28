@@ -42,6 +42,7 @@ public class CompletedTasksFragment extends TasksFragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		downloadTasks(false);
 		getActivity().getSupportLoaderManager().restartLoader(
 				LOADER_COMPLETED_TASKS, null, this);
 	}
