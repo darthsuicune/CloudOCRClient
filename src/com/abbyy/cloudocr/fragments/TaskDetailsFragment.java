@@ -160,7 +160,7 @@ public class TaskDetailsFragment extends Fragment implements
 				+ mTaskId);
 		descriptionView.setText(getActivity().getString(
 				R.string.details_description)
-				+ mTask.mDescription);
+				+ ((mTask.mDescription == null) ? "-" : mTask.mDescription));
 		statusView.setText(getActivity().getString(R.string.details_status)
 				+ mTask.mStatus);
 		registrationTimeView.setText(getActivity().getString(

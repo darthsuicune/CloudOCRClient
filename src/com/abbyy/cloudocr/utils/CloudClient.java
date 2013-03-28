@@ -51,7 +51,7 @@ public class CloudClient {
 	public static final String ACTION_DOWNLOAD_RESULT = "downloadResult";
 
 	// This are all the options available for the different actions. Not all are
-	// available for all!!!
+	// available for every action!!! See the API for this matter
 	public static final String ARGUMENT_LANGUAGE = "language";
 	public static final String ARGUMENT_PROFILE = "profile";
 	public static final String ARGUMENT_TEXT_TYPE = "textType";
