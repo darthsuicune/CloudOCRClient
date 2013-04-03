@@ -128,6 +128,10 @@ public class FileManager {
 	 * @return File object pointing to the application media folder.
 	 */
 	private static File getDefaultMediaFolder() {
+		if (!Environment.getExternalStorageState().equals(
+				Environment.MEDIA_MOUNTED)) {
+			return null;
+		}
 		File mediaStorageDir = new File(
 				Environment
 						.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
@@ -149,6 +153,10 @@ public class FileManager {
 	 * @return File object pointing to the application media folder.
 	 */
 	private static File getDefaultDownloadFolder() {
+		if (!Environment.getExternalStorageState().equals(
+				Environment.MEDIA_MOUNTED)) {
+			return null;
+		}
 		File mediaStorageDir = new File(
 				Environment
 						.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),

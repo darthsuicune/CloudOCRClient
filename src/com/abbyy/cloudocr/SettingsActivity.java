@@ -2,6 +2,7 @@ package com.abbyy.cloudocr;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
@@ -33,7 +34,7 @@ public class SettingsActivity extends ActionBarActivity {
 
 	/**
 	 * 
-	 * 
+	 * Gets the default options for a particular processing mode.
 	 * 
 	 * @param context
 	 * @param processingMode
@@ -61,6 +62,8 @@ public class SettingsActivity extends ActionBarActivity {
 	}
 
 	/**
+	 * 
+	 * Saves the default options for a particular processing mode.
 	 * 
 	 * @param context
 	 * @param processingMode
@@ -94,6 +97,21 @@ public class SettingsActivity extends ActionBarActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		if(Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB){
+			loadPreferencesHoneycomb();
+		} else {
+			loadPreferencesFroyo();
+		}
 		this.finish();
+	}
+
+	private void loadPreferencesHoneycomb() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void loadPreferencesFroyo() {
+		// TODO Auto-generated method stub
+		
 	}
 }
