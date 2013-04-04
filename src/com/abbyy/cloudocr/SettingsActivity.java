@@ -5,8 +5,11 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.annotation.TargetApi;
+import android.app.Fragment;
 
 import com.abbyy.cloudocr.compat.ActionBarActivity;
+import com.abbyy.cloudocr.fragments.PreferencesFragment;
 
 /**
  * Temporal stub for the settings activity. It also contains the constants used
@@ -28,6 +31,8 @@ public class SettingsActivity extends ActionBarActivity {
 	public static final String PREFERENCE_SAVE_TAB_DEFAULT = "saveTabDefault";
 	public static final String PREFERENCES_PROCESS_IMAGE = "processImageOptions";
 	public static final String PREFERENCES_PROCESS_BUSINESS_CARD = "processBusinessCardOptions";
+
+	public static final String PREFERENCE_SHOW_ONLY_FROM_DEVICE = "preference_show_only_from_device";
 
 	public static final String IS_FIRST_RUN = "isFirstRun";
 	public static final String SHOW_NOTIFICATION = "showNotification";
@@ -97,21 +102,26 @@ public class SettingsActivity extends ActionBarActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if(Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB){
+		setContentView(R.layout.settings_activity);
+		if (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB) {
 			loadPreferencesHoneycomb();
 		} else {
 			loadPreferencesFroyo();
 		}
-		this.finish();
+		// this.finish();
 	}
 
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void loadPreferencesHoneycomb() {
-		// TODO Auto-generated method stub
-		
+		Fragment fragment = Fragment.instantiate(getApplicationContext(),
+				PreferencesFragment.class.getName());
+
+		getFragmentManager().beginTransaction()
+				.replace(R.id.settings_fragment_container, fragment).commit();
 	}
 
 	private void loadPreferencesFroyo() {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

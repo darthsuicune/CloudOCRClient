@@ -85,6 +85,12 @@ public class ActiveTasksFragment extends TasksFragment {
 		}
 	}
 
+	@Override
+	public void onResume() {
+		getLoaderManager().restartLoader(LOADER_COMPLETED_TASKS, null, this);
+		super.onResume();
+	}
+
 	/**
 	 * We set the adapter parameters for the list. The information which is to
 	 * be shown, where is it to be shown.

@@ -73,6 +73,12 @@ public class CompletedTasksFragment extends TasksFragment {
 		}
 	}
 
+	@Override
+	public void onResume() {
+		getLoaderManager().restartLoader(LOADER_COMPLETED_TASKS, null, this);
+		super.onResume();
+	}
+
 	/**
 	 * Convenience method for deleting the whole list.
 	 */

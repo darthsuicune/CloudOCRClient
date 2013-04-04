@@ -41,6 +41,7 @@ public class Task {
 	public String mDescription;
 	public String mResultUrl;
 	public String mError;
+	public boolean isFromDevice;
 
 	/**
 	 * Parameter constructor. Requires the context and a single parameter for
@@ -143,6 +144,8 @@ public class Task {
 						.getColumnIndex(TasksContract.TasksTable.RESULT_URL));
 				mError = cursor.getString(cursor
 						.getColumnIndex(TasksContract.TasksTable.ERROR));
+				isFromDevice = (cursor.getInt(cursor
+						.getColumnIndex(TasksContract.TasksTable.FROM_DEVICE)) == 1);
 
 				try {
 					mRegistrationDate = dateFormat.parse(mRegistrationTime);
@@ -157,9 +160,11 @@ public class Task {
 	/**
 	 * Convenience method for inserting the data into the database.
 	 * 
+	 * @param isFromDevice
+	 * 
 	 * @return
 	 */
-	public boolean writeTaskToDb() {
+	public boolean writeTaskToDb(boolean isFromDevice) {
 		isInDb = checkDb();
 
 		Uri uri = TasksContract.CONTENT_TASKS;
@@ -167,13 +172,13 @@ public class Task {
 		if (isInDb) {
 			String where = TasksContract.TasksTable.TASK_ID + "=?";
 			String[] selectionArgs = { mTaskId };
-			int count = mContext.getContentResolver().update(uri, setValues(),
+			int count = mContext.getContentResolver().update(uri, setValues(false),
 					where, selectionArgs);
 			if (count < 1) {
 				return false;
 			}
 		} else {
-			mContext.getContentResolver().insert(uri, setValues());
+			mContext.getContentResolver().insert(uri, setValues(isFromDevice));
 		}
 		return isInDb;
 	}
@@ -201,7 +206,7 @@ public class Task {
 	 * 
 	 * @return
 	 */
-	private ContentValues setValues() {
+	private ContentValues setValues(boolean isFromDevice) {
 		ContentValues values = new ContentValues();
 		values.put(TasksContract.TasksTable.TASK_ID, mTaskId);
 		if (mCredits != null) {
@@ -233,6 +238,9 @@ public class Task {
 		if (mStatusChangeTime != null) {
 			values.put(TasksContract.TasksTable.STATUS_CHANGE_TIME,
 					mStatusChangeTime);
+		}
+		if (isFromDevice) {
+			values.put(TasksContract.TasksTable.FROM_DEVICE, true);
 		}
 		return values;
 	}

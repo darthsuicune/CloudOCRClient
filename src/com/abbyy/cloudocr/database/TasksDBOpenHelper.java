@@ -59,8 +59,7 @@ public class TasksDBOpenHelper extends SQLiteOpenHelper {
 				+ TasksContract.TasksTable.ESTIMATED_PROCESSING_TIME + text
 				+ TasksContract.TasksTable.FILES_COUNT + text
 				+ TasksContract.TasksTable.RESULT_URL + text
-				+ TasksContract.TasksTable.RESULT_TYPE + text
-				+ TasksContract.TasksTable.FILENAME + text
+				+ TasksContract.TasksTable.FROM_DEVICE + text
 				+ TasksContract.TasksTable.ERROR + " TEXT" + ")");
 
 		db.execSQL("CREATE TABLE " + TasksContract.LanguagesTable.TABLE_NAME

@@ -308,7 +308,9 @@ public class TasksManagerService extends IntentService {
 				if (task.isActive()) {
 					updateNotificationStatus();
 				}
-				task.writeTaskToDb();
+
+				boolean isFromDevice = (mArgs.getInt(EXTRA_ACTION) == ACTION_CREATE_NEW_TASK);
+				task.writeTaskToDb(isFromDevice);
 			}
 		} else if (error != null) {
 			Log.d("ERROR", "Error upon download: " + error);
@@ -355,7 +357,8 @@ public class TasksManagerService extends IntentService {
 			Intent chooser = Intent.createChooser(intent,
 					fileUri.getLastPathSegment());
 			PendingIntent pendingIntent = PendingIntent.getActivity(this,
-					REQUEST_SHOW_RESULT, chooser, PendingIntent.FLAG_UPDATE_CURRENT);
+					REQUEST_SHOW_RESULT, chooser,
+					PendingIntent.FLAG_UPDATE_CURRENT);
 			builder.setContentIntent(pendingIntent)
 					.setAutoCancel(true)
 					.setOngoing(false)

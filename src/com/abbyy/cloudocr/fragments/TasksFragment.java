@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -22,6 +24,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.abbyy.cloudocr.R;
+import com.abbyy.cloudocr.SettingsActivity;
 import com.abbyy.cloudocr.TaskDetailsActivity;
 import com.abbyy.cloudocr.TasksManagerService;
 import com.abbyy.cloudocr.database.TasksContract;
@@ -46,6 +49,8 @@ public abstract class TasksFragment extends ListFragment implements
 
 	boolean isLandscape;
 
+	SharedPreferences prefs;
+
 	// Adapter for the list. Adapts the content of a cursor to the list format
 	// as defined in the setAdapter() method
 	TasksAdapter mAdapter;
@@ -57,6 +62,9 @@ public abstract class TasksFragment extends ListFragment implements
 	 */
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
+		prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		PreferenceManager.setDefaultValues(getActivity(),
+				R.xml.preference_fragment, false);
 		super.onActivityCreated(savedInstanceState);
 		isLandscape = getActivity().getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
 		setAdapter();
@@ -127,7 +135,6 @@ public abstract class TasksFragment extends ListFragment implements
 	 */
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		Loader<Cursor> loader = null;
 		String[] projection = { TasksContract.TasksTable._ID,
 				TasksContract.TasksTable.TASK_ID,
 				TasksContract.TasksTable.REGISTRATION_TIME,
@@ -135,29 +142,54 @@ public abstract class TasksFragment extends ListFragment implements
 				TasksContract.TasksTable.STATUS,
 				TasksContract.TasksTable.FILES_COUNT };
 
-		String[] selectionArgs = { getActivity().getString(
-				R.string.status_completed) };
-
 		String sortOrder = TasksContract.TasksTable.STATUS_CHANGE_TIME
 				+ " DESC";
 
 		switch (id) {
 		case LOADER_ACTIVE_TASKS:
-			String activeSelection = TasksContract.TasksTable.STATUS + "!=?";
+			String activeSelection;
+			if (prefs.getBoolean(
+					SettingsActivity.PREFERENCE_SHOW_ONLY_FROM_DEVICE, true)) {
+				activeSelection = TasksContract.TasksTable.STATUS + "!=?";
+				String[] activeSelectionArgs = { getActivity().getString(
+						R.string.status_completed) };
+				return new CursorLoader(getActivity(),
+						TasksContract.CONTENT_TASKS, projection,
+						activeSelection, activeSelectionArgs, sortOrder);
+			} else {
+				activeSelection = TasksContract.TasksTable.STATUS + "!=? AND "
+						+ TasksContract.TasksTable.FROM_DEVICE + "=1";
+				String[] activeSelectionArgs = { getActivity().getString(
+						R.string.status_completed) };
+				return new CursorLoader(getActivity(),
+						TasksContract.CONTENT_TASKS, projection,
+						activeSelection, activeSelectionArgs, sortOrder);
 
-			loader = new CursorLoader(getActivity(),
-					TasksContract.CONTENT_TASKS, projection, activeSelection,
-					selectionArgs, sortOrder);
-			break;
+			}
 		case LOADER_COMPLETED_TASKS:
-			String completedSelection = TasksContract.TasksTable.STATUS + "=?";
+			String completedSelection;
+			if (prefs.getBoolean(
+					SettingsActivity.PREFERENCE_SHOW_ONLY_FROM_DEVICE, true)) {
+				completedSelection = TasksContract.TasksTable.STATUS
+						+ "=? AND " + TasksContract.TasksTable.FROM_DEVICE
+						+ "=1";
+				String[] completedSelectionArgs = { getActivity().getString(
+						R.string.status_completed) };
+				return new CursorLoader(getActivity(),
+						TasksContract.CONTENT_TASKS, projection,
+						completedSelection, completedSelectionArgs, sortOrder);
+			} else {
+				completedSelection = TasksContract.TasksTable.STATUS + "=?";
+				String[] completedSelectionArgs = { getActivity().getString(
+						R.string.status_completed) };
+				return new CursorLoader(getActivity(),
+						TasksContract.CONTENT_TASKS, projection,
+						completedSelection, completedSelectionArgs, sortOrder);
+			}
 
-			loader = new CursorLoader(getActivity(),
-					TasksContract.CONTENT_TASKS, projection,
-					completedSelection, selectionArgs, sortOrder);
-			break;
+		default:
+			return null;
 		}
-		return loader;
 	}
 
 	/**
