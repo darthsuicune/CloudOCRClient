@@ -1,14 +1,14 @@
 package com.abbyy.cloudocr;
 
+import android.annotation.TargetApi;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
-import android.annotation.TargetApi;
-import android.app.Fragment;
 
-import com.abbyy.cloudocr.compat.ActionBarActivity;
 import com.abbyy.cloudocr.fragments.PreferencesFragment;
 
 /**
@@ -18,7 +18,7 @@ import com.abbyy.cloudocr.fragments.PreferencesFragment;
  * @author Denis Lapuente
  * 
  */
-public class SettingsActivity extends ActionBarActivity {
+public class SettingsActivity extends PreferenceActivity {
 	public static final int PROCESSING_MODE_IMAGE = 0;
 	public static final int PROCESSING_MODE_BUSINESS_CARD = 1;
 	public static final int PROCESSING_MODE_MULTIPLE = 2;
@@ -121,7 +121,6 @@ public class SettingsActivity extends ActionBarActivity {
 	}
 
 	private void loadPreferencesFroyo() {
-		// TODO Auto-generated method stub
-
+		
 	}
 }

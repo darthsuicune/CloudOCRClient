@@ -182,8 +182,8 @@ public class CloudClient {
 				request = postRequest;
 			}
 
-			// When everything is set, execute the response and return the
-			// content.
+			// When everything is set, execute the request and return the
+			// response
 			return httpClient.execute(request);
 
 			// If any exception happens, we won't do anything and just return a
