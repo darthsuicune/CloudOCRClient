@@ -87,7 +87,7 @@ public class ActiveTasksFragment extends TasksFragment {
 
 	@Override
 	public void onResume() {
-		getLoaderManager().restartLoader(LOADER_COMPLETED_TASKS, null, this);
+		getLoaderManager().restartLoader(LOADER_ACTIVE_TASKS, null, this);
 		super.onResume();
 	}
 
